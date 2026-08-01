@@ -5,7 +5,8 @@
 ## 構成
 
 - `journal/` — フェーズごとの学習ジャーナル。何を学び、なぜその設計にしたか、自己確認の結果を記録する。ADR（Architecture Decision Record）的な性格も兼ねる。
-- `decisions/` — 設計判断のみを短く切り出した記録（ADR）。ジャーナルより粒度が細かく、「なぜこの実装にしたか」を後から検索しやすくするためのもの。実際のコードで判断が発生し始めるPhase 3以降から追加していく。
+- `decisions/` — 設計判断のみを短く切り出した記録（ADR）。ジャーナルより粒度が細かく、「なぜこの実装にしたか」を後から検索しやすくするためのもの。Phase 3から運用開始（[一覧](decisions/README.md)）。
+- `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Entity実装とFlywayマイグレーション（Phase 8）の両方の正となるドキュメント。
 - `api/` — API仕様書。Phase 4でControllerが揃い始めた段階から `springdoc-openapi` を導入し、自動生成されたOpenAPI定義とその補足説明を置く。
 
 ## 運用方針
@@ -18,4 +19,5 @@
 
 - Phase 1: Kotlin基礎（完了）
 - Phase 2: Spring Boot基礎の再確認（完了）
-- Phase 3: JPA/Hibernateでのドメインモデリング（次）
+- Phase 3: JPA/Hibernateでのドメインモデリング（完了）
+- Phase 4: Todo CRUD（認証なし）（次）
