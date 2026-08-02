@@ -20,4 +20,5 @@
 - Phase 1: Kotlin基礎（完了）
 - Phase 2: Spring Boot基礎の再確認（完了）
 - Phase 3: JPA/Hibernateでのドメインモデリング（完了）
-- Phase 4: Todo CRUD（認証なし）（次）
+- Phase 4: Todo CRUD（認証なし）（完了）
+- Phase 5: フィルタ/ソート/検索/ページネーション（次）
