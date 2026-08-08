@@ -11,10 +11,10 @@
 
 このディレクトリの`openapi.json`は、Phase 4完了時点（Todo CRUD実装後）のOpenAPI仕様のスナップショット。実装が進むたびに手動で最新化する想定（自動化はしていない）。
 
-再生成する場合:
+再生成する場合（リポジトリルートから実行、`gradlew` は `backend/` 配下にあるため subshell で cd する）:
 
 ```bash
-./gradlew bootRun &
+(cd backend && ./gradlew bootRun) &
 curl -s http://localhost:8080/v3/api-docs | python3 -m json.tool > docs/api/openapi.json
 ```
 
