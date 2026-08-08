@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: kotlin-todo-postgres
+    environment:
+      POSTGRES_USER: kotlin_todo
+      POSTGRES_PASSWORD: kotlin_todo
+      POSTGRES_DB: kotlin_todo
+    ports:
+      - "5432:5432"
+    volumes:
+      - kotlin-todo-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kotlin_todo -d kotlin_todo"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  kotlin-todo-pgdata:
