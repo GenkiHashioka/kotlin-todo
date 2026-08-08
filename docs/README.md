@@ -21,4 +21,6 @@
 - Phase 2: Spring Boot基礎の再確認（完了）
 - Phase 3: JPA/Hibernateでのドメインモデリング（完了）
 - Phase 4: Todo CRUD（認証なし）（完了）
-- Phase 5: フィルタ/ソート/検索/ページネーション（次）
+- Phase 4.5: モノレポ再編とKtor移行準備（完了）
+- Phase 4.6以降: Kotlin native スタック（Ktor + Exposed + PostgreSQL）への移植（次）
+- Phase 5: フィルタ/ソート/検索/ページネーション（Ktor移行完了後に再開）
