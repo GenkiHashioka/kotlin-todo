@@ -15,3 +15,5 @@
 | 0005 | [更新はPUT形式（全項目送信）とし、PATCH方式は採用しない](0005-update-uses-put-not-patch.md) |
 | 0006 | [DELETE成功時は204ではなく200+削除内容を返す](0006-delete-returns-200-with-body.md) |
 | 0007 | [認証機能ができるまでは固定ユーザーで代用する](0007-fixed-user-until-auth-exists.md) |
+| 0008 | [Spring Boot から Ktor へ移行する](0008-migrate-from-spring-to-ktor.md) |
+| 0009 | [モノレポ構成（backend/ と将来の frontend/）を採用する](0009-monorepo-structure.md) |
