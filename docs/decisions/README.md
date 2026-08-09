@@ -18,3 +18,4 @@
 | 0008 | [Spring Boot から Ktor へ移行する](0008-migrate-from-spring-to-ktor.md) |
 | 0009 | [モノレポ構成（backend/ と将来の frontend/）を採用する](0009-monorepo-structure.md) |
 | 0010 | [DB 移行（PostgreSQL + Flyway + Testcontainers 化）を Web フレームワーク移行より先に行う](0010-db-migration-before-framework-swap.md) |
+| 0011 | [スキーマ管理を Flyway に集約する（`ddl-auto=none`）](0011-flyway-for-schema-management.md) |
