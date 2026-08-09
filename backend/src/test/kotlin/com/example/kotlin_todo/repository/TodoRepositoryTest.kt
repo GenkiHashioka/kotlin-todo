@@ -1,5 +1,6 @@
 package com.example.kotlin_todo.repository
 
+import com.example.kotlin_todo.AbstractPostgresTest
 import com.example.kotlin_todo.domain.entity.Category
 import com.example.kotlin_todo.domain.entity.Todo
 import com.example.kotlin_todo.domain.entity.User
@@ -9,16 +10,18 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
 import java.time.LocalDate
 
 @DataJpaTest
-class TodoRepositoryTest(
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+open class TodoRepositoryTest(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val categoryRepository: CategoryRepository,
     @Autowired private val todoRepository: TodoRepository,
     @Autowired private val entityManager: TestEntityManager
-) {
+) : AbstractPostgresTest() {
     @Test
     fun `Todo,Category,Userの関連を正常に保存し取得できること`() {
         // Userのインスタンスを作成し、userRepository.save(user)の返り値を変数で取得
@@ -98,7 +101,7 @@ class TodoRepositoryTest(
         val initialUpdatedAt = savedTodo.updatedAt
 
         // 処理速度が早すぎて「同一ミリ秒」になるとテストが失敗するため、数ミリ秒だけ次の処理を待つ
-        Thread.sleep(10)
+        Thread.sleep(100)
 
         // savedTodoのtitleを書き換える
         savedTodo.title = "変更したタイトル"
