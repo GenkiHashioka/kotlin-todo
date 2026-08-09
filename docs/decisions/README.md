@@ -17,3 +17,4 @@
 | 0007 | [認証機能ができるまでは固定ユーザーで代用する](0007-fixed-user-until-auth-exists.md) |
 | 0008 | [Spring Boot から Ktor へ移行する](0008-migrate-from-spring-to-ktor.md) |
 | 0009 | [モノレポ構成（backend/ と将来の frontend/）を採用する](0009-monorepo-structure.md) |
+| 0010 | [DB 移行（PostgreSQL + Flyway + Testcontainers 化）を Web フレームワーク移行より先に行う](0010-db-migration-before-framework-swap.md) |
