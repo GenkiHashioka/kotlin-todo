@@ -20,3 +20,4 @@
 | 0010 | [DB 移行（PostgreSQL + Flyway + Testcontainers 化）を Web フレームワーク移行より先に行う](0010-db-migration-before-framework-swap.md) |
 | 0011 | [スキーマ管理を Flyway に集約する（`ddl-auto=none`）](0011-flyway-for-schema-management.md) |
 | 0012 | [統合テストで Testcontainers（実 PostgreSQL コンテナ）を使う](0012-testcontainers-for-integration-test.md) |
+| 0013 | [Gradle スクリプトを Groovy DSL から Kotlin DSL に切り替える](0013-kotlin-dsl-gradle.md) |
