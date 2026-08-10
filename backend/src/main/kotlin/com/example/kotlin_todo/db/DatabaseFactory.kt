@@ -24,19 +24,20 @@ object DatabaseFactory {
         // Exposedに「デフォルト接続として使うDataSource」を登録
         Database.connect(dataSource)
     }
+
+    /**
+     * HikariCPで接続プールを作成する
+     */
+    private fun createHikariDataSource(): HikariDataSource {
+        // DB設定
+        val config = HikariConfig().apply {
+            jdbcUrl = "jdbc:postgresql://localhost:5432/kotlin_todo"
+            username = "kotlin_todo"
+            password = "kotlin_todo"
+            driverClassName = "org.postgresql.Driver"
+            maximumPoolSize = 10
+        }
+        return HikariDataSource(config)
+    }
 }
 
-/**
- * HikariCPで接続プールを作成する
- */
-private fun createHikariDataSource(): HikariDataSource {
-    // DB設定
-    val config = HikariConfig().apply {
-        jdbcUrl = "jdbc:postgresql://localhost:5432/kotlin_todo"
-        username = "kotlin_todo"
-        password = "kotlin_todo"
-        driverClassName = "org.postgresql.Driver"
-        maximumPoolSize = 10
-    }
-    return HikariDataSource(config)
-}
