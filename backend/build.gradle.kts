@@ -29,6 +29,21 @@ dependencies {
 	implementation("io.ktor:ktor-server-call-logging")
 	implementation("io.ktor:ktor-server-status-pages")
 	implementation("ch.qos.logback:logback-classic:1.5.16")
+
+	// Exposed(Kotlin nativeなSQL DSL)
+	implementation("org.jetbrains.exposed:exposed-core:0.61.0")
+	implementation("org.jetbrains.exposed:exposed-jdbc:0.61.0")
+	implementation("org.jetbrains.exposed:exposed-java-time:0.61.0")
+
+	// 接続プール
+	implementation("com.zaxxer:HikariCP:6.2.1")
+
+	// Flyway (schema migration)
+	implementation("org.flywaydb:flyway-core:11.1.0")
+	implementation("org.flywaydb:flyway-database-postgresql:11.1.0")
+
+	// PostgreSQL JDBC driver
+	runtimeOnly("org.postgresql:postgresql:42.7.4")
 }
 
 kotlin {
