@@ -1,5 +1,6 @@
 package com.example.kotlin_todo
 
+import com.example.kotlin_todo.db.DatabaseFactory
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -30,6 +31,7 @@ fun main() {
  * サーバー起動時のセットアップ関数
  */
 fun Application.module() {
+    DatabaseFactory.init()
     install(ContentNegotiation) { json() }
     install(CallLogging)
     install(StatusPages) { }
