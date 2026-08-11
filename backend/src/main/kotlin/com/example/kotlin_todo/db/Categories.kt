@@ -2,7 +2,6 @@ package com.example.kotlin_todo.db
 
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
 
 /**
  * カテゴリテーブル定義
@@ -17,9 +16,6 @@ object Categories : Table("categories") {
     /** オーナーID */
     val ownerId = long("owner_id")
         .references(Users.id, onDelete = ReferenceOption.CASCADE)
-
-    /** 作成日 */
-    val createdAt = datetime("created_at")
 
     override val primaryKey = PrimaryKey(id)
 

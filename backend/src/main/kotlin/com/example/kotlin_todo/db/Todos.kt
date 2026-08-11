@@ -43,4 +43,13 @@ object Todos : Table("todos") {
     val updatedAt = datetime("updated_at")
 
     override val primaryKey = PrimaryKey(id)
+
+    /**
+     * インデックス
+     */
+    init {
+        index("idx_todos_owner_id", isUnique = false, ownerId)
+        index("idx_todos_owner_status", isUnique = false, ownerId, status)
+        index("idx_todos_due_date", isUnique = false, dueDate)
+    }
 }

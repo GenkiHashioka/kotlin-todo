@@ -6,7 +6,6 @@ import com.example.kotlin_todo.db.Todos
 import com.example.kotlin_todo.db.Users
 import com.example.kotlin_todo.domain.Priority
 import com.example.kotlin_todo.domain.TodoStatus
-import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class TodoRepositoryTest : AbstractPostgresTest() {
     private val userRepository = UserRepository()
@@ -74,6 +74,7 @@ class TodoRepositoryTest : AbstractPostgresTest() {
         // 元のupdated_atを取得
         val initialUpdatedAt = todo.updatedAt
         // スレッドを100ミリ秒止める。
+        Thread.sleep(100)
 
         // 更新処理
         val updated = todoRepository.update(
