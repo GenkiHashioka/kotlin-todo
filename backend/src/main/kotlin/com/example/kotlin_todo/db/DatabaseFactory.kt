@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.Database
  */
 object DatabaseFactory {
     // 初期化
+    // production用
     fun init() {
         // 接続プール作成
         val dataSource = createHikariDataSource()
@@ -22,6 +23,19 @@ object DatabaseFactory {
             .migrate()
 
         // Exposedに「デフォルト接続として使うDataSource」を登録
+        Database.connect(dataSource)
+    }
+
+    // 初期化
+    // test用
+    fun init(dataSource: HikariDataSource) {
+        // Flywayでスキーマを最新状態にそろえる
+        Flyway.configure()
+            .dataSource(dataSource)
+            .load()
+            .migrate()
+
+        // Exposedに「デフォルト接続として使うDataSource」登録
         Database.connect(dataSource)
     }
 
