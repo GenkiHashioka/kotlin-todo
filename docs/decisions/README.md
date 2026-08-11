@@ -22,3 +22,4 @@
 | 0012 | [統合テストで Testcontainers（実 PostgreSQL コンテナ）を使う](0012-testcontainers-for-integration-test.md) |
 | 0013 | [Gradle スクリプトを Groovy DSL から Kotlin DSL に切り替える](0013-kotlin-dsl-gradle.md) |
 | 0014 | [依存注入は手動 DI で行い、Koin を採用しない](0014-manual-di-over-koin.md) |
+| 0015 | [Exposed の DAO API ではなく DSL API を採用する](0015-exposed-dsl-over-dao.md) |

@@ -44,10 +44,22 @@ dependencies {
 
 	// PostgreSQL JDBC driver
 	runtimeOnly("org.postgresql:postgresql:42.7.4")
+
+	// Testing
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:postgresql")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 kotlin {
 	compilerOptions {
 		freeCompilerArgs.addAll("-Xjsr305=strict")
 	}
+}
+
+// テスト関連のtask設定
+tasks.test {
+	useJUnitPlatform()
 }
