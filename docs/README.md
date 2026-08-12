@@ -4,10 +4,11 @@
 
 ## 構成
 
-- `journal/` — フェーズごとの学習ジャーナル。何を学び、なぜその設計にしたか、自己確認の結果を記録する。ADR（Architecture Decision Record）的な性格も兼ねる。
+- `requirements.md` — 要件定義書。「何を作るか」の一次ソース。目的・想定ユーザー・機能要件・非機能要件・スコープ外・用語定義を記述。
+- `journal/` — フェーズごとの学習ジャーナル。何を学び、なぜその設計にしたか、自己確認の結果を記録する。
 - `decisions/` — 設計判断のみを短く切り出した記録（ADR）。ジャーナルより粒度が細かく、「なぜこの実装にしたか」を後から検索しやすくするためのもの。Phase 3から運用開始（[一覧](decisions/README.md)）。
-- `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Entity実装とFlywayマイグレーション（Phase 8）の両方の正となるドキュメント。
-- `api/` — API仕様書。Phase 4でControllerが揃い始めた段階から `springdoc-openapi` を導入し、自動生成されたOpenAPI定義とその補足説明を置く。
+- `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Flyway マイグレーション (`V1__init.sql`) と Exposed の Table 定義の両方の正となるドキュメント。
+- `api/` — API仕様書。Phase 4.10 で Ktor 版に再構築予定。
 
 ## 運用方針
 
