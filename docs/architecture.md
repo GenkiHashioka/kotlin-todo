@@ -223,7 +223,7 @@ sequenceDiagram
 
 ## 5. エラー処理フロー
 
-例外がどの層で発生し、どう伝播し、最終的にどう HTTP レスポンスに変換されるか。Phase 4.9 (c) の StatusPages 実装後の想定。
+例外がどの層で発生し、どう伝播し、最終的にどう HTTP レスポンスに変換されるか。以下のシーケンス（`TodoNotFoundException` → 404）は Phase 4.9 (b) で実装する。
 
 ```mermaid
 sequenceDiagram
@@ -250,15 +250,21 @@ sequenceDiagram
     K-->>C: 404 + {"status":404, "message":"..."}
 ```
 
-### 例外のカテゴリと HTTP 対応（Phase 4.9 (c) で実装予定）
+### 例外のカテゴリと HTTP 対応（Phase 4.9 (b)〜(c) で実装）
 
-| 例外の種類 | どこで発生 | HTTP ステータス | レスポンスボディ |
-|---|---|---|---|
-| `TodoNotFoundException` | Service (findById, update, delete) | 404 Not Found | `ErrorResponse(status=404, message)` |
-| `CategoryNotFoundException` | Service (create, update) | 404 Not Found | 同上 |
-| Konform バリデーション失敗 | Routes（Konform で検証時） | 400 Bad Request | `ErrorResponse(status=400, message, fieldErrors)` |
-| `SerializationException` | ContentNegotiation（JSON parse 失敗） | 400 Bad Request | `ErrorResponse(status=400, message)` |
-| その他予期しない `Throwable` | 任意の層 | 500 Internal Server Error | `ErrorResponse(status=500, message="Internal server error")`（詳細はログのみ） |
+| 例外の種類 | どこで発生 | HTTP ステータス | レスポンスボディ | 実装 |
+|---|---|---|---|---|
+| `TodoNotFoundException` | Service (findById, update, delete) | 404 Not Found | `ErrorResponse(status=404, message)` | (b) |
+| `CategoryNotFoundException` | Service (create, update) | 404 Not Found | 同上 | (b) |
+| Konform バリデーション失敗 | Routes（Konform で検証時） | 400 Bad Request | `ErrorResponse(status=400, message, fieldErrors)` | (c) |
+| `SerializationException` | ContentNegotiation（JSON parse 失敗） | 400 Bad Request | `ErrorResponse(status=400, message)` | (c) |
+| その他予期しない `Throwable` | 任意の層 | 500 Internal Server Error | `ErrorResponse(status=500, message="Internal server error")`（詳細はログのみ） | (c) |
+
+**サブフェーズ分割の基準**: (b) 完了時点で「CRUD が正しく動く API」、(c) 完了時点で「不正な入力に正しく応答する API」になるよう分けている。リソース不在（404）は CRUD の正しさの一部とみなして (b) に含め、入力検証（400 系）を (c) にまとめた。
+
+**`ErrorResponse` の段階的な拡張**: (b) では `status` + `message` の 2 フィールド。バリデーションのフィールド別エラーを表す `fieldErrors` は (c) で追加する。
+
+**例外ではない 400**: パスパラメータが数値でない場合（例: `GET /todos/abc`）は例外ではなく読み取り失敗のため、StatusPages ではなく Routes 層の分岐（`toLongOrNull() ?: 400`）で処理する。(b) で実装。
 
 ### 例外設計の方針
 
