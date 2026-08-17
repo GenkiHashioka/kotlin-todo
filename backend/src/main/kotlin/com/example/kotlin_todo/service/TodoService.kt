@@ -1,5 +1,6 @@
 package com.example.kotlin_todo.service
 
+import com.example.kotlin_todo.domain.Category
 import com.example.kotlin_todo.domain.Priority
 import com.example.kotlin_todo.domain.Todo
 import com.example.kotlin_todo.domain.TodoStatus
@@ -114,4 +115,9 @@ class TodoService(
         // 削除内容を返却する
         todo
     }
+
+    /**
+     * カテゴリIDを検索条件として、カテゴリを検索する。
+     */
+    suspend fun findCategoryById(id: Long): Category? = categoryRepository.findById(id)
 }
