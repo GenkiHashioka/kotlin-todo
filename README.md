@@ -16,7 +16,7 @@ Phase 4.6〜4.9 で Spring Boot + JPA/Hibernate 版から Kotlin native なス�
 
 ## 現在の進捗
 
-Phase 4.9 (a) 完了。Ktor 移行のうち Repository / Service 層まで実装済みで、Routing 層（Phase 4.9 (b)）を実装中。
+Phase 4.9 (b) 完了。Ktor 移行のうち Routing / DTO 層まで実装済みで、Todo の CRUD API が一通り動作する。次は入力バリデーション（Phase 4.9 (c)）。
 
 フェーズごとの詳細は [`docs/README.md`](docs/README.md) 参照。
 
@@ -46,7 +46,19 @@ cd backend
 curl http://localhost:8080/health
 ```
 
-CRUD API は Phase 4.9 (b) で復活予定。OpenAPI / Swagger UI は Phase 4.10 で再構築予定。
+Todo の CRUD API も利用可能:
+
+```bash
+# 作成
+curl -X POST http://localhost:8080/todos -H "Content-Type: application/json" -d '{"title":"Ktor を学ぶ","description":null,"dueDate":"2026-08-31","priority":"HIGH","status":"NOT_STARTED","categoryId":null}'
+
+# 一覧
+curl http://localhost:8080/todos
+```
+
+エンドポイントは `GET /todos`, `GET /todos/{id}`, `POST /todos`, `PUT /todos/{id}`, `DELETE /todos/{id}` の 5 つ。認証は未実装のため、`ownerId` には起動時に用意される開発用の固定ユーザーが入る（[#23](https://github.com/GenkiHashioka/kotlin-todo/issues/23)）。
+
+入力バリデーションは Phase 4.9 (c)、OpenAPI / Swagger UI は Phase 4.10 で追加予定。
 
 IntelliJ IDEA を使う場合は `backend/` をプロジェクトとして開いて Run configuration から起動する方が楽。
 
@@ -58,6 +70,8 @@ cd backend
 ```
 
 統合テストは Testcontainers で PostgreSQL コンテナを都度起動するため、Docker が動いていれば追加準備は不要。
+
+> **既知の問題**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになったため、Testcontainers がコンテナを起動できず **テストが実行不能**（`Could not find a valid Docker environment`）。Testcontainers 側の修正待ち（[#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25)）。アプリ本体と `docker compose` 経由の PostgreSQL は正常に動作する。
 
 ## ドキュメント
 

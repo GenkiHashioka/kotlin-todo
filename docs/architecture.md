@@ -381,7 +381,7 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 - **Ktor テスト**: まだ無し。routes は (b) で入ったが、`testApplication` によるテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
 - **カバレッジ計測**: まだ導入していない
 
-> **既知の問題（2026-08-17 時点）**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになり、Testcontainers（内部の docker-java が v1.32 で接続）が `Could not find a valid Docker environment` で起動できず、**全テストが実行不能**。Testcontainers 1.21.3（当時の最新）でも未修正、環境変数 / `~/.testcontainers.properties` による API バージョン指定も効かない。`docker compose` 経由の開発用 PostgreSQL とアプリ本体は正常に動作する。詳細と対処は Issue を参照。
+> **既知の問題（2026-08-17 時点）**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになり、Testcontainers（内部の docker-java が v1.32 で接続）が `Could not find a valid Docker environment` で起動できず、**全テストが実行不能**。Testcontainers 1.21.3（当時の最新）でも未修正、環境変数 / `~/.testcontainers.properties` による API バージョン指定も効かない。`docker compose` 経由の開発用 PostgreSQL とアプリ本体は正常に動作する。詳細と対処は [#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25) を参照。
 
 ### Testcontainers による共有 PostgreSQL
 

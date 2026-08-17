@@ -222,7 +222,7 @@ design-note は**実装前の想定**であり、実装後に更新しない運�
 
 ## 実運用に関わる既知の課題（今回は対応を見送り）
 
-### Testcontainers が Docker Engine 29 に接続できずテストが全滅
+### Testcontainers が Docker Engine 29 に接続できずテストが全滅（[#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25)）
 
 **症状**: `./gradlew test` が 9 件すべて失敗。`AbstractPostgresTest` の `companion object` 初期化（コンテナ起動）で `IllegalStateException: Could not find a valid Docker environment`。
 
