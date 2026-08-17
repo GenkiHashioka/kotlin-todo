@@ -26,10 +26,13 @@
 - Phase 4: Todo CRUD（認証なし）（完了）
 - Phase 4.5: モノレポ再編とKtor移行準備（完了）
 - Phase 4.6以降: Kotlin native スタックへの移植（DB 先行の順序で進行、[ADR 0010](decisions/0010-db-migration-before-framework-swap.md) 参照）
-  - Phase 4.6: DB 移行（Spring + JPA のまま H2 → PostgreSQL + Flyway + Testcontainers 化）（次）
-  - Phase 4.7: Ktor 骨組み + `/health`（Spring 削除、`build.gradle.kts` 化）
-  - Phase 4.8: Exposed でデータアクセス層
+  - Phase 4.6: DB 移行（Spring + JPA のまま H2 → PostgreSQL + Flyway + Testcontainers 化）（完了）
+  - Phase 4.7: Ktor 骨組み + `/health`（Spring 削除、`build.gradle.kts` 化）（完了）
+  - Phase 4.8: Exposed でデータアクセス層（完了）
   - Phase 4.9: Ktor Routing + DTO + Service + StatusPages + Konform（CRUD API 復活）
+    - (a) 設計整理 + architecture.md 整備（完了）
+    - (b) Routing + DTO（完了、CRUD API が動作）
+    - (c) Konform バリデーション + StatusPages 拡張（次）
   - Phase 4.10: OpenAPI / Swagger UI 再構築
   - Phase 4.11: テスト戦略再構築（Ktor + Exposed 版）
 - Phase 5: フィルタ/ソート/検索/ページネーション（Ktor移行完了後に再開）
