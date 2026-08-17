@@ -1,3 +1,8 @@
+# 既定はすべて LF。text=auto が「テキストかバイナリか」を Git に判定させ、
+# テキストと判定されたものだけ改行コードを LF に正規化する。
+* text=auto eol=lf
+
+# 以降は上書き（.gitattributes は後の行が優先される）
 /gradlew text eol=lf
 *.bat text eol=crlf
 *.jar binary
