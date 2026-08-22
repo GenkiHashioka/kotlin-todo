@@ -119,7 +119,7 @@ fun Application.module() {
         }
 
         // 想定外の例外は500を返却する。詳細はログのみに残す。
-        exception<Throwable> {call, cause ->
+        exception<Throwable> { call, cause ->
             call.application.log.error("Unhandled exception", cause)
             call.respond(
                 HttpStatusCode.InternalServerError,
