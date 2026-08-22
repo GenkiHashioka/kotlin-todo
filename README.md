@@ -9,14 +9,14 @@ Kotlin を学習しながら育てる Todo アプリ。バックエンド + 将�
 - Exposed 0.61（Kotlin 製 SQL DSL、DAO ではなく DSL API を採用）
 - PostgreSQL 17（開発環境は Docker Compose、統合テストは Testcontainers）
 - Flyway 11（スキーマ移行） / HikariCP 6（コネクションプール）
-- kotlinx.serialization（JSON） / Logback 1.5
+- kotlinx.serialization（JSON） / Konform 0.11（バリデーション） / Logback 1.5
 - JUnit 5 + kotlin-test-junit5
 
 Phase 4.6〜4.9 で Spring Boot + JPA/Hibernate 版から Kotlin native なスタックに移行済み。移行前の実装は `v0.4-spring-final` タグで保全。
 
 ## 現在の進捗
 
-Phase 4.9 (b) 完了。Ktor 移行のうち Routing / DTO 層まで実装済みで、Todo の CRUD API が一通り動作する。次は入力バリデーション（Phase 4.9 (c)）。
+Phase 4.9 (c) 完了。Ktor 移行のうち Presentation 層まで実装済みで、Todo の CRUD API と入力バリデーションが動作する。次は OpenAPI / Swagger UI（Phase 4.10）。
 
 フェーズごとの詳細は [`docs/README.md`](docs/README.md) 参照。
 
@@ -58,7 +58,20 @@ curl http://localhost:8080/todos
 
 エンドポイントは `GET /todos`, `GET /todos/{id}`, `POST /todos`, `PUT /todos/{id}`, `DELETE /todos/{id}` の 5 つ。認証は未実装のため、`ownerId` には起動時に用意される開発用の固定ユーザーが入る（[#23](https://github.com/GenkiHashioka/kotlin-todo/issues/23)）。
 
-入力バリデーションは Phase 4.9 (c)、OpenAPI / Swagger UI は Phase 4.10 で追加予定。
+入力が不正な場合は、どのフィールドがなぜ駄目かを返す:
+
+```bash
+curl -X POST http://localhost:8080/todos -H "Content-Type: application/json" \
+  -d '{"title":"","description":null,"dueDate":null,"priority":"HIGH","status":"NOT_STARTED","categoryId":null}'
+```
+
+```json
+{"status":400,"message":"Validation failed","fieldErrors":[{"field":"title","message":"must not be blank"}]}
+```
+
+エラーレスポンスは 400 / 404 / 500 のすべてがこの形（`status` / `message` / `fieldErrors`）で返る。詳細は [ADR 0016](docs/decisions/0016-konform-for-validation.md)（バリデーション）と [ADR 0017](docs/decisions/0017-error-response-and-exception-mapping.md)（エラー変換）を参照。
+
+OpenAPI / Swagger UI は Phase 4.10 で追加予定。
 
 IntelliJ IDEA を使う場合は `backend/` をプロジェクトとして開いて Run configuration から起動する方が楽。
 

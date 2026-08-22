@@ -32,7 +32,7 @@
   - Phase 4.9: Ktor Routing + DTO + Service + StatusPages + Konform（CRUD API 復活）
     - (a) 設計整理 + architecture.md 整備（完了）
     - (b) Routing + DTO（完了、CRUD API が動作）
-    - (c) Konform バリデーション + StatusPages 拡張（次）
-  - Phase 4.10: OpenAPI / Swagger UI 再構築
+    - (c) Konform バリデーション + StatusPages 拡張（完了、不正な入力に正しく応答する）
+  - Phase 4.10: OpenAPI / Swagger UI 再構築（次）
   - Phase 4.11: テスト戦略再構築（Ktor + Exposed 版）
 - Phase 5: フィルタ/ソート/検索/ページネーション（Ktor移行完了後に再開）
