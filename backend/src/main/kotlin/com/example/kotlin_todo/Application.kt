@@ -2,7 +2,8 @@ package com.example.kotlin_todo
 
 import com.example.kotlin_todo.db.DatabaseFactory
 import com.example.kotlin_todo.dev.DevDataInitializer
-import com.example.kotlin_todo.dto.ErrorResponse
+import com.example.kotlin_todo.dto.error.ErrorResponse
+import com.example.kotlin_todo.dto.error.FieldError
 import com.example.kotlin_todo.exception.CategoryNotFoundException
 import com.example.kotlin_todo.exception.TodoNotFoundException
 import com.example.kotlin_todo.repository.CategoryRepository
@@ -10,12 +11,15 @@ import com.example.kotlin_todo.repository.TodoRepository
 import com.example.kotlin_todo.repository.UserRepository
 import com.example.kotlin_todo.routes.todoRoutes
 import com.example.kotlin_todo.service.TodoService
+import com.example.kotlin_todo.validation.ValidationException
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.application.log
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -23,6 +27,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
 
 /**
@@ -65,6 +70,63 @@ fun Application.module() {
                     status = HttpStatusCode.NotFound.value,
                     message = cause.message ?: "Category not found"
                 ),
+            )
+        }
+
+        // リクエストボディの検証に失敗した場合は400BadRequestを返却する。
+        exception<ValidationException> { call, cause ->
+            call.respond(
+                HttpStatusCode.BadRequest,
+                ErrorResponse(
+                    status = HttpStatusCode.BadRequest.value,
+                    message = "Validation failed",
+                    fieldErrors = cause.fieldErrors,
+                )
+            )
+        }
+
+        // リクエストボディがDTOに変換できない場合は400BadRequestを返却する。
+        exception<BadRequestException> { call, cause ->
+            // causeからMissingFieldExceptionを取り出す。
+            val missingFields = generateSequence<Throwable>(cause) { it.cause }
+                .filterIsInstance<MissingFieldException>()
+                .firstOrNull()
+                ?.missingFields
+
+            // MissingFieldExceptionが見つかった場合、
+            if (missingFields != null) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(
+                        status = HttpStatusCode.BadRequest.value,
+                        message = "Validation failed",
+                        fieldErrors = missingFields.map {
+                            FieldError(field = it, message = "is required")
+                        }
+                    ),
+                )
+            } else {
+                // 原因を機械的に特定不能。詳細はログのみに残す。
+                call.application.log.warn("Malformed request body", cause)
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    ErrorResponse(
+                        status = HttpStatusCode.BadRequest.value,
+                        message = "Malformed request body",
+                    )
+                )
+            }
+        }
+
+        // 想定外の例外は500を返却する。詳細はログのみに残す。
+        exception<Throwable> { call, cause ->
+            call.application.log.error("Unhandled exception", cause)
+            call.respond(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(
+                    status = HttpStatusCode.InternalServerError.value,
+                    message = "Internal server error"
+                )
             )
         }
     }

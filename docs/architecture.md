@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.2（Phase 4.9 (b) 完了時点）
-**最終更新**: 2026-08-17
+**バージョン**: 0.3（Phase 4.9 (c) 完了時点）
+**最終更新**: 2026-08-22
 
 このドキュメントは kotlin-todo バックエンドの **システム全体構成・レイヤー・依存・データフロー・エラー処理フロー** の一次ソース。「何を作るか」は [requirements.md](requirements.md)、実装の詳細は各 Phase の [journal](journal/) と [design-notes](design-notes/)、個別の設計判断は [decisions (ADR)](decisions/) を参照。
 
@@ -22,8 +22,8 @@
 | JSON シリアライズ | **kotlinx.serialization** | 1.8.1（Kotlin 2.3.21 の plugin 経由） | — |
 | 依存注入 | **手動 DI** (Application.module() で組み立て) | — | [ADR 0014](decisions/0014-manual-di-over-koin.md) |
 | ロギング | **Logback + SLF4J** | 1.5.16 | — |
-| バリデーション | **Konform**（Phase 4.9 (c) で導入予定） | — | ADR 0016 予定 |
-| 例外→HTTP マッピング | **Ktor StatusPages**（Phase 4.9 (c) で本格実装） | — | ADR 0017 予定 |
+| バリデーション | **Konform** | 0.11.1 | [ADR 0016](decisions/0016-konform-for-validation.md) |
+| 例外→HTTP マッピング | **Ktor StatusPages** | 3.2.0（Ktor BOM 経由） | [ADR 0017](decisions/0017-error-response-and-exception-mapping.md) |
 | テスト | **JUnit 5 + kotlin-test + Testcontainers** | 5.x + 1.20.4 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) |
 
 ### 開発環境
@@ -65,7 +65,7 @@ flowchart TB
     style Repository fill:#f0e1ff
 ```
 
-**この図が描いているのは「実行時に誰が誰を呼ぶか」であり、ディレクトリの一覧ではない。** ノードになっているのは処理を実行する側（`routes/`, `service/`, `repository/`, `db/`）だけで、**層の間を運ばれるデータ定義（`dto/`, `domain/`）や、投げられて捕まる例外（`exception/`）はノードにならない**。図に出てこないディレクトリがどの層に属するかは [図に現れないディレクトリの位置づけ](#図に現れないディレクトリの位置づけ) にまとめる。
+**この図が描いているのは「実行時に誰が誰を呼ぶか」であり、ディレクトリの一覧ではない。** ノードになっているのは処理を実行する側（`routes/`, `service/`, `repository/`, `db/`）だけで、**層の間を運ばれるデータ定義（`dto/`, `domain/`）、投げられて捕まる例外（`exception/`）、routes から呼ばれるだけの検証ルール（`validation/`）はノードにならない**。図に出てこないディレクトリがどの層に属するかは [図に現れないディレクトリの位置づけ](#図に現れないディレクトリの位置づけ) にまとめる。
 
 ### 各層の責務
 
@@ -73,12 +73,14 @@ flowchart TB
 - HTTP リクエストの受付、パス / メソッドのルーティング
 - リクエストボディの DTO へのデシリアライズ（kotlinx.serialization）
 - レスポンス DTO のシリアライズ + HTTP ステータス設定
-- 例外の StatusPages 経由での HTTP 変換（Phase 4.9 (b) で `TodoNotFoundException` / `CategoryNotFoundException` の 2 つを実装、(c) で拡張）
+- 例外の StatusPages 経由での HTTP 変換（(b) で `TodoNotFoundException` / `CategoryNotFoundException`、(c) で `ValidationException` / `BadRequestException` / `Throwable` を追加）
 - パスパラメータの形式検証（`id` が数値か）と 400 応答
+- **リクエストボディの検証**（Konform。Service を呼ぶ前に実行する。[ADR 0016](decisions/0016-konform-for-validation.md)）
 - **業務ロジックは書かない**（Service に委譲）
 - **ファイル**:
   - `backend/src/main/kotlin/com/example/kotlin_todo/routes/*.kt` — ルーティング関数
   - `backend/src/main/kotlin/com/example/kotlin_todo/dto/*.kt` — リクエスト / レスポンスの形（**Presentation 層に属する**）
+  - `backend/src/main/kotlin/com/example/kotlin_todo/validation/*.kt` — 検証ルール（**Presentation 層に属する**）
 
 **Service 層（業務ロジック）**
 - 複数 Repository を組み合わせる業務ルール（Category 存在確認 → Todo 作成など）
@@ -110,6 +112,7 @@ flowchart TB
 |---|---|---|---|
 | `routes/` | Presentation | ○ | HTTP を受けて Service を呼ぶ「実行主体」 |
 | `dto/` | **Presentation** | × | HTTP 境界でやり取りする**データの形**。自分では何も呼ばない |
+| `validation/` | **Presentation** | × | routes から呼ばれる検証ルール。他の層を呼ばない |
 | `service/` | Service | ○ | 実行主体 |
 | `repository/` | Repository | ○ | 実行主体 |
 | `db/` | Table 定義 | ○ | schema 宣言 + 接続初期化 |
@@ -123,10 +126,22 @@ flowchart TB
 #### `dto/`（Presentation 層）
 
 - `backend/src/main/kotlin/com/example/kotlin_todo/dto/*.kt`
-- `TodoCreateRequest`, `TodoUpdateRequest`, `TodoResponse`, `CategorySummary`, `ErrorResponse`
+- **直下** — 特定のエンドポイントの表現: `TodoCreateRequest`, `TodoUpdateRequest`, `TodoResponse`, `CategorySummary`
+- **サブパッケージ** — 横断的な仕組み:
+  - `dto/error/` — `ErrorResponse`, `FieldError`。どのエンドポイントからも出るうえ、routes ではなく StatusPages が生成する（[ADR 0017](decisions/0017-error-response-and-exception-mapping.md)）
+  - `dto/serializer/` — `java.time` 型用の `KSerializer` 実装（`LocalDateSerializer`, `LocalDateTimeSerializer`）
 - `@Serializable` を付けた data class + `domain` ↔ `dto` の変換拡張関数（`Todo.toResponse()` など）
-- `dto/serializer/` — `java.time` 型用の `KSerializer` 実装（`LocalDateSerializer`, `LocalDateTimeSerializer`）
+- **`dto/` は「データの形」だけを持ち、検証ルールは持たない**（ルールは `validation/`）
 - **Service / Repository は `dto` を import しない**。DTO が下の層に漏れると「HTTP の都合が業務ロジックを侵食する」ため
+
+#### `validation/`（Presentation 層）
+
+- `backend/src/main/kotlin/com/example/kotlin_todo/validation/*.kt`
+- `TodoValidation.kt` — Konform の `Validation<T>` 定義と `validateOrThrow()` 拡張関数
+- `ValidationException.kt` — `List<FieldError>` を運ぶ `RuntimeException`
+- **パッケージ外に公開するのは `validateOrThrow()` だけ**。`Validation` / `ValidationResult` / `FieldError` への変換はすべて `private`
+- **`io.konform.*` の import はこのパッケージにしか現れない**。ライブラリを差し替えるとき書き換える範囲がここに閉じる
+- 検証するのは**入力の形**（空でないか、長さ、符号）のみ。参照先が存在するかは Service 層の責務
 
 #### `domain/`（レイヤー横断）
 
@@ -142,6 +157,7 @@ flowchart TB
 - `TodoNotFoundException`, `CategoryNotFoundException`（いずれも `RuntimeException` 継承）
 - **Service 層が投げ、Presentation 層の StatusPages が HTTP ステータスに変換する**
 - Ktor 標準の例外（`BadRequestException` など）は Ktor エンジンが既定でステータスに変換するが、**自作例外は StatusPages に登録しない限り 500 になる**
+- **`ValidationException` はここに置かない**。上記 2 つがドメインの例外であるのに対し、`ValidationException` は HTTP 境界の都合で生まれる Presentation 層の例外なので `validation/` に置く
 
 ---
 
@@ -182,10 +198,16 @@ backend/src/main/kotlin/com/example/kotlin_todo/
 │   ├── TodoUpdateRequest.kt    # 更新リクエストボディ
 │   ├── TodoResponse.kt         # レスポンスボディ + Todo.toResponse()
 │   ├── CategorySummary.kt      # TodoResponse に入れ子で載せる Category + Category.toSummary()
-│   ├── ErrorResponse.kt        # エラー時のレスポンスボディ
+│   ├── error/                  # 横断的なエラーレスポンス (StatusPages が生成)
+│   │   ├── ErrorResponse.kt    # status / message / fieldErrors
+│   │   └── FieldError.kt       # field / message
 │   └── serializer/             # java.time 型の KSerializer 実装
 │       ├── LocalDateSerializer.kt
 │       └── LocalDateTimeSerializer.kt
+│
+├── validation/             # 入力検証 (Presentation 層。Konform 依存はここに閉じる)
+│   ├── TodoValidation.kt       # Validation<T> 定義 + validateOrThrow()
+│   └── ValidationException.kt  # List<FieldError> を運ぶ RuntimeException
 │
 ├── routes/                 # Ktor Routing 関数 (Presentation 層)
 │   └── TodoRoutes.kt       # Route.todoRoutes() — /todos の CRUD 5 エンドポイント
@@ -311,24 +333,43 @@ sequenceDiagram
 
 ### 例外のカテゴリと HTTP 対応
 
-| 例外の種類 | どこで発生 | HTTP ステータス | レスポンスボディ | 変換する仕組み | 実装 |
-|---|---|---|---|---|---|
-| `TodoNotFoundException` | Service (findById, update, delete) | 404 Not Found | `ErrorResponse(status=404, message)` | StatusPages | (b) 済 |
-| `CategoryNotFoundException` | Service (create, update) | 404 Not Found | 同上 | StatusPages | (b) 済 |
-| `BadRequestException`（JSON parse / enum 不一致 / 必須欠落） | ContentNegotiation | 400 Bad Request | **現状は空**（(c) で `ErrorResponse` を付与） | Ktor エンジン既定 | ステータスのみ (b) 時点で済 |
-| Konform バリデーション失敗 | Routes（Konform で検証時） | 400 Bad Request | `ErrorResponse(status=400, message, fieldErrors)` | StatusPages | (c) |
-| その他予期しない `Throwable` | 任意の層 | 500 Internal Server Error | `ErrorResponse(status=500, message="Internal server error")`（詳細はログのみ） | StatusPages | (c) |
+| 例外の種類 | どこで発生 | HTTP ステータス | `message` | `fieldErrors` | ログ | 実装 |
+|---|---|---|---|---|---|---|
+| `TodoNotFoundException` | Service (findById, update, delete) | 404 | `cause.message`（例: `Todo not found: id=42`） | 空 | 出さない | (b) 済 |
+| `CategoryNotFoundException` | Service (create, update) | 404 | 同上 | 空 | 出さない | (b) 済 |
+| `ValidationException` | Routes（`validateOrThrow()`） | 400 | `Validation failed` | Konform のエラー | 出さない | (c) 済 |
+| `BadRequestException`（必須項目の欠落） | ContentNegotiation | 400 | `Validation failed` | 欠落フィールド名 | `warn` | (c) 済 |
+| `BadRequestException`（enum 不一致 / 日付形式 / JSON 破損） | ContentNegotiation | 400 | `Malformed request body` | 空 | `warn` | (c) 済 |
+| その他予期しない `Throwable` | 任意の層 | 500 | `Internal server error` | 空 | `error` | (c) 済 |
+
+**すべてのエラーが `ErrorResponse(status, message, fieldErrors)` の形で返る。** クライアントはステータスコードごとに別の形を想定しなくてよい。
+
+**ログのレベルは「誰が対処すべき問題か」で分けている。** 検証エラーはクライアントが直せばよい正常動作なので出さず（`install(CallLogging)` が 400 を返した事実は記録する）、返す情報を削った `BadRequestException` は `warn`、サーバ側の想定外は `error`。全部 `error` にすると入力ミスとバグがログ上で区別できなくなる。
+
+**例外の message をクライアントに流すのは、自作例外のときだけ。** `TodoNotFoundException` の message は我々が書いたものだが、kotlinx や JDBC の例外には内部のパッケージ名・DB ホスト名・ライブラリ名が含まれる。詳細は [ADR 0017](decisions/0017-error-response-and-exception-mapping.md)。
 
 **HTTP ステータスへの変換には 2 系統ある**（Phase 4.9 (b) の検証で判明）。
 
 1. **StatusPages**（`Application.module()` で登録） — 自作例外はここに登録しない限り 500 になる
 2. **Ktor エンジン既定**（`io.ktor.server.engine.defaultExceptionStatusCode`） — `BadRequestException` / `NotFoundException` / `UnsupportedMediaTypeException` / `PayloadTooLargeException` / `TimeoutException` を、何も書かなくてもステータスに変換する。ただし `call.respond(statusCode)` を呼ぶだけなので**レスポンスボディは空**
 
-`call.receive<T>()` のデシリアライズ失敗は、ContentNegotiation が `catch (cause: Throwable) { throw BadRequestException(...) }` で包み直すため 2 の経路に乗る。**つまり不正な JSON は (b) 時点で既に 400 を返しており、(c) の課題は「ステータスを直すこと」ではなく「空のボディを `ErrorResponse` で埋めること」**。
+`call.receive<T>()` のデシリアライズ失敗は、ContentNegotiation が `catch (cause: Throwable) { throw BadRequestException(...) }` で包み直すため 2 の経路に乗る。**つまり不正な JSON は (b) 時点で既に 400 を返しており、(c) の課題は「ステータスを直すこと」ではなく「空のボディを `ErrorResponse` で埋めること」だった**。
 
-**サブフェーズ分割の基準**: (b) 完了時点で「CRUD が正しく動く API」、(c) 完了時点で「不正な入力に正しく応答する API」になるよう分けている。リソース不在（404）は CRUD の正しさの一部とみなして (b) に含め、入力検証（400 系）を (c) にまとめた。
+(c) で `BadRequestException` と `Throwable` を StatusPages に登録したことにより、**現在は 2 の経路にレスポンスが落ちることはない**（登録した型が優先される）。
 
-**`ErrorResponse` の段階的な拡張**: (b) では `status` + `message` の 2 フィールド。バリデーションのフィールド別エラーを表す `fieldErrors` は (c) で追加する。
+**StatusPages のハンドラ選択は登録順ではなく「クラス階層上の近さ」で決まる。** `exception<Throwable>` を登録しても `TodoNotFoundException` は 404 のハンドラに行く。実装は `findHandlerByValue` が候補を集め、複数あれば `selectNearestParentClass` で最も近い親クラスを選ぶ。
+
+**デシリアライズ例外の包みは 2 段**。`MissingFieldException` を取り出すには連鎖を辿る必要があり、段数を直接書くと Ktor の実装変更で静かに壊れるため `generateSequence` で探索している。
+
+```
+BadRequestException            ← RequestConverter.kt:69
+  └─ JsonConvertException      ← KotlinxSerializationConverter.kt:79
+       └─ MissingFieldException など（kotlinx 本体）
+```
+
+**サブフェーズ分割の基準**: (b) 完了時点で「CRUD が正しく動く API」、(c) 完了時点で「不正な入力に正しく応答する API」になるよう分けた。リソース不在（404）は CRUD の正しさの一部とみなして (b) に含め、入力検証（400 系）を (c) にまとめた。
+
+**`ErrorResponse` の段階的な拡張**: (b) では `status` + `message` の 2 フィールド。(c) で `fieldErrors: List<FieldError> = emptyList()` を**デフォルト値付きで**追加した。既存の生成箇所 3 つを一切変更せずに拡張でき、Ktor の `DefaultJson` が `encodeDefaults = true` を設定しているため空配列も JSON に出力される。
 
 **例外ではない 400**: パスパラメータが数値でない場合（例: `GET /todos/abc`）は例外ではなく読み取り失敗のため、StatusPages ではなく Routes 層の分岐（`toLongOrNull() ?: 400`）で処理する。(b) で実装済み。この経路は上記 2 系統のどちらも通らず、ハンドラ内で `ErrorResponse` を明示的に返すため**ボディが入る**。
 
@@ -336,8 +377,9 @@ sequenceDiagram
 
 - **カスタム例外は `RuntimeException` 継承**（unchecked）: 呼び出し側で try/catch を強制しない → StatusPages が横取りする設計
 - **例外オブジェクトに情報を含める**: `val id: Long` などのプロパティで「何が起きたか」を StatusPages が抽出できる
-- **メッセージは日本語ではなく英語**: ログ・スタックトレースで読みやすさ優先、ユーザー向けメッセージは Routing 層で日本語化する余地あり（現状は英語のまま返す）
-- **例外を throw する層 = Service**: Repository は null を返す、Service で「null → 例外」変換（Elvis 演算子 `?:`）
+- **メッセージは日本語ではなく英語**: ログ・スタックトレースで読みやすさ優先。多言語対応 / エラーコード化はフロントエンド着手時に判断する（[#5](https://github.com/GenkiHashioka/kotlin-todo/issues/5)）
+- **例外を throw する層 = Service**: Repository は null を返す、Service で「null → 例外」変換（Elvis 演算子 `?:`）。ただし `ValidationException` だけは Presentation 層（`validation/`）が投げる
+- **例外の message を無検査でクライアントに返さない**: 自作例外は内容を制御できるので流用してよいが、ライブラリ由来の例外は内部情報を含む。固定文字列を返し、実物はログへ
 
 ---
 
@@ -374,14 +416,15 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 
 ## 7. テスト戦略
 
-### 現状（Phase 4.9 (b) 時点）
+### 現状（Phase 4.9 (c) 時点）
 
 - **Repository テスト** (5): 実 PostgreSQL に対して CRUD の挙動確認、FK CASCADE / SET NULL の動作確認
 - **Service テスト** (5): 業務ロジック（例外投出、複数 Repository の組み合わせ）を実 PostgreSQL 上で確認
-- **Ktor テスト**: まだ無し。routes は (b) で入ったが、`testApplication` によるテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
+- **Ktor テスト**: まだ無し。routes は (b)、バリデーションは (c) で入ったが、`testApplication` によるテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
+- **バリデーション / エラー応答の検証**: 下記の問題により自動テストが書けないため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
 - **カバレッジ計測**: まだ導入していない
 
-> **既知の問題（2026-08-17 時点）**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになり、Testcontainers（内部の docker-java が v1.32 で接続）が `Could not find a valid Docker environment` で起動できず、**全テストが実行不能**。Testcontainers 1.21.3（当時の最新）でも未修正、環境変数 / `~/.testcontainers.properties` による API バージョン指定も効かない。`docker compose` 経由の開発用 PostgreSQL とアプリ本体は正常に動作する。詳細と対処は [#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25) を参照。
+> **既知の問題（2026-08-22 時点）**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになり、Testcontainers（内部の docker-java が v1.32 で接続）が `Could not find a valid Docker environment` で起動できず、**全テストが実行不能**。Testcontainers 1.21.3（当時の最新）でも未修正、環境変数 / `~/.testcontainers.properties` による API バージョン指定も効かない。`docker compose` 経由の開発用 PostgreSQL とアプリ本体は正常に動作する。詳細と対処は [#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25) を参照。
 
 ### Testcontainers による共有 PostgreSQL
 
@@ -438,9 +481,9 @@ JVM 終了時に Testcontainer 自動停止
 | Phase | 追加されるもの |
 |---|---|
 | ~~Phase 4.9 (b)~~ | ~~`dto/`, `routes/`, `DevDataInitializer.kt`（固定ユーザー）、Application.module() の DI 組み立て~~ **完了** |
-| Phase 4.9 (c) | `konform` 依存、DTO へのバリデーション定義、`BadRequestException` への `ErrorResponse` 付与、500 のフォールバック、ADR 0016/0017 |
-| Phase 4.10 | Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI |
-| Phase 4.11 | `ktor-server-test-host` によるテスト刷新、CASCADE テスト追加 |
+| ~~Phase 4.9 (c)~~ | ~~`konform` 依存、`validation/` パッケージ、`dto/error/` 分離、`fieldErrors` 追加、StatusPages に 3 ハンドラ、ADR 0016/0017~~ **完了** |
+| Phase 4.10 | Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI。`ErrorResponse` のスキーマ記載を含む |
+| Phase 4.11 | `ktor-server-test-host` によるテスト刷新、CASCADE テスト追加、(c) の手動 curl のテスト化 |
 
 ### Phase 5 以降で追加される予定のもの（要件書 §4 参照）
 

@@ -29,6 +29,7 @@ dependencies {
 	implementation("io.ktor:ktor-server-call-logging")
 	implementation("io.ktor:ktor-server-status-pages")
 	implementation("ch.qos.logback:logback-classic:1.5.16")
+	implementation("io.konform:konform-jvm:0.11.1")
 
 	// Exposed(Kotlin nativeなSQL DSL)
 	implementation("org.jetbrains.exposed:exposed-core:0.61.0")

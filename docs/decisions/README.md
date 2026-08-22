@@ -23,3 +23,5 @@
 | 0013 | [Gradle スクリプトを Groovy DSL から Kotlin DSL に切り替える](0013-kotlin-dsl-gradle.md) |
 | 0014 | [依存注入は手動 DI で行い、Koin を採用しない](0014-manual-di-over-koin.md) |
 | 0015 | [Exposed の DAO API ではなく DSL API を採用する](0015-exposed-dsl-over-dao.md) |
+| 0016 | [入力バリデーションに Konform を使い、Presentation 層で実行する](0016-konform-for-validation.md) |
+| 0017 | [エラーレスポンスの形を統一し、例外 → HTTP 変換を StatusPages に集約する](0017-error-response-and-exception-mapping.md) |

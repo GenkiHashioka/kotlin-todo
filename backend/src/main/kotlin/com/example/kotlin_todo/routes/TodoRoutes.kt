@@ -1,12 +1,13 @@
 package com.example.kotlin_todo.routes
 
 import com.example.kotlin_todo.domain.Todo
-import com.example.kotlin_todo.dto.ErrorResponse
+import com.example.kotlin_todo.dto.error.ErrorResponse
 import com.example.kotlin_todo.dto.TodoCreateRequest
 import com.example.kotlin_todo.dto.TodoResponse
 import com.example.kotlin_todo.dto.TodoUpdateRequest
 import com.example.kotlin_todo.dto.toResponse
 import com.example.kotlin_todo.service.TodoService
+import com.example.kotlin_todo.validation.validateOrThrow
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
@@ -56,6 +57,9 @@ fun Route.todoRoutes(todoService: TodoService, devUserId: Long) {
             // JSONをDTOに変換
             val request = call.receive<TodoCreateRequest>()
 
+            // 検証。失敗した場合はValidationExceptionをスロー
+            request.validateOrThrow()
+
             // 作成処理
             val created = todoService.create(
                 // TODO(#23): 認証実装後は認証情報からownerIdを取得する
@@ -79,6 +83,9 @@ fun Route.todoRoutes(todoService: TodoService, devUserId: Long) {
 
             // JSONをDTOに変換
             val request = call.receive<TodoUpdateRequest>()
+
+            // 検証。失敗した場合はValidationExceptionをスロー。
+            request.validateOrThrow()
 
             // 更新処理
             val updated = todoService.update(
