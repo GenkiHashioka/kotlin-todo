@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
 **バージョン**: 0.3（Phase 4.9 (c) 完了時点）
-**最終更新**: 2026-08-22
+**最終更新**: 2026-08-23
 
 このドキュメントは kotlin-todo バックエンドの **システム全体構成・レイヤー・依存・データフロー・エラー処理フロー** の一次ソース。「何を作るか」は [requirements.md](requirements.md)、実装の詳細は各 Phase の [journal](journal/) と [design-notes](design-notes/)、個別の設計判断は [decisions (ADR)](decisions/) を参照。
 
@@ -24,7 +24,7 @@
 | ロギング | **Logback + SLF4J** | 1.5.16 | — |
 | バリデーション | **Konform** | 0.11.1 | [ADR 0016](decisions/0016-konform-for-validation.md) |
 | 例外→HTTP マッピング | **Ktor StatusPages** | 3.2.0（Ktor BOM 経由） | [ADR 0017](decisions/0017-error-response-and-exception-mapping.md) |
-| テスト | **JUnit 5 + kotlin-test + Testcontainers** | 5.x + 1.20.4 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) |
+| テスト | **JUnit 5 + kotlin-test + Testcontainers** | 5.x + 1.20.4 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) / [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) |
 
 ### 開発環境
 
@@ -421,10 +421,10 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 - **Repository テスト** (5): 実 PostgreSQL に対して CRUD の挙動確認、FK CASCADE / SET NULL の動作確認
 - **Service テスト** (5): 業務ロジック（例外投出、複数 Repository の組み合わせ）を実 PostgreSQL 上で確認
 - **Ktor テスト**: まだ無し。routes は (b)、バリデーションは (c) で入ったが、`testApplication` によるテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
-- **バリデーション / エラー応答の検証**: 下記の問題により自動テストが書けないため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
+- **バリデーション / エラー応答の検証**: (b) / (c) の実装中は下記の理由でテストが実行できなかったため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
 - **カバレッジ計測**: まだ導入していない
 
-> **既知の問題（2026-08-22 時点）**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになり、Testcontainers（内部の docker-java が v1.32 で接続）が `Could not find a valid Docker environment` で起動できず、**全テストが実行不能**。Testcontainers 1.21.3（当時の最新）でも未修正、環境変数 / `~/.testcontainers.properties` による API バージョン指定も効かない。`docker compose` 経由の開発用 PostgreSQL とアプリ本体は正常に動作する。詳細と対処は [#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25) を参照。
+> **Docker API バージョンの固定**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになった一方、Testcontainers は `api.version` が未設定だと 1.32 を既定値として使うため、一時期すべてのテストが `Could not find a valid Docker environment` で実行不能になっていた（[#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25)）。`build.gradle.kts` の `tasks.test` で `systemProperty("api.version", "1.44")` を指定して解決済み。Testcontainers を上げても直らない点、環境変数 `DOCKER_API_VERSION` では指定できない点を含め、経緯は [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) を参照。
 
 ### Testcontainers による共有 PostgreSQL
 
