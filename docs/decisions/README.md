@@ -26,3 +26,4 @@
 | 0016 | [入力バリデーションに Konform を使い、Presentation 層で実行する](0016-konform-for-validation.md) |
 | 0017 | [エラーレスポンスの形を統一し、例外 → HTTP 変換を StatusPages に集約する](0017-error-response-and-exception-mapping.md) |
 | 0018 | [Testcontainers が使う Docker API バージョンを 1.44 に固定する](0018-pin-docker-api-version-for-testcontainers.md) |
+| 0019 | [Pull Request のマージは squash に統一する](0019-squash-merge-for-pull-requests.md) |
