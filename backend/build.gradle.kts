@@ -63,4 +63,7 @@ kotlin {
 // テスト関連のtask設定
 tasks.test {
 	useJUnitPlatform()
+	// Docker Engine 29 は APIバージョン 1.40未満のクライアントを拒否するようになった。
+	// TestContainers は api.version が未設定だと現状 1.32 を既定値として使用するため明示的にバージョンを指定する。(#25)
+	systemProperty("api.version", "1.44")
 }

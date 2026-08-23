@@ -25,3 +25,4 @@
 | 0015 | [Exposed の DAO API ではなく DSL API を採用する](0015-exposed-dsl-over-dao.md) |
 | 0016 | [入力バリデーションに Konform を使い、Presentation 層で実行する](0016-konform-for-validation.md) |
 | 0017 | [エラーレスポンスの形を統一し、例外 → HTTP 変換を StatusPages に集約する](0017-error-response-and-exception-mapping.md) |
+| 0018 | [Testcontainers が使う Docker API バージョンを 1.44 に固定する](0018-pin-docker-api-version-for-testcontainers.md) |

@@ -84,7 +84,7 @@ cd backend
 
 統合テストは Testcontainers で PostgreSQL コンテナを都度起動するため、Docker が動いていれば追加準備は不要。
 
-> **既知の問題**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになったため、Testcontainers がコンテナを起動できず **テストが実行不能**（`Could not find a valid Docker environment`）。Testcontainers 側の修正待ち（[#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25)）。アプリ本体と `docker compose` 経由の PostgreSQL は正常に動作する。
+Docker Engine 29 以降は API バージョン 1.40 未満のクライアントを拒否するため、`build.gradle.kts` で Testcontainers が使う API バージョンを明示している（[ADR 0018](docs/decisions/0018-pin-docker-api-version-for-testcontainers.md)）。
 
 ## ドキュメント
 
