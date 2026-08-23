@@ -3,6 +3,6 @@
 * text=auto eol=lf
 
 # 以降は上書き（.gitattributes は後の行が優先される）
-/gradlew text eol=lf
+gradlew text eol=lf
 *.bat text eol=crlf
 *.jar binary
