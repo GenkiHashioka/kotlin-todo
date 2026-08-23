@@ -27,7 +27,7 @@ GitHub 側の設定も揃っていない。
 | `allow_rebase_merge` | `true` |
 | `delete_branch_on_merge` | `false` |
 
-3 方式すべてが許可されたままで、ブランチ削除も毎回 `--delete-branch` を手で付けている。**判断も設定も宙に浮いている**ため、ここで decide する。
+3 方式すべてが許可されたままで、マージ後のリモートブランチも自動削除されない。**判断も設定も宙に浮いている**ため、ここで decide する。
 
 ## Decision（何を決めたか）
 
@@ -114,7 +114,23 @@ Testcontainers を Docker Engine 29 に対応させ、テストを復旧する (
 | `allow_squash_merge` | `true` | 採用する方式 |
 | `allow_merge_commit` | `false` | 誤って別方式を選べないようにする |
 | `allow_rebase_merge` | `false` | 同上 |
-| `delete_branch_on_merge` | `true` | `--delete-branch` の手打ちを不要にする |
+| `delete_branch_on_merge` | `true` | マージ後にリモートブランチを自動削除する |
+
+**`delete_branch_on_merge` はリモートブランチしか消さない。** ローカルブランチは `origin/xxx: gone` の状態で残るため、`gh pr merge` には引き続き `--delete-branch` を付ける（このフラグはローカルとリモートの両方を消す）。設定はあくまで、UI からマージした場合やフラグを付け忘れた場合の保険である。
+
+**残ったローカルブランチは `git branch -d` では消せない。** squash はブランチのコミットを取り込むのではなく、同じ内容の**別のコミット**を `main` に作る操作なので、ブランチ先端は `main` の祖先にならない。`-d` は中身ではなく祖先関係を見るため、squash 運用では全ブランチが「未マージ」と判定される。
+
+```
+$ git branch -d docs/adr-0019-squash-merge
+error: the branch 'docs/adr-0019-squash-merge' is not fully merged
+
+$ git rev-parse docs/adr-0019-squash-merge^{tree}   # ブランチのツリー
+146b3f7fd482c7cd6c86ce18fb223190fdb0422a
+$ git rev-parse main^{tree}                          # main のツリー
+146b3f7fd482c7cd6c86ce18fb223190fdb0422a             # 完全に同一
+```
+
+したがって手で消す場合は `-D` を使う。ただし `-d` が持っていた安全性（未マージなら止める）が失われるため、**`gh pr merge --squash --delete-branch` を常用する**。`gh` は PR がマージ済みであることを GitHub API で確認してから削除するので、git の祖先判定に頼らずに済む。
 
 ### 6. 既存の merge commit は書き換えない
 
