@@ -107,7 +107,7 @@ class TodoServiceTest : AbstractPostgresTest() {
     }
 
     @Test
-    fun `deleteは削除したTODOの内容を返却する`() = runBlocking {
+    fun `deleteは削除したTODOの内容を返却する`(): Unit = runBlocking {
         // 事前準備
         val user = userRepository.create(email = "test@test.com", passwordHash = "hashedPassword")
         val created = todoService.create(
