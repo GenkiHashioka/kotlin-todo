@@ -22,7 +22,7 @@ application {
 }
 
 dependencies {
-	implementation(platform("io.ktor:ktor-bom:3.2.0"))
+    implementation(platform("io.ktor:ktor-bom:3.5.2"))
 	implementation("io.ktor:ktor-server-netty")
 	implementation("io.ktor:ktor-server-content-negotiation")
 	implementation("io.ktor:ktor-serialization-kotlinx-json")
