@@ -1,6 +1,7 @@
 plugins {
-	kotlin("jvm") version "2.3.21"
-	kotlin("plugin.serialization") version "2.3.21"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.serialization") version "2.4.10"
+    id("io.ktor.plugin") version "3.5.2"
 	application
 }
 
@@ -17,6 +18,13 @@ repositories {
 	mavenCentral()
 }
 
+// OpenApi 仕様をルーティングのコードから生成する（Ktor 3.3.0 以降の実験的機能）
+ktor {
+    openApi {
+        enabled = true
+    }
+}
+
 application {
 	mainClass.set("com.example.kotlin_todo.ApplicationKt")
 }
@@ -30,6 +38,9 @@ dependencies {
 	implementation("io.ktor:ktor-server-status-pages")
 	implementation("ch.qos.logback:logback-classic:1.5.16")
 	implementation("io.konform:konform-jvm:0.11.1")
+    // OpenAPI 仕様の生成と Swagger UI
+    implementation("io.ktor:ktor-server-routing-openapi")
+    implementation("io.ktor:ktor-server-swagger")
 
 	// Exposed(Kotlin nativeなSQL DSL)
 	implementation("org.jetbrains.exposed:exposed-core:0.61.0")
