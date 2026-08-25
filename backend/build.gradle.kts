@@ -58,6 +58,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:42.7.4")
 
     // Testing
+    testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
     testImplementation("org.testcontainers:junit-jupiter")
