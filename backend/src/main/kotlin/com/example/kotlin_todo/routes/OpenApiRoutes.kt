@@ -30,6 +30,10 @@ private val openApiJson = Json {
     prettyPrint = true
 }
 
+/**
+ * OpenAPI 仕様の配信経路。
+ * 仕様はルーティングの木から実行時に組み立てられるため、呼ぶ順番は問わない。
+ */
 fun Route.openApiRoutes() {
     // OpenAPI仕様の生 JSON。テストと curl から読む。
     // hide() を付与することで、この経路自身が仕様書に載らないようにする
