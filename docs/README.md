@@ -10,7 +10,7 @@
 - `journal/` — フェーズごとの学習ジャーナル。何を学び、なぜその設計にしたか、自己確認の結果を記録する。
 - `decisions/` — 設計判断のみを短く切り出した記録（ADR）。ジャーナルより粒度が細かく、「なぜこの実装にしたか」を後から検索しやすくするためのもの。Phase 3から運用開始（[一覧](decisions/README.md)）。
 - `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Flyway マイグレーション (`V1__init.sql`) と Exposed の Table 定義の両方の正となるドキュメント。
-- `api/` — API仕様書。Phase 4.10 で Ktor 版に再構築予定。
+- `api/` — API 仕様書の見方。OpenAPI 仕様はルーティングのコードから自動生成され、リポジトリにスナップショットは置かない（[運用ガイド](api/README.md)、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)）。
 
 ## 運用方針
 
@@ -33,6 +33,6 @@
     - (a) 設計整理 + architecture.md 整備（完了）
     - (b) Routing + DTO（完了、CRUD API が動作）
     - (c) Konform バリデーション + StatusPages 拡張（完了、不正な入力に正しく応答する）
-  - Phase 4.10: OpenAPI / Swagger UI 再構築（次）
-  - Phase 4.11: テスト戦略再構築（Ktor + Exposed 版）
+  - Phase 4.10: OpenAPI / Swagger UI 再構築（完了、ルーティングのコードから自動生成 + Swagger UI）
+  - Phase 4.11: テスト戦略再構築（Ktor + Exposed 版）（次）
 - Phase 5: フィルタ/ソート/検索/ページネーション（Ktor移行完了後に再開）

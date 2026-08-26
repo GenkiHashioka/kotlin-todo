@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.3（Phase 4.9 (c) 完了時点）
-**最終更新**: 2026-08-23
+**バージョン**: 0.4（Phase 4.10 完了時点）
+**最終更新**: 2026-08-26
 
 このドキュメントは kotlin-todo バックエンドの **システム全体構成・レイヤー・依存・データフロー・エラー処理フロー** の一次ソース。「何を作るか」は [requirements.md](requirements.md)、実装の詳細は各 Phase の [journal](journal/) と [design-notes](design-notes/)、個別の設計判断は [decisions (ADR)](decisions/) を参照。
 
@@ -13,18 +13,19 @@
 
 | レイヤー | 採用技術 | バージョン | 選定 ADR |
 |---|---|---|---|
-| Web フレームワーク | **Ktor** (server-netty) | 3.2.0 | [ADR 0008](decisions/0008-migrate-from-spring-to-ktor.md) |
+| Web フレームワーク | **Ktor** (server-netty) | 3.5.2 | [ADR 0008](decisions/0008-migrate-from-spring-to-ktor.md) |
 | HTTP エンジン | **Netty** | 4.2.x（Ktor BOM 経由） | ADR 0008 |
 | ORM / SQL ライブラリ | **Exposed** (DSL API) | 0.61.0 | [ADR 0015](decisions/0015-exposed-dsl-over-dao.md) |
 | DB 接続プール | **HikariCP** | 6.2.1 | — |
 | DB マイグレーション | **Flyway** | 11.1.0 | [ADR 0011](decisions/0011-flyway-for-schema-management.md) |
 | データベース | **PostgreSQL** | 17 | [ADR 0010](decisions/0010-db-migration-before-framework-swap.md) |
-| JSON シリアライズ | **kotlinx.serialization** | 1.8.1（Kotlin 2.3.21 の plugin 経由） | — |
+| JSON シリアライズ | **kotlinx.serialization** | 1.11.0（Kotlin 2.4.10 の plugin 経由） | — |
 | 依存注入 | **手動 DI** (Application.module() で組み立て) | — | [ADR 0014](decisions/0014-manual-di-over-koin.md) |
 | ロギング | **Logback + SLF4J** | 1.5.16 | — |
 | バリデーション | **Konform** | 0.11.1 | [ADR 0016](decisions/0016-konform-for-validation.md) |
-| 例外→HTTP マッピング | **Ktor StatusPages** | 3.2.0（Ktor BOM 経由） | [ADR 0017](decisions/0017-error-response-and-exception-mapping.md) |
-| テスト | **JUnit 5 + kotlin-test + Testcontainers** | 5.x + 1.20.4 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) / [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) |
+| 例外→HTTP マッピング | **Ktor StatusPages** | 3.5.2（Ktor BOM 経由） | [ADR 0017](decisions/0017-error-response-and-exception-mapping.md) |
+| API 仕様生成 | **Ktor OpenAPI**（コンパイラプラグイン + `ktor-server-routing-openapi` / `ktor-server-swagger`） | 3.5.2 | [ADR 0020](decisions/0020-generate-openapi-from-routing.md) |
+| テスト | **JUnit 5 + kotlin-test + Testcontainers + ktor-server-test-host** | 5.x + 1.20.4 + 3.5.2 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) / [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) |
 
 ### 開発環境
 
@@ -33,9 +34,9 @@
 | ホスト OS | Windows 11 | — |
 | 開発 OS | WSL2 (Ubuntu) | — |
 | JDK | Amazon Corretto 25 (LTS) | SDKMAN 管理 |
-| Kotlin | 2.3.21 | Spring Initializer 推奨版 |
+| Kotlin | 2.4.10 | Ktor の OpenAPI 生成が 2.4.0 以上を要求（[ADR 0020](decisions/0020-generate-openapi-from-routing.md)） |
 | IDE | IntelliJ IDEA CE (Community) | 無料版 |
-| Gradle | 9.x, Kotlin DSL | [ADR 0013](decisions/0013-kotlin-dsl-gradle.md) |
+| Gradle | 9.6.0, Kotlin DSL | [ADR 0013](decisions/0013-kotlin-dsl-gradle.md) / [ADR 0021](decisions/0021-pin-gradle-to-ide-tooling-api.md)（IDE 同梱の Tooling API に合わせて固定） |
 | DB 起動 | Docker Compose | `docker compose up -d postgres` |
 
 ---
@@ -416,11 +417,12 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 
 ## 7. テスト戦略
 
-### 現状（Phase 4.9 (c) 時点）
+### 現状（Phase 4.10 完了時点）
 
 - **Repository テスト** (5): 実 PostgreSQL に対して CRUD の挙動確認、FK CASCADE / SET NULL の動作確認
 - **Service テスト** (5): 業務ロジック（例外投出、複数 Repository の組み合わせ）を実 PostgreSQL 上で確認
-- **Ktor テスト**: まだ無し。routes は (b)、バリデーションは (c) で入ったが、`testApplication` によるテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
+- **OpenAPI 仕様のテスト** (4): 生成された仕様書の中身（エンドポイントの一覧、エラーレスポンスの型、リクエストボディの型）を検証する。`testApplication` でルーティングだけを組み立てるため **DB に接続しない**（[ADR 0020](decisions/0020-generate-openapi-from-routing.md) 判断 8）
+- **Ktor テスト（HTTP 経由で実際にリクエストを処理するもの）**: まだ無し。`testApplication` 自体は Phase 4.10 で導入したが、Routing → Service → Repository を通貫するテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
 - **バリデーション / エラー応答の検証**: (b) / (c) の実装中は下記の理由でテストが実行できなかったため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
 - **カバレッジ計測**: まだ導入していない
 
@@ -451,7 +453,7 @@ JVM 終了時に Testcontainer 自動停止
 
 ### Phase 4.11 で予定している拡張
 
-- **Ktor `testApplication` による HTTP 経由テスト**（Routing + Service + Repository を通貫）
+- **Ktor `testApplication` による HTTP 経由テスト**（Routing + Service + Repository を通貫）。`testApplication` の導入自体は Phase 4.10 で済んでおり、ここで扱うのは DB を伴う通貫テスト
 - **ON DELETE CASCADE の実挙動テスト**（現状 SET NULL のみ検証済み）
 - **Konform バリデーション失敗パスのテスト**
 - **エラーレスポンス (404, 400, 500) の StatusPages マッピングテスト**
@@ -482,8 +484,8 @@ JVM 終了時に Testcontainer 自動停止
 |---|---|
 | ~~Phase 4.9 (b)~~ | ~~`dto/`, `routes/`, `DevDataInitializer.kt`（固定ユーザー）、Application.module() の DI 組み立て~~ **完了** |
 | ~~Phase 4.9 (c)~~ | ~~`konform` 依存、`validation/` パッケージ、`dto/error/` 分離、`fieldErrors` 追加、StatusPages に 3 ハンドラ、ADR 0016/0017~~ **完了** |
-| Phase 4.10 | Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI。`ErrorResponse` のスキーマ記載を含む |
-| Phase 4.11 | `ktor-server-test-host` によるテスト刷新、CASCADE テスト追加、(c) の手動 curl のテスト化 |
+| ~~Phase 4.10~~ | ~~Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI。`ErrorResponse` のスキーマ記載を含む~~ **完了**（コンパイラプラグインによる自動生成 + `describe` での補完、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)） |
+| Phase 4.11 | `testApplication` による HTTP 経由テストの拡充（DB を伴う通貫）、CASCADE テスト追加、(c) の手動 curl のテスト化 |
 
 ### Phase 5 以降で追加される予定のもの（要件書 §4 参照）
 
