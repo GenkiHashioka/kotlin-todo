@@ -9,23 +9,21 @@ import com.example.kotlin_todo.exception.TodoNotFoundException
 import com.example.kotlin_todo.repository.CategoryRepository
 import com.example.kotlin_todo.repository.TodoRepository
 import com.example.kotlin_todo.repository.UserRepository
+import com.example.kotlin_todo.routes.openApiRoutes
 import com.example.kotlin_todo.routes.todoRoutes
 import com.example.kotlin_todo.service.TodoService
 import com.example.kotlin_todo.validation.ValidationException
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.server.application.Application
-import io.ktor.server.application.install
-import io.ktor.server.application.log
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.plugins.BadRequestException
-import io.ktor.server.plugins.calllogging.CallLogging
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.statuspages.StatusPages
-import io.ktor.server.response.respond
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.plugins.*
+import io.ktor.server.plugins.calllogging.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.MissingFieldException
 import kotlinx.serialization.Serializable
@@ -146,10 +144,16 @@ fun Application.module() {
     }
 
     routing {
+        // ヘルスチェック
         get("/health") {
             call.respond(HealthResponse(status = "UP"))
         }
+
+        // Todoエンドポイント
         todoRoutes(todoService = todoService, devUserId = devUserId)
+
+        // OpenAPIエンドポイント
+        openApiRoutes()
     }
 }
 

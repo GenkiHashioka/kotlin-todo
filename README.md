@@ -4,19 +4,19 @@ Kotlin を学習しながら育てる Todo アプリ。バックエンド + 将�
 
 ## 技術スタック
 
-- Kotlin 2.3 / JDK 25
-- Ktor 3.2（HTTP サーバ、Netty エンジン）
+- Kotlin 2.4 / JDK 25
+- Ktor 3.5（HTTP サーバ、Netty エンジン、OpenAPI 仕様の生成）
 - Exposed 0.61（Kotlin 製 SQL DSL、DAO ではなく DSL API を採用）
 - PostgreSQL 17（開発環境は Docker Compose、統合テストは Testcontainers）
 - Flyway 11（スキーマ移行） / HikariCP 6（コネクションプール）
 - kotlinx.serialization（JSON） / Konform 0.11（バリデーション） / Logback 1.5
-- JUnit 5 + kotlin-test-junit5
+- JUnit 5 + kotlin-test-junit5 + ktor-server-test-host
 
 Phase 4.6〜4.9 で Spring Boot + JPA/Hibernate 版から Kotlin native なスタックに移行済み。移行前の実装は `v0.4-spring-final` タグで保全。
 
 ## 現在の進捗
 
-Phase 4.9 (c) 完了。Ktor 移行のうち Presentation 層まで実装済みで、Todo の CRUD API と入力バリデーションが動作する。次は OpenAPI / Swagger UI（Phase 4.10）。
+Phase 4.10 完了。Todo の CRUD API・入力バリデーション・OpenAPI 仕様の自動生成が動作する。次はテスト戦略の再構築（Phase 4.11）。
 
 フェーズごとの詳細は [`docs/README.md`](docs/README.md) 参照。
 
@@ -71,9 +71,13 @@ curl -X POST http://localhost:8080/todos -H "Content-Type: application/json" \
 
 エラーレスポンスは 400 / 404 / 500 のすべてがこの形（`status` / `message` / `fieldErrors`）で返る。詳細は [ADR 0016](docs/decisions/0016-konform-for-validation.md)（バリデーション）と [ADR 0017](docs/decisions/0017-error-response-and-exception-mapping.md)（エラー変換）を参照。
 
-OpenAPI / Swagger UI は Phase 4.10 で追加予定。
+API 仕様書はブラウザから <http://localhost:8080/swagger> で読める。エンドポイント一覧・リクエスト/レスポンスの型・エラーの形が並び、**「Try it out」から実際にリクエストを送れる**。生の JSON は <http://localhost:8080/openapi.json>。
 
-IntelliJ IDEA を使う場合は `backend/` をプロジェクトとして開いて Run configuration から起動する方が楽。
+仕様はルーティングのコードから自動生成されるため、リポジトリにスナップショットは置いていない（[ADR 0020](docs/decisions/0020-generate-openapi-from-routing.md) / [見方](docs/api/README.md)）。
+
+IntelliJ IDEA を使う場合は、リポジトリのルートを開き、`backend/build.gradle.kts` を Gradle プロジェクトとしてリンクする（docs も同じウィンドウで扱えるため）。起動は Run configuration から。
+
+**Gradle は 9.6.0 に固定している。** IntelliJ IDEA 2026.2.1 が同梱する Tooling API が 9.6.0 であり、9.7 系にすると IDE の Gradle 同期がエラーを出さないまま壊れる（[ADR 0021](docs/decisions/0021-pin-gradle-to-ide-tooling-api.md)）。
 
 ## テスト実行
 
