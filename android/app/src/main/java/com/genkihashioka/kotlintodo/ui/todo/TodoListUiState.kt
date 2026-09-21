@@ -3,8 +3,16 @@ package com.genkihashioka.kotlintodo.ui.todo
 import com.genkihashioka.kotlintodo.data.remote.model.TodoDto
 
 /**
- * TodoリストのUIの状態を表すデータクラス。
+ * TodoリストのUIの状態を表すsealed interface。
  */
-data class TodoListUiState(
-    val todos: List<TodoDto> = emptyList(),
-)
+sealed interface TodoListUiState {
+    data object Loading : TodoListUiState
+
+    data class Success(
+        val todos: List<TodoDto>,
+    ) : TodoListUiState
+
+    data object Empty : TodoListUiState
+
+    data object Error : TodoListUiState
+}
