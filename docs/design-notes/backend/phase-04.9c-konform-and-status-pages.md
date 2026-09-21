@@ -16,7 +16,7 @@ Phase 4.9 (b) で Todo の CRUD API が復活し、5 エンドポイントが動
 
 1 と 3 の原因は (b) の journal に記録済み。Ktor には例外を HTTP ステータスに変換する経路が 2 系統あり、`install(StatusPages)` に登録していない例外は `io.ktor.server.engine.defaultExceptionStatusCode` が処理する。こちらは `call.respond(statusCode)` を呼ぶだけなのでボディが付かない。
 
-2 は Spring 時代に Bean Validation が担っていた責務で、Ktor 移行時に一度失われた。[ADR 0008](../decisions/0008-migrate-from-spring-to-ktor.md) で代替として Konform を採用する方針が決まっている。
+2 は Spring 時代に Bean Validation が担っていた責務で、Ktor 移行時に一度失われた。[ADR 0008](../../decisions/0008-migrate-from-spring-to-ktor.md) で代替として Konform を採用する方針が決まっている。
 
 本 PR はこの 3 つを埋め、Phase 4.9 の Routing 層を完成させる。
 
@@ -171,14 +171,14 @@ dto/
 
 **`title` の空白チェック**: Konform の `minLength(1)` は `"   "` を通す（長さが 3 のため）。空白のみを弾く制約を別途書く必要がある。
 
-**`description` の 2000 という数字に技術的根拠は無い。** `TEXT` は DB 側で無制限だが、上限の無い入力をそのまま受けると数 MB の JSON がそのまま DB に載る。これは方針の選択であり、DB より DTO を厳しくする方向なので「DTO は通るが DB で落ちる」ズレは起きない（`docs/journal/phase-04-todo-crud.md:60` の警告は逆方向のズレについてのもの）。
+**`description` の 2000 という数字に技術的根拠は無い。** `TEXT` は DB 側で無制限だが、上限の無い入力をそのまま受けると数 MB の JSON がそのまま DB に載る。これは方針の選択であり、DB より DTO を厳しくする方向なので「DTO は通るが DB で落ちる」ズレは起きない（`docs/journal/backend/phase-04-todo-crud.md:60` の警告は逆方向のズレについてのもの）。
 
 ### 判断 7: `dueDate` に日付制約を入れない
 
 「今日以降」制約は **Phase 4 で検討し却下済み**であり、その判断を踏襲する。
 
 > `dueDate`に「今日以降」という制約を検討したが、PUT方式の更新では既存の（期限切れの）値がそのまま送られてくるため、更新自体が永久に失敗するという副作用に気づき、見送った
-> （`docs/journal/phase-04-todo-crud.md:61`）
+> （`docs/journal/backend/phase-04-todo-crud.md:61`）
 
 期限切れの Todo を「完了」にしようとした瞬間、`dueDate` が過去日であるために更新が弾かれる。PATCH による部分更新を導入するか、作成と更新で検証ルールを分けない限り解決しない。どちらも本 PR のスコープ外。
 

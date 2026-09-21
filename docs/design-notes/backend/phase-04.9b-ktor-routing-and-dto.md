@@ -6,7 +6,7 @@
 
 ## 1. 背景
 
-要件書 [4.1 Todo 管理（コア機能）](../requirements.md) の CRUD API を、Ktor + Exposed のスタック上で復活させる。
+要件書 [4.1 Todo 管理（コア機能）](../../requirements.md) の CRUD API を、Ktor + Exposed のスタック上で復活させる。
 
 Phase 4（Spring Boot 版）では `TodoController` + `@RestControllerAdvice` で提供していた API が、Phase 4.7 の Spring 削除以降ずっと落ちたままになっている。現在稼働しているエンドポイントは `/health` のみ。
 

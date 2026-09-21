@@ -6,9 +6,9 @@
 
 Spring Boot 時代、API 仕様書は `springdoc-openapi` が実装から自動生成していた。Ktor 移行でこれが失われ、`docs/api/` には Phase 4 時点のスナップショットと、既に存在しない `/swagger-ui.html` を案内する README が残っていた。本 Phase の目的は、**「実装から生成される」という性質を Ktor 版で取り戻す**こと。
 
-設計は [design-notes/phase-04.10-openapi-and-swagger-ui.md](../design-notes/phase-04.10-openapi-and-swagger-ui.md) に事前記録済み（判断 1〜7、懸念 A〜I）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
+設計は [design-notes/backend/phase-04.10-openapi-and-swagger-ui.md](../../design-notes/backend/phase-04.10-openapi-and-swagger-ui.md) に事前記録済み（判断 1〜7、懸念 A〜I）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
 
-判断そのものは [ADR 0020](../decisions/0020-generate-openapi-from-routing.md)（生成方針）と [ADR 0021](../decisions/0021-pin-gradle-to-ide-tooling-api.md)（Gradle の固定）に切り出した。
+判断そのものは [ADR 0020](../../decisions/0020-generate-openapi-from-routing.md)（生成方針）と [ADR 0021](../../decisions/0021-pin-gradle-to-ide-tooling-api.md)（Gradle の固定）に切り出した。
 
 ## 学習目標
 
@@ -119,7 +119,7 @@ components.schemas: CategorySummary / ErrorResponse / FieldError /
 - DTO 7 種の JSON Schema。`description: String?` が `type: ["string", "null"]` になり、**デフォルト値を持つ `fieldErrors` は `required` から外れていた**
 - **行コメントから `summary`**
 
-最後の 2 つは予想していなかった。特に `fieldErrors` が `required` に入らないのは、[ADR 0017](../decisions/0017-error-response-and-exception-mapping.md) の判断 4（デフォルト値を付けることが要点）が、**仕様書の上でも正しく表現された**ということで、設計の妥当性が別の角度から確認できた。
+最後の 2 つは予想していなかった。特に `fieldErrors` が `required` に入らないのは、[ADR 0017](../../decisions/0017-error-response-and-exception-mapping.md) の判断 4（デフォルト値を付けることが要点）が、**仕様書の上でも正しく表現された**ということで、設計の妥当性が別の角度から確認できた。
 
 **先に「素の状態」を見たことが、この Phase で最も効いた判断だった。** 見ずに書き始めていたら、推論が既に載せている 400 を `describe` にも書いて二重に管理していた。
 
@@ -324,7 +324,7 @@ NotEnoughSpace(where=/tmp/QA98Zp/gradle-api-9.6.0.jar.part, message=No space lef
 
 160 個のディレクトリが溜まり、**15GB の物理メモリのうち 7.7GB を占有**していた。`/tmp` を実ディスクに移して解消した。
 
-**原因 2: Gradle 9.7 系と IDE の Tooling API が非互換だった。** IntelliJ 2026.2.1 が同梱するのは `gradle-api-9.6.0.jar` で、9.7 系のデーモンと組み合わせると同期が壊れる（[ADR 0021](../decisions/0021-pin-gradle-to-ide-tooling-api.md)）。
+**原因 2: Gradle 9.7 系と IDE の Tooling API が非互換だった。** IntelliJ 2026.2.1 が同梱するのは `gradle-api-9.6.0.jar` で、9.7 系のデーモンと組み合わせると同期が壊れる（[ADR 0021](../../decisions/0021-pin-gradle-to-ide-tooling-api.md)）。
 
 ### 教訓
 
@@ -356,6 +356,6 @@ NotEnoughSpace(where=/tmp/QA98Zp/gradle-api-9.6.0.jar.part, message=No space lef
 
 これは「テスト用の接ぎ目をどこに作るか」という Phase 4.11 の主題であり、[#29](https://github.com/GenkiHashioka/kotlin-todo/issues/29)（接続情報の外部化）とも同じコードに触れる。Phase 4.11 で解消する。
 
-### Gradle を上げられない（[ADR 0021](../decisions/0021-pin-gradle-to-ide-tooling-api.md)）
+### Gradle を上げられない（[ADR 0021](../../decisions/0021-pin-gradle-to-ide-tooling-api.md)）
 
 9.6.0 に固定した。IDE が新しい Tooling API を同梱するまで解除できない。**エラーを出さずに壊れる**種類の不具合なので、Gradle を上げる際は IDE 同梱の `gradle-api-*.jar` を先に確認する。

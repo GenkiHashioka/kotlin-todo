@@ -3,6 +3,8 @@
 **ステータス**: 採用
 **日付**: 2026-08-08
 
+> **後続の変更**: モノレポを維持する判断は有効。将来のクライアントをNext.jsとする計画は、[ADR 0022](0022-prioritize-android-client.md)でAndroidへ変更した。
+
 ## Context（背景・何を解決したいか）
 
 Phase 6（認証・複数ユーザー）完了後にフロントエンド（Next.js）を追加する予定になった。バックエンド（Ktor）とフロントエンド（Next.js）をどのようなリポジトリ構造で扱うかを、フロント着手前の Phase 4.5（再編とインフラ準備）の段階で決める必要があった。
@@ -50,5 +52,6 @@ Phase 4.5 では、既存のプロジェクトルート直下にある Kotlin �
 ## 関連
 
 - [ADR 0008 - Spring Boot から Ktor へ移行する](0008-migrate-from-spring-to-ktor.md)
+- [ADR 0022 - Androidクライアントを主要な開発対象にする](0022-prioritize-android-client.md)
 - プラン file: `~/.claude/plans/pc-springboot-kotlin-ktor-mac-giggly-key.md`（ローカル参照）— Phase 4.5 のディレクトリ再編作業の詳細
 - Phase 6 完了時に追加予定の ADR: フロントエンド着手時の DevContainer 構成、CORS 方針など

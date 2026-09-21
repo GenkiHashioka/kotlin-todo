@@ -104,7 +104,7 @@ Kotlin のバージョン要求も満たしている。OpenAPI の Gradle 拡張
 
 #### なぜ記述が必要なのか
 
-自動生成が読み取れるのは `routing { }` の中のコードだけである。ところが Phase 4.9 (c) で、エラーの生成場所を **StatusPages に集約**した（[ADR 0017](../decisions/0017-error-response-and-exception-mapping.md)）。
+自動生成が読み取れるのは `routing { }` の中のコードだけである。ところが Phase 4.9 (c) で、エラーの生成場所を **StatusPages に集約**した（[ADR 0017](../../decisions/0017-error-response-and-exception-mapping.md)）。
 
 ```
 TodoRoutes.kt    ← 自動生成が読む場所。404 も 500 もここに書かれていない

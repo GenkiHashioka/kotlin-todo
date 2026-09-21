@@ -1,11 +1,11 @@
 # 詳細設計メモ (design-notes)
 
-Phase / 機能を実装する **前に** 書く設計メモを配置するディレクトリ。案 C（現代的アーキテクチャ文書 + 実装前設計メモ）の「詳細設計相当」を担う。
+Track / Phase / 機能を実装する **前に** 書く設計メモを配置するディレクトリ。案 C（現代的アーキテクチャ文書 + 実装前設計メモ）の「詳細設計相当」を担う。
 
 ## 目的
 
 - **実装前に「これから何を作るか」を言語化** することで、いきなりコードを書き始めて設計が固まらないまま迷走する事態を防ぐ
-- Claude と本人の間で **設計の合意点を明示的に記録** し、後から「なぜこう作ったか」を辿れる形にする
+- AIアシスタントと本人の間で **設計の合意点を明示的に記録** し、後から「なぜこう作ったか」を辿れる形にする
 - **journal（実装後の学び）と対** になる。design-notes = 実装前の意図、journal = 実装後の結果と差分。両者を比較すると学びが深まる
 
 ## 使い分け（他のドキュメントとの棲み分け）
@@ -25,14 +25,20 @@ Phase / 機能を実装する **前に** 書く設計メモを配置するディ
 ```
 docs/design-notes/
 ├── README.md                                 # 本ドキュメント（運用ガイド）
-├── phase-04.9b-ktor-routing-and-dto.md       # 例: Phase 4.9 (b) の設計メモ
-├── phase-04.9c-konform-and-status-pages.md   # 例: Phase 4.9 (c) の設計メモ
-└── phase-05-filter-sort-search.md            # 例: Phase 5 の設計メモ
+├── android/
+│   └── 01-todo-list-from-api.md              # Android Trackの例
+└── backend/
+    ├── phase-04.9b-ktor-routing-and-dto.md   # 例: Phase 4.9 (b) の設計メモ
+    ├── phase-04.9c-konform-and-status-pages.md
+    └── phase-05-filter-sort-search.md        # 例: Phase 5 の設計メモ
 ```
 
-**命名**: `phase-{Phase番号}-{topic-kebab-case}.md`
+**Backend Phaseの命名**: `backend/phase-{Phase番号}-{topic-kebab-case}.md`
+
+**Android Trackの命名**: `android/{連番2桁}-{topic-kebab-case}.md`
 
 - Phase 番号は journal と揃える（例: `phase-04.9b-...`）
+- Androidの連番もjournalと揃える（例: `android/01-...`）
 - topic は「何を作る PR か」を kebab-case で。design-notes は 1 Phase 内で複数書いても良い
 
 ## テンプレート
@@ -100,9 +106,9 @@ docs/design-notes/
 ```
 Phase X 着手前
     ↓
-本人と Claude で設計相談（会話ベース）
+本人とAIアシスタントで設計相談（会話ベース）
     ↓
-Claude が design-notes/phase-XX-{topic}.md を下書き
+AIアシスタントが design-notes/{track}/{topic}.md を下書き
     ↓
 本人がレビュー + 修正
     ↓
@@ -119,7 +125,7 @@ Claude が design-notes/phase-XX-{topic}.md を下書き
 
 ### パターン A（デフォルト、推奨）: 実装 PR と同梱
 
-- **1 PR で完結**: `docs/design-notes/phase-XX-{topic}.md` の追加 + 実装 + テスト + journal 追記を同じ PR に含める
+- **1 PR で完結**: `docs/design-notes/backend/phase-XX-{topic}.md` の追加 + 実装 + テスト + journal 追記を同じ PR に含める
 - **レビュー時に対比可能**: 設計と実装が同じ diff で並ぶので、齟齬があれば即座に気付ける
 - **PR 数を抑えられる**: 学習プロジェクトのイテレーション速度を維持
 
@@ -129,7 +135,7 @@ Claude が design-notes/phase-XX-{topic}.md を下書き
 
 ### パターン B（例外時のみ）: 設計 PR を先行 merge、実装 PR は後続
 
-- **PR-1**: `docs/design-notes/phase-XX-{topic}.md` を新規作成する docs-only PR、merge
+- **PR-1**: `docs/design-notes/backend/phase-XX-{topic}.md` を新規作成する docs-only PR、merge
 - **PR-2**: 上記設計メモを参照しながら実装、テスト、journal 追記を行う実装 PR
 
 **採用ケース**:

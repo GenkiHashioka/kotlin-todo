@@ -1,17 +1,17 @@
 # 要件定義書
 
-**バージョン**: 0.1（Phase 4.9 (a) 完了時点）
-**最終更新**: 2026-08-12
+**バージョン**: 0.2（Androidクライアント着手時点）
+**最終更新**: 2026-09-21
 
-このドキュメントは「kotlin-todo で何を作るか」の一次ソース。技術的な起動手順は [README](../README.md)、実装フェーズの計画は Claude Code のローカルプラン file（リポジトリ管理外）を参照。
+このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
 
 ---
 
 ## 1. 概要
 
-**kotlin-todo** は、個人利用の Todo 管理を題材とした **Kotlin 学習用の趣味プロジェクト**。
+**kotlin-todo**は、個人利用のTodo管理を題材とした**Kotlin / Android学習用の趣味プロジェクト**。
 
-「Kotlin 言語そのもの（coroutines / DSL / null 安全 / 拡張関数）」と「Kotlin native な Web スタック（Ktor / Exposed / PostgreSQL）」を **実運用に近い構成で書きながら覚える** ことが主目的。副次的に、開発者本人が日常で使える Todo アプリになる。
+既存のKtorバックエンドをAPI基盤として利用し、Jetpack ComposeによるAndroidクライアントを段階的に構築する。Kotlin、Compose、Coroutines、Flow / StateFlow、ViewModel、Android Architectureを、実際に機能を作りながら理解することが現在の主目的である。副次的に、開発者本人が日常で使えるTodoアプリになることを目指す。
 
 ---
 
@@ -19,15 +19,17 @@
 
 ### 主目的（学習）
 
-- Kotlin 言語の書き心地を体で覚える（coroutines、DSL、null 安全、`data class`、拡張関数、scope function、`when` 式、smart cast など）
-- Kotlin native な Web スタック（Ktor + Exposed + kotlinx.serialization + Konform）に慣れる
-- Docker Compose / Flyway / Testcontainers など「実運用に近い開発環境」の構築を体験する
-- 設計判断の記録（ADR）と学習過程の記録（journal）を **他人に見せられる形で残す** 練習
+- Kotlinの基本構文とCoroutines / Flowを実装の中で定着させる
+- Jetpack Compose、ViewModel、StateFlow、Repositoryを用いたAndroidアプリの設計と実装を経験する
+- AndroidクライアントからKtor API、PostgreSQLまでのデータフローを理解する
+- 必要性が生じた段階でNavigation、DI、テストを追加し、導入理由を説明できるようにする
+- 設計判断（ADR）と学習過程（journal）を他人に見せられる形で残す
+- 既存のKtor / Exposed / PostgreSQLバックエンドは、Androidに必要な範囲で保守する
 
 ### 副目的（プロダクト）
 
 - 開発者本人が **日常で実際に使える** Todo アプリ（趣味用途、単一ユーザー前提）
-- 認証機能実装後（Phase 6 以降）は、複数ユーザーが各自独立して使える形に拡張
+- 認証機能を実装する段階では、複数ユーザーが各自独立して使える形に拡張
 
 ### 明示的に目的としないこと
 
@@ -38,14 +40,15 @@
 
 ## 3. 想定ユーザー
 
-### 現在（Phase 4〜Phase 5 完了まで）
+### 現在
 
 - **開発者本人のみ**（固定ユーザー 1 名）
-- 認証機能は未実装、フロントエンドも未実装、curl / HTTP クライアントから直接利用する想定
+- 認証機能は未実装
+- Androidクライアントまたはcurl / HTTPクライアントから利用する
 
-### Phase 6 以降（認証機能実装後）
+### 認証機能実装後
 
-- **登録した個人ユーザー複数名**（Web ブラウザから Next.js フロントエンド経由で利用）
+- **登録した個人ユーザー複数名**（Androidクライアントから利用）
 - 各ユーザーは自分の Todo と Category を独立して管理、他ユーザーのデータには一切アクセスしない
 
 ### 対象外ユーザー
@@ -60,7 +63,7 @@
 
 ### 4.1 Todo 管理（コア機能）
 
-**現在（Phase 4.8 まで実装済み、Phase 4.9 で HTTP 経由での操作復活予定）**:
+**現在（Ktor APIで実装済み）**:
 
 | 機能 | 説明 |
 |---|---|
@@ -69,7 +72,7 @@
 | Todo 更新 | id 指定で全項目を新しい値に置き換える（PUT 方式、ADR 0005） |
 | Todo 削除 | id 指定で削除、削除内容をレスポンスに含める（ADR 0006） |
 
-**Phase 5 で追加予定**:
+**Backend機能拡張を再開したときに検討**:
 
 - Todo のフィルタ（priority、status、categoryId、期日範囲）
 - Todo のソート（作成日、更新日、期日、優先度）
@@ -80,7 +83,7 @@
 
 **現状**: Todo との FK 関連のみ実装、Category 単体の CRUD API は未実装。Category は開発者が直接 SQL / psql で作成する運用（学習フェーズなので簡素化）。
 
-**Phase 5 で追加予定**:
+**Backend機能拡張を再開したときに検討**:
 
 - Category CRUD API（作成、取得、更新、削除）
 - Category 削除時、関連する Todo の categoryId は自動で NULL になる（DB 側の `ON DELETE SET NULL`、ADR 0004）
@@ -88,34 +91,41 @@
 
 ### 4.3 認証 / ユーザー管理
 
-**現状**: 認証機能は未実装。固定ユーザー 1 名（Phase 4.9 (b) の DevDataInitializer で起動時作成予定）を全リクエストの owner として扱う（ADR 0007）。
+**現状**: 認証機能は未実装。`DevDataInitializer`が起動時に用意する固定ユーザー1名を全リクエストのownerとして扱う（ADR 0007）。
 
-**Phase 6 で追加予定**:
+**将来追加予定**:
 
 - ユーザー登録（メールアドレス + パスワード）
-- ログイン / ログアウト（JWT or Session Cookie、選択は Phase 6 の ADR で決める）
+- ログイン / ログアウト（JWT or Session Cookie。実装時にADRで選択を記録する）
 - 各リクエストで認証済みユーザーを owner として使用
 - ユーザー削除時、関連する Todo / Category は自動で削除される（DB 側の `ON DELETE CASCADE`、ADR 0002）
 
-### 4.4 フロントエンド
+### 4.4 Androidクライアント
 
-**現状**: フロントエンド無し（バックエンド API のみ）。
+**現状**:
 
-**Phase 6 完了後に追加予定**:
+- Jetpack ComposeによるAndroidプロジェクトを`android/`に配置
+- `GET /todos`を呼び出し、Todoタイトルを一覧表示
+- `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
 
-- **Next.js** による Web フロントエンド（`frontend/` サブディレクトリに配置、モノレポ構成 ADR 0009）
-- Todo の一覧表示、作成、編集、削除 UI
-- Category の管理 UI
-- ログイン UI
+**今後追加するもの**:
+
+- Todo詳細、作成、編集、削除
+- Loading / Error / Empty State
+- Navigation
+- DI
+- ViewModel / Repository / UIのテスト
+
+Next.jsによるWebフロントエンドは現在の計画から延期し、Androidクライアントを優先する。方針変更は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
 ### 4.5 API ドキュメント
 
-**現状**: springdoc-openapi 撤去済み、Phase 4.10 で Ktor 流に再構築予定。
+**現状**:
 
-**Phase 4.10 完成時**:
-
-- OpenAPI 定義（自動生成 or 手書き、Phase 4.10 の ADR で決定）
-- Swagger UI で `http://localhost:8080/swagger-ui/` から全エンドポイントを閲覧可能
+- KtorのルーティングコードからOpenAPI定義を生成
+- Swagger UIを`http://localhost:8080/swagger`で提供
+- OpenAPI JSONを`http://localhost:8080/openapi.json`で提供
+- 生成方針はADR 0020に記録
 
 ---
 
@@ -124,10 +134,12 @@
 ### 5.1 開発環境の制約
 
 - **1 人開発**、学習速度を優先
-- **WSL2 (Ubuntu) + Windows 11 ホスト** で開発
-- **JDK 25**（Amazon Corretto、SDKMAN 管理）、**Kotlin 2.3.21**
+- **WSL2 (Ubuntu) + Windows 11ホスト**で開発
+- BackendはWSL2、Android StudioとAndroid EmulatorはWindows側で実行
+- Backendは**JDK 25**（Amazon Corretto、SDKMAN管理）と**Kotlin 2.4.10**を使用
+- Androidは**Kotlin 2.2.10**を使用し、Android StudioのGradle JDKでビルド
 - **Docker Compose** で PostgreSQL 17 起動、docker daemon 生存が前提
-- **IntelliJ IDEA CE**（Community Edition、無料版）をエディタとして使用
+- BackendはIntelliJ IDEA CE、AndroidはAndroid Studioを使用
 
 ### 5.2 実装ポリシー
 
@@ -150,9 +162,9 @@
 
 ### 5.5 セキュリティ
 
-- 認証機能実装まで（Phase 6 まで）、production 運用は行わない（開発機ローカル起動のみ）
-- Phase 6 以降で認証を実装する際、パスワードハッシュ化、CSRF 対策、SQL injection 対策（Exposed の parameterized query で自動対応）を行う
-- 現状 `application.properties` に平文パスワードがハードコード → Phase 6 で環境変数化予定
+- 認証機能を実装するまでproduction運用は行わない（開発機ローカル起動のみ）
+- 認証を実装する際、パスワードハッシュ化、CSRF対策、SQL injection対策（Exposedのparameterized queryで対応）を行う
+- 現状はDB接続情報がソースコードにハードコードされているため、本番運用を検討する段階で環境変数などへ外部化する
 
 ---
 
@@ -163,7 +175,8 @@
 - **通知機能**: メール通知、プッシュ通知、SMS 通知など、いずれも実装しない
 - **共有 / コラボレーション機能**: 他ユーザーとの Todo 共有、コメント機能、割り当て機能などは実装しない（各ユーザーは自分のデータのみ扱う）
 - **チーム / 組織機能**: 組織階層、権限管理、管理者ロールなど
-- **モバイルネイティブアプリ**: iOS / Android 用のネイティブアプリは作らない（Web のみ）
+- **iOSアプリ**: 現在の学習対象はKotlin / Androidであり、iOSネイティブアプリは作らない
+- **Next.js Webフロントエンド**: Androidクライアントの主要機能が完成するまで延期する
 - **ファイル添付**: Todo にファイル / 画像を紐付ける機能
 - **リマインダー機能**: 期日の 1 時間前に通知する等、通知機能と表裏一体で不採用
 - **タグ機能**: 自由入力タグは実装しない、階層固定の Category で代替
@@ -188,8 +201,8 @@
 |---|---|
 | **Todo** | 「やること」1 件を表す。id / title / description / dueDate / priority / status / categoryId / ownerId / createdAt / updatedAt を持つ |
 | **Category** | Todo の分類ラベル。ユーザーごとに管理、Todo は 0 または 1 個の Category に属する（多対 1、nullable） |
-| **User** | システム利用者。email / passwordHash / createdAt を持つ。Phase 6 まで固定 1 名 |
-| **Owner** | Todo または Category の所有者（User）。Phase 6 の認証実装まで固定ユーザーが常に owner |
+| **User** | システム利用者。email / passwordHash / createdAt を持つ。認証実装までは固定1名 |
+| **Owner** | TodoまたはCategoryの所有者（User）。認証実装までは固定ユーザーが常にowner |
 | **Priority** | Todo の優先度。`LOW` / `MEDIUM` / `HIGH` の 3 段階（`domain/Priority.kt`） |
 | **TodoStatus** | Todo の進捗状態。`NOT_STARTED` / `IN_PROGRESS` / `DONE` の 3 段階（`domain/TodoStatus.kt`） |
 
@@ -197,19 +210,19 @@
 
 | 用語 | 定義 |
 |---|---|
-| **Phase** | 学習カリキュラム上の実装段階。Phase 1〜4 は Spring Boot 版、Phase 4.5 以降は Ktor 移行フェーズ、Phase 5 で本来の機能追加に復帰 |
+| **Backend Phase** | Spring Boot版からKtor版への移行を管理していた従来の実装段階。Phase 4.11以降は保留中 |
+| **Android Track** | 2026-09以降の主な開発系列。Todo一覧から始め、CRUD、状態管理、Navigation、DI、テストへ段階的に進む |
 | **ADR** | Architecture Decision Record。設計判断を短く切り出した記録。`docs/decisions/` に配置 |
 | **Journal** | 各 Phase の学習記録。何を学び、なぜその設計にしたか、詰まった点、を記録。`docs/journal/` に配置 |
-| **プラン file** | Claude Code の承認済み実装プラン。`~/.claude/plans/` 配下、リポジトリ管理外のローカル参照 |
 
 ---
 
 ## 8. 関連ドキュメント
 
 - [README.md](../README.md) — プロジェクト概要と起動手順
+- [docs/roadmap.md](roadmap.md) — 現在の優先順位と実装順序
 - [docs/README.md](README.md) — ドキュメント全体の索引と運用方針
 - [docs/decisions/](decisions/) — ADR（設計判断記録）一覧
 - [docs/journal/](journal/) — 各 Phase の学習ジャーナル
 - [docs/db-schema.md](db-schema.md) — DB スキーマ設計（`V1__init.sql` と Exposed Table 定義の正）
-- [docs/api/](api/) — API 仕様書（Phase 4.10 で Ktor 版に刷新予定）
-- プラン file: `~/.claude/plans/pc-springboot-kotlin-ktor-mac-giggly-key.md`（Claude Code のローカル参照）
+- [docs/api/](api/) — Ktorが生成するOpenAPI仕様とSwagger UIの利用方法

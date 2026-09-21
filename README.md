@@ -1,97 +1,126 @@
 # kotlin-todo
 
-Kotlin を学習しながら育てる Todo アプリ。バックエンド + 将来のフロントエンドをモノレポ構成で扱う趣味プロジェクト。
+Kotlinを学習しながら育てるTodoアプリ。Jetpack ComposeによるAndroidクライアント、Ktor API、PostgreSQLを1つのリポジトリで扱う。
 
-## 技術スタック
+このプロジェクトは、動く機能を増やすことに加えて、実装したコードと設計判断を自分の言葉で説明できる状態を目指す学習兼ポートフォリオプロジェクトである。
 
-- Kotlin 2.4 / JDK 25
-- Ktor 3.5（HTTP サーバ、Netty エンジン、OpenAPI 仕様の生成）
-- Exposed 0.61（Kotlin 製 SQL DSL、DAO ではなく DSL API を採用）
-- PostgreSQL 17（開発環境は Docker Compose、統合テストは Testcontainers）
-- Flyway 11（スキーマ移行） / HikariCP 6（コネクションプール）
-- kotlinx.serialization（JSON） / Konform 0.11（バリデーション） / Logback 1.5
-- JUnit 5 + kotlin-test-junit5 + ktor-server-test-host
+## 現在の方針
 
-Phase 4.6〜4.9 で Spring Boot + JPA/Hibernate 版から Kotlin native なスタックに移行済み。移行前の実装は `v0.4-spring-final` タグで保全。
+KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学習目標をKotlin / Androidへ集中するよう見直した。2027年前半まではAndroidクライアントを主な開発対象とし、バックエンドはAndroidから必要になる変更を除いて安定したAPI基盤として扱う。
+
+バックエンドのテスト戦略再構築（旧Phase 4.11）や機能拡張は中止ではなく保留している。判断の背景は[ADR 0022](docs/decisions/0022-prioritize-android-client.md)、今後の順序は[プロジェクトロードマップ](docs/roadmap.md)を参照。
 
 ## 現在の進捗
 
-Phase 4.10 完了。Todo の CRUD API・入力バリデーション・OpenAPI 仕様の自動生成が動作する。次はテスト戦略の再構築（Phase 4.11）。
+- Androidプロジェクトを`android/`に追加
+- 既存Ktor APIの`GET /todos`をRetrofitから呼び出し
+- `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
+- APIから取得したTodoタイトルを`LazyColumn`で表示
 
-フェーズごとの詳細は [`docs/README.md`](docs/README.md) 参照。
+次はTodo詳細へ進む。Loading / Error / Empty、Navigation、DI、テストは必要性が生じる順に追加する。
 
-## 構成
+## システム構成
 
-```
+```text
 kotlin-todo/
-├── backend/            # Ktor + Exposed バックエンド
-├── docs/               # 要件 / アーキテクチャ / 設計メモ / 学習ジャーナル / ADR
-└── docker-compose.yml  # PostgreSQL（開発用）
+├── android/             # Jetpack Compose Androidクライアント
+├── backend/             # Ktor + Exposedバックエンド
+├── docs/                # 要件、Architecture、ADR、設計メモ、学習ジャーナル
+└── docker-compose.yml   # PostgreSQL（開発用）
 ```
+
+```mermaid
+flowchart LR
+    A[Android / Jetpack Compose] -->|HTTP / JSON| B[Ktor API]
+    B --> C[(PostgreSQL)]
+```
+
+詳細は[architecture.md](docs/architecture.md)を参照。
+
+## 技術スタック
+
+### Android
+
+- Kotlin 2.2
+- Jetpack Compose + Material 3
+- ViewModel / Coroutines / StateFlow
+- Retrofit 3 + OkHttp
+- kotlinx.serialization
+
+### Backend
+
+- Kotlin 2.4 / JDK 25
+- Ktor 3.5（HTTPサーバ、Nettyエンジン、OpenAPI仕様の生成）
+- Exposed 0.61（Kotlin製SQL DSL）
+- PostgreSQL 17 / Flyway 11 / HikariCP 6
+- kotlinx.serialization / Konform 0.11 / Logback 1.5
+- JUnit 5 / Testcontainers / ktor-server-test-host
+
+## 開発環境
+
+Windows 11上で、用途に合わせて2つのcloneを使う。
+
+- WSL2側のclone: Backend、Docker、ドキュメント確認
+- Windows側のclone: Android Studio、Android Emulator、Androidビルド
+
+同じGitHubリポジトリをcloneしているため、論理的なモノレポ構成は維持される。Windows版GradleをWSLのUNCパス上で実行するとファイルロックに失敗するため、AndroidプロジェクトはWindowsファイルシステム上で扱う。
 
 ## 起動
 
-```bash
-# PostgreSQL 起動
-docker compose up -d postgres
+### Backend
 
-# Backend 起動
+WSL2で実行する。
+
+```bash
+docker compose up -d postgres
 cd backend
 ./gradlew run
 ```
 
-デフォルト http://localhost:8080 で待ち受け。動作確認:
+Ktorは`http://0.0.0.0:8080`で待ち受ける。
 
 ```bash
 curl http://localhost:8080/health
-```
-
-Todo の CRUD API も利用可能:
-
-```bash
-# 作成
-curl -X POST http://localhost:8080/todos -H "Content-Type: application/json" -d '{"title":"Ktor を学ぶ","description":null,"dueDate":"2026-08-31","priority":"HIGH","status":"NOT_STARTED","categoryId":null}'
-
-# 一覧
 curl http://localhost:8080/todos
 ```
 
-エンドポイントは `GET /todos`, `GET /todos/{id}`, `POST /todos`, `PUT /todos/{id}`, `DELETE /todos/{id}` の 5 つ。認証は未実装のため、`ownerId` には起動時に用意される開発用の固定ユーザーが入る（[#23](https://github.com/GenkiHashioka/kotlin-todo/issues/23)）。
+Swagger UIは<http://localhost:8080/swagger>、OpenAPI JSONは<http://localhost:8080/openapi.json>で確認できる。
 
-入力が不正な場合は、どのフィールドがなぜ駄目かを返す:
+### Android
 
-```bash
-curl -X POST http://localhost:8080/todos -H "Content-Type: application/json" \
-  -d '{"title":"","description":null,"dueDate":null,"priority":"HIGH","status":"NOT_STARTED","categoryId":null}'
+Windows側のcloneにある`android/`をAndroid Studioで開き、Android Emulatorで実行する。
+
+現在のdebug用ベースURLにはWSL2のIPアドレスを使用している。WSL2を再起動するとIPが変わる可能性があるため、その場合はPowerShellで確認して`ApiClient.kt`を更新する。
+
+```powershell
+wsl -d Ubuntu -- hostname -I
 ```
 
-```json
-{"status":400,"message":"Validation failed","fieldErrors":[{"field":"title","message":"must not be blank"}]}
-```
+これは暫定運用であり、ベースURLの外部設定化は後続Issueで扱う。
 
-エラーレスポンスは 400 / 404 / 500 のすべてがこの形（`status` / `message` / `fieldErrors`）で返る。詳細は [ADR 0016](docs/decisions/0016-konform-for-validation.md)（バリデーション）と [ADR 0017](docs/decisions/0017-error-response-and-exception-mapping.md)（エラー変換）を参照。
+## ビルドとテスト
 
-API 仕様書はブラウザから <http://localhost:8080/swagger> で読める。エンドポイント一覧・リクエスト/レスポンスの型・エラーの形が並び、**「Try it out」から実際にリクエストを送れる**。生の JSON は <http://localhost:8080/openapi.json>。
-
-仕様はルーティングのコードから自動生成されるため、リポジトリにスナップショットは置いていない（[ADR 0020](docs/decisions/0020-generate-openapi-from-routing.md) / [見方](docs/api/README.md)）。
-
-IntelliJ IDEA を使う場合は、リポジトリのルートを開き、`backend/build.gradle.kts` を Gradle プロジェクトとしてリンクする（docs も同じウィンドウで扱えるため）。起動は Run configuration から。
-
-**Gradle は 9.6.0 に固定している。** IntelliJ IDEA 2026.2.1 が同梱する Tooling API が 9.6.0 であり、9.7 系にすると IDE の Gradle 同期がエラーを出さないまま壊れる（[ADR 0021](docs/decisions/0021-pin-gradle-to-ide-tooling-api.md)）。
-
-## テスト実行
+Backend:
 
 ```bash
 cd backend
 ./gradlew test
 ```
 
-統合テストは Testcontainers で PostgreSQL コンテナを都度起動するため、Docker が動いていれば追加準備は不要。
+Android（Windows PowerShell）:
 
-Docker Engine 29 以降は API バージョン 1.40 未満のクライアントを拒否するため、`build.gradle.kts` で Testcontainers が使う API バージョンを明示している（[ADR 0018](docs/decisions/0018-pin-docker-api-version-for-testcontainers.md)）。
+```powershell
+cd android
+.\gradlew.bat :app:assembleDebug
+```
+
+Androidの自動テストは後続フェーズで追加する。現在はdebugビルドとエミュレータでの手動確認を行っている。
 
 ## ドキュメント
 
-- [`docs/requirements.md`](docs/requirements.md) — 要件定義書（何を作るか）
-- [`docs/architecture.md`](docs/architecture.md) — アーキテクチャ設計（どう作るか）
-- [`docs/README.md`](docs/README.md) — docs 全体の index（設計判断（ADR）・学習ジャーナル・DB スキーマ・design-notes など）
+- [requirements.md](docs/requirements.md) — 何を作るか
+- [roadmap.md](docs/roadmap.md) — どの順序で進めるか
+- [architecture.md](docs/architecture.md) — どう構成するか
+- [design-notes/](docs/design-notes/) — 機能実装前の設計意図
+- [journal/](docs/journal/) — 実装後の学びと設計との差分
+- [decisions/](docs/decisions/) — 重要な設計判断（ADR）

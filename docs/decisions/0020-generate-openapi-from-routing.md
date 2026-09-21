@@ -157,5 +157,5 @@ Spring 時代の運用は「実装が進むたびに手動で最新化する想�
 - [ADR 0021 - Gradle のバージョンを IntelliJ IDEA 同梱の Tooling API に合わせる](0021-pin-gradle-to-ide-tooling-api.md) — 本 Phase の作業中に発覚した制約
 - [#6](https://github.com/GenkiHashioka/kotlin-todo/issues/6) — Spring 時代の仕様書の不正確さ
 - [#37](https://github.com/GenkiHashioka/kotlin-todo/issues/37) — 正常系の `description` を補う手段の再検討
-- `docs/design-notes/phase-04.10-openapi-and-swagger-ui.md` — 実装前の設計メモ
-- `docs/journal/phase-04.10-openapi-and-swagger-ui.md` — 実装後の記録
+- `docs/design-notes/backend/phase-04.10-openapi-and-swagger-ui.md` — 実装前の設計メモ
+- `docs/journal/backend/phase-04.10-openapi-and-swagger-ui.md` — 実装後の記録

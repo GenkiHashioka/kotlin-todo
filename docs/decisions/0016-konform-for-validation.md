@@ -86,12 +86,12 @@ validation/
 
 **`title` に `minLength(1)` を書かない**: `notBlank()` の実体は `constrain("must not be blank") { it.isNotBlank() }` で、空文字も空白のみも弾く。`minLength(1)` は完全に包含されるため、両方書くと `title: ""` のときに同じフィールドへ 2 件のエラーが並ぶ。Konform は失敗した制約をすべて集めて返す（最初の 1 件で止まらない）ので、冗長な制約はそのままノイズになる。
 
-**`description` の上限 2000 に技術的根拠は無い**: `TEXT` は DB 側で無制限だが、上限の無い入力をそのまま受けると数 MB の JSON がそのまま DB に載る。これは方針の選択である。DB より DTO を厳しくする方向なので、`docs/journal/phase-04-todo-crud.md:60` が警告している「DTO は通るが DB で落ちる」ズレは起きない。
+**`description` の上限 2000 に技術的根拠は無い**: `TEXT` は DB 側で無制限だが、上限の無い入力をそのまま受けると数 MB の JSON がそのまま DB に載る。これは方針の選択である。DB より DTO を厳しくする方向なので、`docs/journal/backend/phase-04-todo-crud.md:60` が警告している「DTO は通るが DB で落ちる」ズレは起きない。
 
 **`dueDate` に「今日以降」制約を入れない**: Phase 4 で検討し却下済みの判断を踏襲する。
 
 > `dueDate`に「今日以降」という制約を検討したが、PUT方式の更新では既存の（期限切れの）値がそのまま送られてくるため、更新自体が永久に失敗するという副作用に気づき、見送った
-> （`docs/journal/phase-04-todo-crud.md:61`）
+> （`docs/journal/backend/phase-04-todo-crud.md:61`）
 
 期限切れの Todo を「完了」にしようとした瞬間、`dueDate` が過去日であるために更新が弾かれる。[ADR 0005](0005-update-uses-put-not-patch.md) で PUT 方式を採用している以上、この制約とは両立しない。
 
@@ -140,4 +140,4 @@ validation/
 - [#5](https://github.com/GenkiHashioka/kotlin-todo/issues/5) — エラーメッセージの言語 / コード化
 - `backend/src/main/kotlin/com/example/kotlin_todo/validation/TodoValidation.kt` — 検証定義の実物
 - `backend/src/main/kotlin/com/example/kotlin_todo/routes/TodoRoutes.kt` — 呼び出し位置
-- `docs/design-notes/phase-04.9c-konform-and-status-pages.md` — 実装前の設計メモ
+- `docs/design-notes/backend/phase-04.9c-konform-and-status-pages.md` — 実装前の設計メモ
