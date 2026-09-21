@@ -16,8 +16,9 @@ KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学
 - 既存Ktor APIの`GET /todos`をRetrofitから呼び出し
 - `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
 - APIから取得したTodoタイトルを`LazyColumn`で表示
+- Loading / Success / Empty / Errorを型で分け、通信失敗時の再試行を追加
 
-次はTodo詳細へ進む。Loading / Error / Empty、Navigation、DI、テストは必要性が生じる順に追加する。
+次はTodo詳細へ進む。Navigation、DI、テストは必要性が生じる順に追加する。
 
 ## システム構成
 

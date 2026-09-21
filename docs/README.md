@@ -13,7 +13,10 @@
 - `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Flyway マイグレーション (`V1__init.sql`) と Exposed の Table 定義の両方の正となるドキュメント。
 - `api/` — API 仕様書の見方。OpenAPI 仕様はルーティングのコードから自動生成され、リポジトリにスナップショットは置かない（[運用ガイド](api/README.md)、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)）。
 
-Android Trackの最初の記録は、[設計メモ](design-notes/android/01-todo-list-from-api.md)と[学習ジャーナル](journal/android/01-todo-list-from-api.md)から確認できる。
+Android Trackの記録は、次の設計メモと学習ジャーナルから確認できる。
+
+- Android 01: [設計メモ](design-notes/android/01-todo-list-from-api.md) / [学習ジャーナル](journal/android/01-todo-list-from-api.md)
+- Android 02: [設計メモ](design-notes/android/02-todo-list-ui-state.md) / [学習ジャーナル](journal/android/02-todo-list-ui-state.md)
 
 ## 運用方針
 
@@ -40,5 +43,6 @@ Android Trackの最初の記録は、[設計メモ](design-notes/android/01-todo
   - Phase 4.11: テスト戦略再構築（Ktor + Exposed版）（Android優先のため保留）
 - Android Track（現在の主な開発対象、[ADR 0022](decisions/0022-prioritize-android-client.md)）
   - Android 01: Ktor APIからTodo一覧を取得し、Composeで表示（完了）
+  - Android 02: Todo一覧のLoading / Success / Empty / Errorと再試行（完了）
   - 次: Todo詳細
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）

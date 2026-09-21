@@ -19,6 +19,7 @@ fun TodoListRoute(
 
     TodoListScreen(
         uiState = uiState,
+        onRetry = { viewModel.retry() },
         modifier = modifier,
     )
 }

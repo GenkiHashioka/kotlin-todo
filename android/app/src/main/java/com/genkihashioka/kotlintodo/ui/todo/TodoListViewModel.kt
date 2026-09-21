@@ -6,8 +6,8 @@ import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Todoリスト表示画面のViewModel。
@@ -17,10 +17,18 @@ import kotlinx.coroutines.launch
 class TodoListViewModel(
     private val todoRepository: TodoRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(TodoListUiState())
+    // UIの状態を表すStateFlow。画面表示時はLoading
+    private val _uiState = MutableStateFlow<TodoListUiState>(TodoListUiState.Loading)
     val uiState: StateFlow<TodoListUiState> = _uiState.asStateFlow()
 
     init {
+        loadTodos()
+    }
+
+    /**
+     * 再試行処理。
+     */
+    fun retry() {
         loadTodos()
     }
 
@@ -29,11 +37,24 @@ class TodoListViewModel(
      */
     private fun loadTodos() {
         viewModelScope.launch {
-            val todos = todoRepository.getTodos()
+            // 取得開始
+            _uiState.value = TodoListUiState.Loading
 
-            // _uiStateを取得したtodo一覧で更新
-            _uiState.update { currentState ->
-                currentState.copy(todos = todos)
+            try {
+                val todos = todoRepository.getTodos()
+
+                // todoが空の場合はEmpty
+                if (todos.isEmpty()) {
+                    _uiState.value = TodoListUiState.Empty
+                } else {
+                    _uiState.value = TodoListUiState.Success(todos)
+                }
+            } catch (cancellationException: CancellationException) {
+                // CoroutineのキャンセルはErrorへ変換せず、呼び出し元へ伝播させる
+                throw cancellationException
+            } catch (exception: Exception) {
+                // その他のExceptionはエラーとして扱う
+                _uiState.value = TodoListUiState.Error
             }
         }
     }

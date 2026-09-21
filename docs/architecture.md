@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.5（Android Todo一覧表示時点）
-**最終更新**: 2026-09-21
+**バージョン**: 0.6（Android Todo一覧の画面状態追加時点）
+**最終更新**: 2026-09-22
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -79,10 +79,10 @@ flowchart LR
 | 要素 | 責務 |
 |---|---|
 | `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する |
-| `TodoListRoute` | ViewModelの`StateFlow`をライフサイクルに合わせて監視し、Screenへ渡す |
-| `TodoListScreen` | 渡された`TodoListUiState`を`LazyColumn`で描画する |
-| `TodoListViewModel` | Repositoryへ取得を指示し、`MutableStateFlow`を更新する |
-| `TodoListUiState` | Todo一覧画面のある時点の状態を表す不変データ |
+| `TodoListRoute` | ViewModelの`StateFlow`をライフサイクルに合わせて監視し、状態と再試行callbackをScreenへ渡す |
+| `TodoListScreen` | 渡された`TodoListUiState`に応じてLoading / Success / Empty / Errorを描画する |
+| `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
+| `TodoListUiState` | `sealed interface`でTodo一覧画面のLoading / Success / Empty / Errorを表す |
 | Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
 | `TodoApi` | Retrofitの`GET /todos`契約 |
 | `ApiClient` | Retrofit、JSON converter、ベースURLを設定して`TodoApi`を生成する |
@@ -102,7 +102,23 @@ ViewModelがMutableStateFlowを更新する
 Composeが読み取り専用StateFlowを監視して再描画する
 ```
 
-初回実装では`TodoDto`を`TodoListUiState`で直接使用する。表示用モデルとの変換が必要になった時点で、API DTOとUIモデルを分離する。Loading / Error / Empty Stateも後続Issueで追加する。
+Todo一覧画面の状態遷移は次のとおり。
+
+```text
+起動 / 再試行
+    ↓
+Loading
+    ├─ 取得失敗 ─────→ Error
+    └─ 取得成功
+         ├─ 0件 ─────→ Empty
+         └─ 1件以上 ─→ Success(todos)
+```
+
+`TodoListUiState`を`sealed interface`として定義し、Composeでは`when`を`else`なしで使用する。状態を追加したときに表示処理の不足をコンパイル時に検出できる。値を持たないLoading / Empty / Errorは`data object`、Todo一覧を持つSuccessは`data class`で表す。
+
+ViewModelは通常の`Exception`をErrorへ変換する。一方、ViewModelの破棄などによる`CancellationException`は再スローし、Coroutineのキャンセルを妨げない。Error画面の再試行操作は、Screenから`onRetry` callbackとしてRouteへ渡り、RouteがViewModelの`retry()`を呼ぶ。
+
+現時点では`TodoDto`をSuccessで直接使用する。表示用の変換要件が生じた時点で、API DTOとUIモデルを分離する。
 
 現在のAndroidモジュールと主要パッケージは次の構成。
 
@@ -574,11 +590,11 @@ Android StudioとAndroid EmulatorはWindows側、KtorはWSL2側で動く。Windo
 | ~~Phase 4.10~~ | ~~Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI。`ErrorResponse` のスキーマ記載を含む~~ **完了**（コンパイラプラグインによる自動生成 + `describe` での補完、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)） |
 | Backend Phase 4.11 | `testApplication`によるHTTP経由テストの拡充。Android優先のため保留 |
 | Android 01 | `GET /todos`をRetrofitで取得し、ViewModel / StateFlowを通してComposeで一覧表示 **完了** |
+| Android 02 | Todo一覧のLoading / Success / Empty / Errorと再試行を追加 **完了** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
 - AndroidでのTodo詳細、作成、編集、削除
-- Loading / Error / Empty State
 - Navigation、DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期
