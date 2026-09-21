@@ -173,14 +173,16 @@ java.net.ConnectException: Failed to connect
 
 ## 次の機能へ進む前の理解度確認
 
-以下は「説明できる」と確定した項目ではなく、Android 01で扱った概念の棚卸し用チェックリストとする。次の機能へ進む前にコードを見ながら一つずつ確認し、曖昧な項目は説明と小さな確認問題で補う。
+Android 01で扱った概念を、コードを見ながら一つずつ棚卸しした。対話を通して説明できることを確認した項目をチェック済みとする。
 
-- [ ] `MainActivity`と`setContent`の役割
-- [ ] DTOのnull許容をAPIレスポンスに合わせる理由
-- [ ] Retrofitが`TodoApi`の実装を生成する仕組み
-- [ ] RepositoryをViewModelとHTTP Clientの間に置く理由
-- [ ] `_uiState`と`uiState`を分ける理由
-- [ ] `TodoListRoute`と`TodoListScreen`の責務
-- [ ] `viewModelScope`を使う理由
-- [ ] `collectAsStateWithLifecycle()`を使う理由
-- [ ] EmulatorからWSL2へ接続するときのネットワーク経路
+- [x] `MainActivity`と`setContent`の役割
+- [x] DTOのnull許容をAPIレスポンスに合わせる理由
+- [x] Retrofitが`TodoApi`の実装を生成する仕組み
+- [x] RepositoryをViewModelとHTTP Clientの間に置く理由
+- [x] `_uiState`と`uiState`を分ける理由
+- [x] `TodoListRoute`と`TodoListScreen`の責務
+- [x] `viewModelScope`を使う理由
+- [x] `collectAsStateWithLifecycle()`を使う理由
+- [x] EmulatorからWSL2へ接続するときのネットワーク経路
+
+Issue #41で構築したデータフローを説明できることを対話で確認した。`viewModelScope`によるキャンセルの詳細と、Emulator・Windows・WSL2間のネットワーク構成は、今後の実装でも継続して理解を深める。
