@@ -6,7 +6,7 @@
 
 Spring MVC から Ktor への移行で最後まで残っていた「HTTP を受けて業務ロジックに繋ぐ層」を実装した。Phase 4.8 (b) で Repository + Service まで揃っていたので、その上に Routing と DTO を載せて **CRUD API を再び動く状態に戻す**のが本 PR の目的。
 
-設計は [design-notes/phase-04.9b-ktor-routing-and-dto.md](../design-notes/phase-04.9b-ktor-routing-and-dto.md) に事前記録済み（判断 1〜10、懸念 A〜H）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
+設計は [design-notes/backend/phase-04.9b-ktor-routing-and-dto.md](../../design-notes/backend/phase-04.9b-ktor-routing-and-dto.md) に事前記録済み（判断 1〜10、懸念 A〜H）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
 
 ## 学習目標
 
@@ -178,7 +178,7 @@ val todoService = TodoService(
 )
 ```
 
-Spring の `@Autowired` と違い、**誰が誰に依存しているかがこの数行を読むだけで分かる**。逆に依存が増えたときの記述量は増えるので、そのコストが上回るまでは手動で進める（[ADR 0014](../decisions/0014-manual-di-over-koin.md)）。
+Spring の `@Autowired` と違い、**誰が誰に依存しているかがこの数行を読むだけで分かる**。逆に依存が増えたときの記述量は増えるので、そのコストが上回るまでは手動で進める（[ADR 0014](../../decisions/0014-manual-di-over-koin.md)）。
 
 ### `runBlocking` は起動時だけの橋渡し
 

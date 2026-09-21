@@ -6,7 +6,7 @@
 
 Phase 4.9 (b) で CRUD API は動くようになったが、手動確認で 3 つの穴が見つかっていた。**400 が返るのにボディが空**、**業務的な検証が無い**、**想定外の例外が裸で 500**。本 PR はこの 3 つを埋め、「不正な入力に正しく応答する API」にするのが目的。
 
-設計は [design-notes/phase-04.9c-konform-and-status-pages.md](../design-notes/phase-04.9c-konform-and-status-pages.md) に事前記録済み（判断 1〜11、懸念 A〜H）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
+設計は [design-notes/backend/phase-04.9c-konform-and-status-pages.md](../../design-notes/backend/phase-04.9c-konform-and-status-pages.md) に事前記録済み（判断 1〜11、懸念 A〜H）。本 journal は**実装して初めて分かったこと**と**設計メモからの乖離**を主に記録する。
 
 ## 学習目標
 
@@ -39,8 +39,8 @@ Phase 4.9 (b) で CRUD API は動くようになったが、手動確認で 3 �
 
 ### ドキュメント
 
-- [ADR 0016](../decisions/0016-konform-for-validation.md) — Konform 採用、Presentation 層で実行、`validation/` に置く
-- [ADR 0017](../decisions/0017-error-response-and-exception-mapping.md) — エラーレスポンスの形と例外 → HTTP 変換
+- [ADR 0016](../../decisions/0016-konform-for-validation.md) — Konform 採用、Presentation 層で実行、`validation/` に置く
+- [ADR 0017](../../decisions/0017-error-response-and-exception-mapping.md) — エラーレスポンスの形と例外 → HTTP 変換
 - `docs/architecture.md` を 0.3 に更新（技術スタック、ディレクトリ表、モジュール構成、§5 全面改訂、§7、§9）
 - ルート `README.md` — Konform 追加、進捗更新、400 レスポンス例を追加
 - `docs/README.md` — (c) 完了

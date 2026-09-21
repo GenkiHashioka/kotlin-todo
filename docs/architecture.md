@@ -1,9 +1,9 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.4（Phase 4.10 完了時点）
-**最終更新**: 2026-08-26
+**バージョン**: 0.5（Android Todo一覧表示時点）
+**最終更新**: 2026-09-21
 
-このドキュメントは kotlin-todo バックエンドの **システム全体構成・レイヤー・依存・データフロー・エラー処理フロー** の一次ソース。「何を作るか」は [requirements.md](requirements.md)、実装の詳細は各 Phase の [journal](journal/) と [design-notes](design-notes/)、個別の設計判断は [decisions (ADR)](decisions/) を参照。
+このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
 ---
 
@@ -27,27 +27,110 @@
 | API 仕様生成 | **Ktor OpenAPI**（コンパイラプラグイン + `ktor-server-routing-openapi` / `ktor-server-swagger`） | 3.5.2 | [ADR 0020](decisions/0020-generate-openapi-from-routing.md) |
 | テスト | **JUnit 5 + kotlin-test + Testcontainers + ktor-server-test-host** | 5.x + 1.20.4 + 3.5.2 | [ADR 0012](decisions/0012-testcontainers-for-integration-test.md) / [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) |
 
+### Android
+
+| 項目 | 採用技術 | バージョン / 方針 |
+|---|---|---|
+| 言語 | Kotlin | 2.2.10 |
+| UI | Jetpack Compose + Material 3 | Compose BOM 2026.02.01 |
+| 状態管理 | ViewModel + StateFlow | Lifecycle 2.11.0 |
+| 非同期処理 | Kotlin Coroutines | `viewModelScope`を使用 |
+| HTTP Client | Retrofit + OkHttp | Retrofit 3.0.0 |
+| JSON | kotlinx.serialization | 1.9.0 |
+| DI | 手動DI | `MainActivity`で依存関係を組み立てる暫定構成 |
+| 対応OS | Android | minSdk 26 / targetSdk 37 |
+
 ### 開発環境
 
 | 項目 | 採用 | 備考 |
 |---|---|---|
 | ホスト OS | Windows 11 | — |
-| 開発 OS | WSL2 (Ubuntu) | — |
+| 開発 OS | WSL2 (Ubuntu) + Windows | BackendはWSL2、AndroidはWindowsファイルシステム上で開発 |
 | JDK | Amazon Corretto 25 (LTS) | SDKMAN 管理 |
 | Kotlin | 2.4.10 | Ktor の OpenAPI 生成が 2.4.0 以上を要求（[ADR 0020](decisions/0020-generate-openapi-from-routing.md)） |
-| IDE | IntelliJ IDEA CE (Community) | 無料版 |
+| IDE | IntelliJ IDEA CE / Android Studio | Backend / Androidで使い分ける |
 | Gradle | 9.6.0, Kotlin DSL | [ADR 0013](decisions/0013-kotlin-dsl-gradle.md) / [ADR 0021](decisions/0021-pin-gradle-to-ide-tooling-api.md)（IDE 同梱の Tooling API に合わせて固定） |
 | DB 起動 | Docker Compose | `docker compose up -d postgres` |
 
+Linux版Android StudioをWSL2へ導入する構成も可能性としてはある。ただし現在はWindows上のAndroid Emulatorを使用するため、WSLg、ADB、GPU・仮想化をまたぐ環境も追加で扱うことになる。Androidの設計・実装へ学習範囲を集中し、実際に安定動作を確認できた構成を使うため、Android StudioとAndroidプロジェクトはWindows側、BackendとPostgreSQLはWSL2側に配置する。詳細な判断は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
+
 ---
 
-## 2. レイヤー構成
+## 2. システム全体とレイヤー構成
+
+AndroidクライアントがKtor APIをHTTP / JSONで呼び出し、KtorがPostgreSQLへアクセスする。
+
+```mermaid
+flowchart LR
+    Compose[Jetpack Compose] --> ViewModel
+    ViewModel --> StateFlow[StateFlow / UI State]
+    ViewModel --> AndroidRepository[Android TodoRepository]
+    AndroidRepository --> Retrofit
+    Retrofit -->|HTTP / JSON| Routing[Ktor Routing]
+    Routing --> Service
+    Service --> BackendRepository[Backend Repository]
+    BackendRepository --> DB[(PostgreSQL)]
+```
+
+### Androidクライアント
+
+現在のAndroidクライアントは、一覧表示に必要な責務だけを分離している。
+
+| 要素 | 責務 |
+|---|---|
+| `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する |
+| `TodoListRoute` | ViewModelの`StateFlow`をライフサイクルに合わせて監視し、Screenへ渡す |
+| `TodoListScreen` | 渡された`TodoListUiState`を`LazyColumn`で描画する |
+| `TodoListViewModel` | Repositoryへ取得を指示し、`MutableStateFlow`を更新する |
+| `TodoListUiState` | Todo一覧画面のある時点の状態を表す不変データ |
+| Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
+| `TodoApi` | Retrofitの`GET /todos`契約 |
+| `ApiClient` | Retrofit、JSON converter、ベースURLを設定して`TodoApi`を生成する |
+| `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
+
+状態は一方向に流す。
+
+```text
+ユーザー操作
+    ↓
+ComposeからViewModelの関数を呼ぶ
+    ↓
+ViewModelがRepositoryを呼ぶ
+    ↓
+ViewModelがMutableStateFlowを更新する
+    ↓
+Composeが読み取り専用StateFlowを監視して再描画する
+```
+
+初回実装では`TodoDto`を`TodoListUiState`で直接使用する。表示用モデルとの変換が必要になった時点で、API DTOとUIモデルを分離する。Loading / Error / Empty Stateも後続Issueで追加する。
+
+現在のAndroidモジュールと主要パッケージは次の構成。
+
+```text
+android/
+└── app/
+    └── src/main/java/com/genkihashioka/kotlintodo/
+        ├── MainActivity.kt
+        ├── data/
+        │   ├── remote/
+        │   │   ├── ApiClient.kt
+        │   │   ├── api/TodoApi.kt
+        │   │   └── model/{TodoDto,CategoryDto,Priority,TodoStatus}.kt
+        │   └── repository/TodoRepository.kt
+        └── ui/
+            ├── todo/{TodoListRoute,TodoListScreen,TodoListUiState,TodoListViewModel,TodoListViewModelFactory}.kt
+            └── theme/
+```
+
+`app`は現在唯一のAndroid application moduleである。機能が少ない段階ではmoduleを分割せず、各packageの責務が大きくなり、分割で解決できる具体的な問題が生じた時点で再検討する。
+
+### Backend
 
 Todo API は 3 層 + DB の構成。全てのリクエストは **上→下** の方向にのみ依存が流れる（依存の逆流なし）。
 
 ```mermaid
 flowchart TB
-    Client[HTTP クライアント<br/>curl / 将来の Next.js]
+    Client[HTTP クライアント<br/>Android / curl]
     Routing["Presentation 層<br/>Ktor Routing DSL<br/>backend/.../routes/*"]
     Service["Service 層<br/>業務ロジック<br/>backend/.../service/*"]
     Repository["Repository 層<br/>Exposed DSL<br/>backend/.../repository/*"]
@@ -423,7 +506,7 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 - **Service テスト** (5): 業務ロジック（例外投出、複数 Repository の組み合わせ）を実 PostgreSQL 上で確認
 - **OpenAPI 仕様のテスト** (4): 生成された仕様書の中身（エンドポイントの一覧、エラーレスポンスの型、リクエストボディの型）を検証する。`testApplication` でルーティングだけを組み立てるため **DB に接続しない**（[ADR 0020](decisions/0020-generate-openapi-from-routing.md) 判断 8）
 - **Ktor テスト（HTTP 経由で実際にリクエストを処理するもの）**: まだ無し。`testApplication` 自体は Phase 4.10 で導入したが、Routing → Service → Repository を通貫するテストは Phase 4.11 のテスト戦略再構築でまとめて扱う
-- **バリデーション / エラー応答の検証**: (b) / (c) の実装中は下記の理由でテストが実行できなかったため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
+- **バリデーション / エラー応答の検証**: (b) / (c) の実装中は下記の理由でテストが実行できなかったため、**(c) は手動 curl で確認した**。確認項目は `docs/journal/backend/phase-04.9c-konform-and-status-pages.md` に結果ごと記録してある。Phase 4.11 でテストコードに移植する
 - **カバレッジ計測**: まだ導入していない
 
 > **Docker API バージョンの固定**: Docker Engine 29 が API バージョン 1.40 未満のクライアントを拒否するようになった一方、Testcontainers は `api.version` が未設定だと 1.32 を既定値として使うため、一時期すべてのテストが `Could not find a valid Docker environment` で実行不能になっていた（[#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25)）。`build.gradle.kts` の `tasks.test` で `systemProperty("api.version", "1.44")` を指定して解決済み。Testcontainers を上げても直らない点、環境変数 `DOCKER_API_VERSION` では指定できない点を含め、経緯は [ADR 0018](decisions/0018-pin-docker-api-version-for-testcontainers.md) を参照。
@@ -451,7 +534,7 @@ DatabaseFactory.init(HikariDataSource(...))
 JVM 終了時に Testcontainer 自動停止
 ```
 
-### Phase 4.11 で予定している拡張
+### 保留中のBackend Phase 4.11で予定している拡張
 
 - **Ktor `testApplication` による HTTP 経由テスト**（Routing + Service + Repository を通貫）。`testApplication` の導入自体は Phase 4.10 で済んでおり、ここで扱うのは DB を伴う通貫テスト
 - **ON DELETE CASCADE の実挙動テスト**（現状 SET NULL のみ検証済み）
@@ -468,39 +551,45 @@ JVM 終了時に Testcontainer 自動停止
 - **Ktor サーバー設定**: `Application.kt` にハードコード（port=8080, host="0.0.0.0"）
 - **ログ設定**: `backend/src/main/resources/logback.xml`（構造化ログの基本設定）
 - **Flyway 設定**: DatabaseFactory 内でコード化（`.dataSource(...).load().migrate()`）
+- **Android APIベースURL**: `ApiClient.kt`にdebug接続用のWSL2 IPを暫定設定
 
-### Phase 6 (認証実装) で改善予定
+Android StudioとAndroid EmulatorはWindows側、KtorはWSL2側で動く。WindowsからWSL2の`localhost`へは接続できても、Android Emulatorの`10.0.2.2`から同じ経路へ接続できなかったため、現在はWSL2のIPへ直接接続している。WSL2再起動でIPが変わり得るため、ベースURLの外部設定化を後続Issueで扱う。
+
+### 改善予定
 
 - Ktor の `application.conf`（HOCON 形式）or 環境変数への外部化
 - production 化を意識した secret 管理（平文パスワードを消す）
+- Androidのdebug用ベースURLをGit管理対象のソースコードから分離
 
 ---
 
 ## 9. 将来の拡張
 
-### 直近の Phase での追加要素
+### 直近の追加要素
 
 | Phase | 追加されるもの |
 |---|---|
 | ~~Phase 4.9 (b)~~ | ~~`dto/`, `routes/`, `DevDataInitializer.kt`（固定ユーザー）、Application.module() の DI 組み立て~~ **完了** |
 | ~~Phase 4.9 (c)~~ | ~~`konform` 依存、`validation/` パッケージ、`dto/error/` 分離、`fieldErrors` 追加、StatusPages に 3 ハンドラ、ADR 0016/0017~~ **完了** |
 | ~~Phase 4.10~~ | ~~Ktor OpenAPI プラグイン or 手書き openapi.yaml + Swagger UI。`ErrorResponse` のスキーマ記載を含む~~ **完了**（コンパイラプラグインによる自動生成 + `describe` での補完、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)） |
-| Phase 4.11 | `testApplication` による HTTP 経由テストの拡充（DB を伴う通貫）、CASCADE テスト追加、(c) の手動 curl のテスト化 |
+| Backend Phase 4.11 | `testApplication`によるHTTP経由テストの拡充。Android優先のため保留 |
+| Android 01 | `GET /todos`をRetrofitで取得し、ViewModel / StateFlowを通してComposeで一覧表示 **完了** |
 
-### Phase 5 以降で追加される予定のもの（要件書 §4 参照）
+### 今後追加するもの（要件書 §4、roadmap参照）
 
-- Todo のフィルタ / ソート / 検索 / ページネーション
-- Category CRUD API
-- 認証機能（Phase 6、JWT or Session）
-- Next.js フロントエンド（Phase 6 完了後、`frontend/` パッケージ）
+- AndroidでのTodo詳細、作成、編集、削除
+- Loading / Error / Empty State
+- Navigation、DI、Androidテスト
+- Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
+- Next.jsフロントエンドは延期
 
 ---
 
 ## 10. 関連ドキュメント
 
 - [requirements.md](requirements.md) — 何を作るか（機能要件・非機能要件・スコープ外）
+- [roadmap.md](roadmap.md) — 現在の優先順位と実装順序
 - [db-schema.md](db-schema.md) — DB スキーマ設計（ER 図・テーブル定義）
 - [decisions/](decisions/) — 個別の設計判断 (ADR)
 - [journal/](journal/) — 各 Phase の学習記録
-- [design-notes/](design-notes/) — Phase 実装前の詳細設計メモ（Phase 4.9 (b) 以降で運用開始）
-- プラン file: `~/.claude/plans/pc-springboot-kotlin-ktor-mac-giggly-key.md`（ローカル参照）
+- [design-notes/](design-notes/) — Track / Phase / 機能実装前の詳細設計メモ

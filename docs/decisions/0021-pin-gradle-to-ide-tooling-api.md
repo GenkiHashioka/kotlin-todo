@@ -120,4 +120,4 @@ Get-ChildItem "$env:LOCALAPPDATA\Programs\IntelliJ IDEA" -Recurse -Filter "gradl
 - [ADR 0018 - Testcontainers が使う Docker API バージョンを 1.44 に固定する](0018-pin-docker-api-version-for-testcontainers.md) — 同じく「外部ツールのバージョン差に合わせて固定する」判断
 - [ADR 0013 - Gradle スクリプトを Groovy DSL から Kotlin DSL に切り替える](0013-kotlin-dsl-gradle.md)
 - PR [#33](https://github.com/GenkiHashioka/kotlin-todo/pull/33) — Gradle を 9.5.1 から 9.7.0 に上げた PR
-- `docs/design-notes/phase-04.10-openapi-and-swagger-ui.md` — 本件が発覚した作業
+- `docs/design-notes/backend/phase-04.10-openapi-and-swagger-ui.md` — 本件が発覚した作業

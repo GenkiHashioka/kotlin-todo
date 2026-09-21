@@ -221,5 +221,5 @@ kotlinx のデシリアライズ失敗が既に 400 を返しているため、K
 - [#28](https://github.com/GenkiHashioka/kotlin-todo/issues/28) — `dto/` のリソース軸分割（Phase 5）
 - `backend/src/main/kotlin/com/example/kotlin_todo/Application.kt` — StatusPages の登録
 - `backend/src/main/kotlin/com/example/kotlin_todo/dto/error/*.kt` — レスポンス DTO
-- `docs/journal/phase-04.9b-ktor-routing-and-dto.md` — 「2 系統」の発見の記録
-- `docs/design-notes/phase-04.9c-konform-and-status-pages.md` — 実装前の設計メモ
+- `docs/journal/backend/phase-04.9b-ktor-routing-and-dto.md` — 「2 系統」の発見の記録
+- `docs/design-notes/backend/phase-04.9c-konform-and-status-pages.md` — 実装前の設計メモ

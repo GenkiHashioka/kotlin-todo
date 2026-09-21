@@ -52,7 +52,7 @@
 - `@RestController`は`@Controller` + `@ResponseBody`。戻り値がテンプレート名ではなく、レスポンスボディそのものとして扱われる
 - `ResponseEntity<T>`でボディとステータスコードをセットで表現する。エンドポイントごとに異なるステータスコード（201/200/404等）を返す必要があるため、常に200を返すデフォルト挙動に頼らない
 - 201 Createdでは`Location`ヘッダーを付けるのが望ましい。`ServletUriComponentsBuilder.fromCurrentRequest()`で、現在のリクエストURLを起点に新しいリソースのURIを組み立てられる
-- DELETE成功時のレスポンスには204（ボディなし）と200+削除内容、の2つの流儀がある（[ADR 0006](../decisions/0006-delete-returns-200-with-body.md)）
+- DELETE成功時のレスポンスには204（ボディなし）と200+削除内容、の2つの流儀がある（[ADR 0006](../../decisions/0006-delete-returns-200-with-body.md)）
 
 ### Bean Validation
 - `jakarta.validation.constraints`のアノテーション（`@NotBlank`, `@Size`等）をDTOのフィールドに付け、Controller側で`@Valid`を付けることで初めて検証が実行される
@@ -95,6 +95,6 @@
 
 ## 関連する設計判断（ADR）
 
-- [0005 - 更新はPUT形式（全項目送信）とし、PATCH方式は採用しない](../decisions/0005-update-uses-put-not-patch.md)
-- [0006 - DELETE成功時は204ではなく200+削除内容を返す](../decisions/0006-delete-returns-200-with-body.md)
-- [0007 - 認証機能ができるまでは固定ユーザーで代用する](../decisions/0007-fixed-user-until-auth-exists.md)
+- [0005 - 更新はPUT形式（全項目送信）とし、PATCH方式は採用しない](../../decisions/0005-update-uses-put-not-patch.md)
+- [0006 - DELETE成功時は204ではなく200+削除内容を返す](../../decisions/0006-delete-returns-200-with-body.md)
+- [0007 - 認証機能ができるまでは固定ユーザーで代用する](../../decisions/0007-fixed-user-until-auth-exists.md)

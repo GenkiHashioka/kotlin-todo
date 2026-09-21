@@ -16,7 +16,7 @@ java.lang.IllegalStateException: Could not find a valid Docker environment.
 UnixSocketClientProviderStrategy: failed with exception BadRequestException (Status 400: ...)
 ```
 
-この状態のまま Phase 4.9 (b) / (c) を進めたため、**Routing・DTO・バリデーション・エラー応答のすべてが自動テスト無しで実装された**。品質は `docs/journal/phase-04.9c-konform-and-status-pages.md` に記録した手動 curl の結果だけに支えられている。Phase 4.10 以降も同じ状態を続けると未検証の実装が積み上がるため、ここで解消することにした。
+この状態のまま Phase 4.9 (b) / (c) を進めたため、**Routing・DTO・バリデーション・エラー応答のすべてが自動テスト無しで実装された**。品質は `docs/journal/backend/phase-04.9c-konform-and-status-pages.md` に記録した手動 curl の結果だけに支えられている。Phase 4.10 以降も同じ状態を続けると未検証の実装が積み上がるため、ここで解消することにした。
 
 ### 原因
 
@@ -120,4 +120,4 @@ Testcontainers はテストと同じ JVM 内で Docker クライアントを組�
 - [#25](https://github.com/GenkiHashioka/kotlin-todo/issues/25) — 本件の Issue
 - `backend/build.gradle.kts` — 設定の実物
 - `backend/src/test/kotlin/com/example/kotlin_todo/AbstractPostgresTest.kt` — コンテナ起動箇所
-- `docs/journal/phase-04.9c-konform-and-status-pages.md` — テストが動かない間、手動 curl で代替した記録
+- `docs/journal/backend/phase-04.9c-konform-and-status-pages.md` — テストが動かない間、手動 curl で代替した記録

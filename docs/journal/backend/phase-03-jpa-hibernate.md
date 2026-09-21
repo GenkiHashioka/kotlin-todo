@@ -81,7 +81,7 @@
 
 ## 関連する設計判断（ADR）
 
-- [0001 - enumはORDINALではなくSTRINGでDB保存する](../decisions/0001-enum-storage-as-string.md)
-- [0002 - Userを削除したら関連するTodo/CategoryもCASCADE削除する](../decisions/0002-cascade-delete-on-user.md)
-- [0003 - Category名はユーザーごとに一意にする](../decisions/0003-category-name-unique-per-owner.md)
-- [0004 - Categoryを削除したら、それに紐づくTodoのcategoryはnullにする](../decisions/0004-category-delete-sets-todo-category-null.md)
+- [0001 - enumはORDINALではなくSTRINGでDB保存する](../../decisions/0001-enum-storage-as-string.md)
+- [0002 - Userを削除したら関連するTodo/CategoryもCASCADE削除する](../../decisions/0002-cascade-delete-on-user.md)
+- [0003 - Category名はユーザーごとに一意にする](../../decisions/0003-category-name-unique-per-owner.md)
+- [0004 - Categoryを削除したら、それに紐づくTodoのcategoryはnullにする](../../decisions/0004-category-delete-sets-todo-category-null.md)
