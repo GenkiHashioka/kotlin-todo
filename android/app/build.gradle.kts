@@ -1,8 +1,23 @@
+import com.android.build.api.variant.BuildConfigField
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
+
+val apiBaseUrlProvider = providers
+    .gradleProperty("kotlinTodoApiBaseUrl")
+    .orElse("")
+    .map { apiBaseUrl ->
+        require(apiBaseUrl.isNotBlank()) {
+            "kotlinTodoApiBaseUrl is not set. Add it to Gradle User Home's gradle.properties."
+        }
+        require(apiBaseUrl.endsWith("/")) {
+            "kotlinTodoApiBaseUrl must end with '/'."
+        }
+        apiBaseUrl
+    }
 
 android {
     namespace = "com.genkihashioka.kotlintodo"
@@ -33,6 +48,24 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        requireNotNull(variant.buildConfigFields) {
+            "BuildConfig generation must be enabled."
+        }.put(
+            "API_BASE_URL",
+            apiBaseUrlProvider.map { apiBaseUrl ->
+                BuildConfigField(
+                    type = "String",
+                    value = "\"$apiBaseUrl\"",
+                    comment = "Base URL for the Todo API",
+                )
+            },
+        )
     }
 }
 

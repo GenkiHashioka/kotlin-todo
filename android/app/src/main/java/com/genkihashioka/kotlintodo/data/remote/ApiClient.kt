@@ -1,5 +1,6 @@
 package com.genkihashioka.kotlintodo.data.remote
 
+import com.genkihashioka.kotlintodo.BuildConfig
 import com.genkihashioka.kotlintodo.data.remote.api.TodoApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,12 +16,11 @@ object ApiClient {
         ignoreUnknownKeys = true
     }
 
-    private const val BASE_URL = "http://172.28.55.179:8080/"
     private val contentType = "application/json".toMediaType()
 
     // Retrofitのインスタンスを生成
     private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
+        .baseUrl(BuildConfig.API_BASE_URL)
         .addConverterFactory(json.asConverterFactory(contentType))
         .build()
 

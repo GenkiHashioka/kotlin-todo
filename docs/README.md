@@ -17,6 +17,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 
 - Android 01: [設計メモ](design-notes/android/01-todo-list-from-api.md) / [学習ジャーナル](journal/android/01-todo-list-from-api.md)
 - Android 02: [設計メモ](design-notes/android/02-todo-list-ui-state.md) / [学習ジャーナル](journal/android/02-todo-list-ui-state.md)
+- Android 03: [設計メモ](design-notes/android/03-configurable-api-base-url.md) / [学習ジャーナル](journal/android/03-configurable-api-base-url.md)
 
 ## 運用方針
 
@@ -44,5 +45,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android Track（現在の主な開発対象、[ADR 0022](decisions/0022-prioritize-android-client.md)）
   - Android 01: Ktor APIからTodo一覧を取得し、Composeで表示（完了）
   - Android 02: Todo一覧のLoading / Success / Empty / Errorと再試行（完了）
+  - Android 03: ローカルAPIベースURLをGradle設定へ分離（完了）
   - 次: Todo詳細
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）

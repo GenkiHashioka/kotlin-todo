@@ -24,6 +24,7 @@ docs/          設計判断と学習過程の記録
 - [x] Ktor APIからTodo一覧を取得する
 - [x] `Repository → ViewModel → UI State → Compose`を通して表示する
 - [x] Loading / Error / Empty Stateを扱う
+- [x] ローカルAPIベースURLをGit管理対象のコードから分離する
 - [ ] Todo詳細を表示する
 - [ ] Todoを新規作成する
 - [ ] Todoを編集する

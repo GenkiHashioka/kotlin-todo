@@ -1,6 +1,6 @@
 # 要件定義書
 
-**バージョン**: 0.3（Android Todo一覧の画面状態追加時点）
+**バージョン**: 0.4（AndroidローカルAPI設定の外部化時点）
 **最終更新**: 2026-09-22
 
 このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
@@ -109,6 +109,7 @@
 - `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
 - Todo一覧のLoading / Success / Empty / Errorを表示
 - 通信失敗時にTodo一覧の取得を再試行
+- ローカルAPIベースURLをGit管理対象のKotlinコードから分離
 
 **今後追加するもの**:
 
@@ -141,6 +142,7 @@ Next.jsによるWebフロントエンドは現在の計画から延期し、Andr
 - Androidは**Kotlin 2.2.10**を使用し、Android StudioのGradle JDKでビルド
 - **Docker Compose** で PostgreSQL 17 起動、docker daemon 生存が前提
 - BackendはIntelliJ IDEA CE、AndroidはAndroid Studioを使用
+- AndroidのローカルAPIベースURLはWindowsユーザーのGradle User Homeで設定し、`BuildConfig`経由でアプリへ渡す
 
 ### 5.2 実装ポリシー
 

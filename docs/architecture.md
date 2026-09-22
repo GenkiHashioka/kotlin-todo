@@ -1,6 +1,6 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.6（Android Todo一覧の画面状態追加時点）
+**バージョン**: 0.7（AndroidローカルAPI設定の外部化時点）
 **最終更新**: 2026-09-22
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
@@ -85,7 +85,7 @@ flowchart LR
 | `TodoListUiState` | `sealed interface`でTodo一覧画面のLoading / Success / Empty / Errorを表す |
 | Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
 | `TodoApi` | Retrofitの`GET /todos`契約 |
-| `ApiClient` | Retrofit、JSON converter、ベースURLを設定して`TodoApi`を生成する |
+| `ApiClient` | `BuildConfig`からベースURLを受け取り、RetrofitとJSON converterを設定して`TodoApi`を生成する |
 | `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
 
 状態は一方向に流す。
@@ -567,15 +567,29 @@ JVM 終了時に Testcontainer 自動停止
 - **Ktor サーバー設定**: `Application.kt` にハードコード（port=8080, host="0.0.0.0"）
 - **ログ設定**: `backend/src/main/resources/logback.xml`（構造化ログの基本設定）
 - **Flyway 設定**: DatabaseFactory 内でコード化（`.dataSource(...).load().migrate()`）
-- **Android APIベースURL**: `ApiClient.kt`にdebug接続用のWSL2 IPを暫定設定
+- **Android APIベースURL**: Windows側のGradle User Homeで環境固有値を設定し、`BuildConfig.API_BASE_URL`経由で`ApiClient`へ渡す
 
-Android StudioとAndroid EmulatorはWindows側、KtorはWSL2側で動く。WindowsからWSL2の`localhost`へは接続できても、Android Emulatorの`10.0.2.2`から同じ経路へ接続できなかったため、現在はWSL2のIPへ直接接続している。WSL2再起動でIPが変わり得るため、ベースURLの外部設定化を後続Issueで扱う。
+Android StudioとAndroid EmulatorはWindows側、KtorはWSL2側で動く。WindowsからWSL2の`localhost`へは接続できても、Android Emulatorの`10.0.2.2`から同じ経路へ接続できなかったため、現在はWSL2のIPへ直接接続している。
+
+開発者固有のURLは`%USERPROFILE%\.gradle\gradle.properties`の`kotlinTodoApiBaseUrl`へ保存する。`android/app/build.gradle.kts`がProvider APIで読み取り、Android Gradle PluginのVariant APIから`BuildConfig.API_BASE_URL`を生成する。設定がない場合や末尾`/`がない場合は、実行時の通信失敗まで進めずビルド時にエラーとする。
+
+```text
+Gradle User Homeのgradle.properties
+    ↓ providers.gradleProperty()
+BuildConfigField
+    ↓ Android Gradle Pluginが生成
+BuildConfig.API_BASE_URL
+    ↓
+ApiClient / Retrofit
+```
+
+Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差分は発生しない。一方、`BuildConfig`の値はAPKへ組み込まれるため、秘密情報の保存には使用しない。WSL2のIPが変わった場合はユーザー用`gradle.properties`を手動で更新し、Sync / rebuildする。
 
 ### 改善予定
 
 - Ktor の `application.conf`（HOCON 形式）or 環境変数への外部化
 - production 化を意識した secret 管理（平文パスワードを消す）
-- Androidのdebug用ベースURLをGit管理対象のソースコードから分離
+- Androidの本番接続先が必要になった場合、build typeまたはproduct flavorごとにAPIベースURLを分ける
 
 ---
 
@@ -591,6 +605,7 @@ Android StudioとAndroid EmulatorはWindows側、KtorはWSL2側で動く。Windo
 | Backend Phase 4.11 | `testApplication`によるHTTP経由テストの拡充。Android優先のため保留 |
 | Android 01 | `GET /todos`をRetrofitで取得し、ViewModel / StateFlowを通してComposeで一覧表示 **完了** |
 | Android 02 | Todo一覧のLoading / Success / Empty / Errorと再試行を追加 **完了** |
+| Android 03 | ローカルAPIベースURLをGradle設定へ分離し、`BuildConfig`経由で`ApiClient`へ渡す **完了** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
