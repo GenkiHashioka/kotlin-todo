@@ -17,6 +17,7 @@ KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学
 - `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
 - APIから取得したTodoタイトルを`LazyColumn`で表示
 - Loading / Success / Empty / Errorを型で分け、通信失敗時の再試行を追加
+- ローカルAPIベースURLをGradle設定から`BuildConfig`経由で渡す
 
 次はTodo詳細へ進む。Navigation、DI、テストは必要性が生じる順に追加する。
 
@@ -91,13 +92,26 @@ Swagger UIは<http://localhost:8080/swagger>、OpenAPI JSONは<http://localhost:
 
 Windows側のcloneにある`android/`をAndroid Studioで開き、Android Emulatorで実行する。
 
-現在のdebug用ベースURLにはWSL2のIPアドレスを使用している。WSL2を再起動するとIPが変わる可能性があるため、その場合はPowerShellで確認して`ApiClient.kt`を更新する。
+Android EmulatorからWSL2上のKtor APIへ接続するため、WSL2のIPアドレスを確認する。
 
 ```powershell
 wsl -d Ubuntu -- hostname -I
 ```
 
-これは暫定運用であり、ベースURLの外部設定化は後続Issueで扱う。
+WindowsユーザーのGradle User Homeにある`%USERPROFILE%\.gradle\gradle.properties`へ、末尾`/`を含むAPIベースURLを設定する。ファイルが存在しない場合は作成する。
+
+```properties
+kotlinTodoApiBaseUrl=http://<WSL2_IP>:8080/
+```
+
+設定値は次のコマンドで確認できる。
+
+```powershell
+cd android
+.\gradlew.bat properties --property kotlinTodoApiBaseUrl -q
+```
+
+Gradleはこの値から`BuildConfig.API_BASE_URL`を生成し、`ApiClient`がRetrofitのベースURLとして使用する。WSL2のIPが変わった場合はユーザー用`gradle.properties`だけを更新し、Gradle Syncとrebuildを行う。
 
 ## ビルドとテスト
 
