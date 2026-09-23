@@ -15,4 +15,11 @@ class TodoRepository(
     suspend fun getTodos(): List<TodoDto> {
         return todoApi.getTodos()
     }
+
+    /**
+     * `todoId`に紐づくTodoを取得する。
+     */
+    suspend fun getTodo(todoId: Long): TodoDto {
+        return todoApi.getTodo(todoId)
+    }
 }

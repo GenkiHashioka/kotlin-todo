@@ -1,6 +1,6 @@
 # プロジェクトロードマップ
 
-**最終更新**: 2026-09-22
+**最終更新**: 2026-09-23
 
 このドキュメントは、`kotlin-todo`で何をどの順序で進めるかを示す。プロダクトの要件は[requirements.md](requirements.md)、現在の構成は[architecture.md](architecture.md)、Androidを優先する判断の背景は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
@@ -25,11 +25,11 @@ docs/          設計判断と学習過程の記録
 - [x] `Repository → ViewModel → UI State → Compose`を通して表示する
 - [x] Loading / Error / Empty Stateを扱う
 - [x] ローカルAPIベースURLをGit管理対象のコードから分離する
-- [ ] Todo詳細を表示する
+- [x] Todo詳細を表示する
 - [ ] Todoを新規作成する
 - [ ] Todoを編集する
 - [ ] Todoを削除する
-- [ ] Navigationを追加する
+- [x] Navigationを追加する
 - [ ] DIを導入する
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する

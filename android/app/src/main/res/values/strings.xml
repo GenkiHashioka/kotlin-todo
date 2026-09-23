@@ -3,4 +3,15 @@
     <string name="todo_list_empty">Todoはありません</string>
     <string name="todo_list_error">エラーが発生しました。再試行してください。</string>
     <string name="retry">再試行</string>
+    <string name="back">戻る</string>
+    <string name="unset">未設定</string>
+    <string name="todo_detail_error">Todoの取得に失敗しました。再試行してください。</string>
+    <string name="todo_detail_title">タイトル: %1$s</string>
+    <string name="todo_detail_description">説明: %1$s</string>
+    <string name="todo_detail_due_date">期限: %1$s</string>
+    <string name="todo_detail_priority">優先度: %1$s</string>
+    <string name="todo_detail_status">状態: %1$s</string>
+    <string name="todo_detail_category">カテゴリー: %1$s</string>
+    <string name="todo_detail_created_at">作成日時: %1$s</string>
+    <string name="todo_detail_updated_at">更新日時: %1$s</string>
 </resources>
