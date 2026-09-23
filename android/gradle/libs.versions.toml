@@ -10,6 +10,7 @@ kotlin = "2.2.10"
 composeBom = "2026.02.01"
 kotlinxSerialization = "1.9.0"
 retrofit = "3.0.0"
+navigationCompose = "2.10.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ retrofit-converter-kotlinx-serialization = { module = "com.squareup.retrofit2:co
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

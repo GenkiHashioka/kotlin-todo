@@ -6,22 +6,21 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
- * TodoListViewModelのStateFlowとTodoListScreenを接続するComposable。
- * viewModelのuiStateを監視し、現在の状態をScreenに渡す。
+ * TodoDetailViewModelのStateFlowとTodoDetailScreenを接続するComposable。
  */
 @Composable
-fun TodoListRoute(
-    viewModel: TodoListViewModel,
-    onTodoClick: (Long) -> Unit,
+fun TodoDetailRoute(
+    viewModel: TodoDetailViewModel,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // StateFlowから状態を取得
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    TodoListScreen(
+    TodoDetailScreen(
         uiState = uiState,
         onRetry = { viewModel.retry() },
-        onTodoClick = onTodoClick,
+        onBack = onBack,
         modifier = modifier,
     )
 }
