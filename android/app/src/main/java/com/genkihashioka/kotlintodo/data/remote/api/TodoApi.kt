@@ -1,7 +1,10 @@
 package com.genkihashioka.kotlintodo.data.remote.api
 
+import com.genkihashioka.kotlintodo.data.remote.model.TodoCreateRequest
 import com.genkihashioka.kotlintodo.data.remote.model.TodoDto
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 /**
@@ -14,5 +17,10 @@ interface TodoApi {
     @GET("todos/{id}")
     suspend fun getTodo(
         @Path("id") todoId: Long,
+    ): TodoDto
+
+    @POST("todos")
+    suspend fun createTodo(
+        @Body todoCreateRequest: TodoCreateRequest,
     ): TodoDto
 }

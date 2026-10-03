@@ -8,6 +8,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.genkihashioka.kotlintodo.ui.todo.TodoCreateRoute
+import com.genkihashioka.kotlintodo.ui.todo.TodoCreateViewModel
 import com.genkihashioka.kotlintodo.ui.todo.TodoDetailRoute
 import com.genkihashioka.kotlintodo.ui.todo.TodoDetailViewModel
 import com.genkihashioka.kotlintodo.ui.todo.TodoListRoute
@@ -22,6 +24,7 @@ import com.genkihashioka.kotlintodo.ui.todo.TodoListViewModel
 fun KotlinTodoNavHost(
     todoListViewModelFactory: ViewModelProvider.Factory,
     todoDetailViewModelFactory: ViewModelProvider.Factory,
+    todoCreateViewModelFactory: ViewModelProvider.Factory,
     modifier: Modifier = Modifier,
 ) {
     // 現在のDestinationを管理するNavController
@@ -46,6 +49,7 @@ fun KotlinTodoNavHost(
                         TodoDetailDestination(todoId = todoId),
                     )
                 },
+                onCreateClick = { navController.navigate(TodoCreateDestination) },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -61,6 +65,18 @@ fun KotlinTodoNavHost(
                 onBack = {
                     navController.popBackStack()
                 },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        // Todo作成
+        composable<TodoCreateDestination> {
+            val todoCreateViewModel: TodoCreateViewModel = viewModel(
+                factory = todoCreateViewModelFactory,
+            )
+
+            TodoCreateRoute(
+                viewModel = todoCreateViewModel,
                 modifier = Modifier.fillMaxSize(),
             )
         }

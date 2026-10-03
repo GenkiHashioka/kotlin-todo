@@ -26,50 +26,60 @@ fun TodoListScreen(
     uiState: TodoListUiState,
     onRetry: () -> Unit,
     onTodoClick: (Long) -> Unit,
+    onCreateClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        when (uiState) {
-            TodoListUiState.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+    Column(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) {
+            when (uiState) {
+                TodoListUiState.Loading -> {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
 
-            is TodoListUiState.Success -> {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(
-                        items = uiState.todos,
-                        key = { todo -> todo.id },
-                    ) { todo ->
-                        Text(
-                            text = todo.title,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onTodoClick(todo.id) }
-                                .padding(16.dp),
-                        )
+                is TodoListUiState.Success -> {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(
+                            items = uiState.todos,
+                            key = { todo -> todo.id },
+                        ) { todo ->
+                            Text(
+                                text = todo.title,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onTodoClick(todo.id) }
+                                    .padding(16.dp),
+                            )
+                        }
+                    }
+                }
+
+                TodoListUiState.Empty -> {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        text = stringResource(R.string.todo_list_empty),
+                    )
+                }
+
+                TodoListUiState.Error -> {
+                    Column(
+                        modifier = Modifier.align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(text = stringResource(R.string.todo_list_error))
+
+                        Button(onClick = onRetry) {
+                            Text(text = stringResource(R.string.retry))
+                        }
                     }
                 }
             }
-
-            TodoListUiState.Empty -> {
-                Text(
-                    modifier = Modifier.align(Alignment.Center),
-                    text = stringResource(R.string.todo_list_empty),
-                )
-            }
-
-            TodoListUiState.Error -> {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(text = stringResource(R.string.todo_list_error))
-
-                    Button(onClick = onRetry) {
-                        Text(text = stringResource(R.string.retry))
-                    }
-                }
-            }
+        }
+        Button(onClick = onCreateClick) {
+            Text(text = stringResource(R.string.create_todo))
         }
     }
 }
