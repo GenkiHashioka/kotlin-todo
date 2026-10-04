@@ -98,6 +98,7 @@ fun KotlinTodoNavHost(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("todo_list_refresh_required", true)
+                    navController.popBackStack()
                 },
                 modifier = Modifier.fillMaxSize(),
             )
