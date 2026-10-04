@@ -126,5 +126,8 @@ fun TodoCreateScreen(
         ) {
             Text(text = stringResource(R.string.submit_button))
         }
+        if (uiState.hasSubmitError) {
+            Text(text = stringResource(R.string.todo_create_error))
+        }
     }
 }

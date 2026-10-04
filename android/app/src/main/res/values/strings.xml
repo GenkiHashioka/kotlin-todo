@@ -23,4 +23,5 @@
     <string name="todo_create_due_date_button">期日を選択</string>
     <string name="todo_create_due_date">期日: %1$s</string>
     <string name="todo_create_due_date_clear">期日を解除</string>
+    <string name="todo_create_error">登録に失敗しました。再度お試しください。</string>
 </resources>

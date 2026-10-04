@@ -12,4 +12,6 @@ data class TodoCreateUiState(
     val dueDate: LocalDate? = null,
     val priority: Priority = Priority.LOW,
     val isSubmitting: Boolean = false,
+    val hasSubmitError: Boolean = false,
+    val isCreated: Boolean = false,
 )

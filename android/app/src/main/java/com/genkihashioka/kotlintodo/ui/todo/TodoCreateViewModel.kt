@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Todo新規作成画面のViewModel。
@@ -63,19 +64,58 @@ class TodoCreateViewModel(
      * 入力されたTodoの登録。
      */
     fun createTodo() {
+        // Todo作成途中の場合は、以降の処理を行わない。
+        // 画面遷移が完了するまでに再度createTodoが呼ばれると、登録を受け付けてしまうため、isCreatedがtrueの間も処理を受け付けない
+        if (_uiState.value.isSubmitting || _uiState.value.isCreated) {
+            return
+        }
+
+        // 登録開始前にエラー状態をリセットし、送信中フラグをtrueにする
+        _uiState.update { currentState ->
+            currentState.copy(
+                isSubmitting = true,
+                hasSubmitError = false,
+            )
+        }
+
         val currentState = _uiState.value
         viewModelScope.launch {
-            todoRepository.createTodo(
-                TodoCreateRequest(
-                    title = currentState.title,
-                    description = currentState.description.ifBlank {
-                        null
-                    },
-                    dueDate = currentState.dueDate?.toString(),
-                    priority = currentState.priority,
-                    status = TodoStatus.NOT_STARTED,
+            try {
+                todoRepository.createTodo(
+                    TodoCreateRequest(
+                        title = currentState.title,
+                        description = currentState.description.ifBlank {
+                            null
+                        },
+                        dueDate = currentState.dueDate?.toString(),
+                        priority = currentState.priority,
+                        status = TodoStatus.NOT_STARTED,
+                    )
                 )
-            )
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isCreated = true,
+                    )
+                }
+            } catch (cancellationException: CancellationException) {
+                // CoroutineのキャンセルはErrorへ変換せず、呼び出し元へ伝播させる
+                throw cancellationException
+            } catch (exception: Exception) {
+                // その他のExceptionはエラーとして扱う
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        hasSubmitError = true,
+                    )
+                }
+            } finally {
+                // 送信中フラグをfalseに戻す。
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        isSubmitting = false,
+                    )
+                }
+            }
         }
     }
 }
