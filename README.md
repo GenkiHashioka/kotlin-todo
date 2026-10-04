@@ -19,7 +19,11 @@ KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学
 - Loading / Success / Empty / Errorを型で分け、通信失敗時の再試行を追加
 - ローカルAPIベースURLをGradle設定から`BuildConfig`経由で渡す
 
-次はTodo詳細へ進む。Navigation、DI、テストは必要性が生じる順に追加する。
+- Navigation Composeで一覧からTodo詳細へ遷移し、`GET /todos/{id}`で詳細を表示
+- 登録画面から`POST /todos`でTodoを作成（通信失敗時の入力保持・エラー表示、送信中と登録済みの再送信防止）
+- 登録成功後は一覧へ戻り、更新通知を受けて最新のTodo一覧を再取得
+
+Todo登録と成功後の一覧更新まで実装し、手動確認している。次の機能はTodo編集。DIと自動テストは必要性が生じる順に追加する。
 
 ## システム構成
 
