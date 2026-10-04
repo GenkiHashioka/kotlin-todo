@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.7（AndroidローカルAPI設定の外部化時点）
-**最終更新**: 2026-09-22
+**バージョン**: 0.8（Android詳細・登録と一覧更新の実装時点）
+**最終更新**: 2026-10-04
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -74,7 +74,7 @@ flowchart LR
 
 ### Androidクライアント
 
-現在のAndroidクライアントは、一覧表示に必要な責務だけを分離している。
+現在のAndroidクライアントは、一覧・詳細・登録の責務を分離している。登録機能はIssue #49で実装し、手動確認済み。
 
 | 要素 | 責務 |
 |---|---|
@@ -84,9 +84,16 @@ flowchart LR
 | `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
 | `TodoListUiState` | `sealed interface`でTodo一覧画面のLoading / Success / Empty / Errorを表す |
 | Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
-| `TodoApi` | Retrofitの`GET /todos`契約 |
+| `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`契約 |
 | `ApiClient` | `BuildConfig`からベースURLを受け取り、RetrofitとJSON converterを設定して`TodoApi`を生成する |
 | `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
+| `KotlinTodoNavHost` / `TodoDestinations` | 型安全な画面定義、画面ごとのViewModel生成、遷移と戻り先への更新通知 |
+| `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視とLoading / Success / Errorの表示、再試行・戻る操作の通知 |
+| `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる詳細取得と状態更新 |
+| `TodoCreateRoute` | 入力callbackを接続し、`LaunchedEffect(isCreated)`から成功callbackを呼ぶ |
+| `TodoCreateScreen` | 入力欄、送信ボタン、共通の登録失敗メッセージを表示する |
+| `TodoCreateViewModel` / `TodoCreateUiState` | 入力値、送信中、失敗、登録済みの状態と登録処理を管理する |
+| `TodoCreateRequest` | `POST /todos`のJSONリクエストを表す |
 
 状態は一方向に流す。
 
@@ -120,6 +127,27 @@ ViewModelは通常の`Exception`をErrorへ変換する。一方、ViewModelの�
 
 現時点では`TodoDto`をSuccessで直接使用する。表示用の変換要件が生じた時点で、API DTOとUIモデルを分離する。
 
+### 画面遷移と登録後の一覧更新
+
+`MainActivity`はRepositoryと各ViewModel Factoryを組み立てる。ViewModelは各Destination内で生成し、そのBackStackEntryに紐づける。一覧から詳細へはTodo IDを渡し、詳細ViewModelがAPIから取得する。
+
+登録画面は入力値を保持したまま`isSubmitting`、`hasSubmitError`、`isCreated`を更新する。説明の空白入力はnull、任意の期日は`LocalDate?`から日付文字列へ変換する。ステータスは`NOT_STARTED`、categoryIdはnull。ViewModelのガードは送信中・登録済みの追加送信を拒否する。通常の例外は失敗状態へ変換し、CancellationExceptionは再スロー、finallyで送信中を解除する。
+
+```text
+POST /todos成功
+  → isCreated = true
+  → RouteのLaunchedEffectからonCreated()
+  → NavHostが一覧のSavedStateHandleへtodo_list_refresh_required = trueを保存
+  → popBackStack()で登録画面を取り除く
+  → 一覧側がgetStateFlowとcollectAsStateWithLifecycleで通知を受け取る
+  → LaunchedEffectから一覧ViewModelのrefresh()を呼び、通知をfalseへ戻す
+  → APIの取得結果で一覧のStateFlowを更新し、Composeへ反映
+```
+
+戻るだけでは、保持された一覧ViewModelのinitは再実行されない。再コンポーズ自体もAPI取得を行わないため、明示的な再取得が必要となる。通知のfalseへの変更は要求を受け付けたことを表し、通信完了を表さない。再取得失敗は既存のError表示とretry()で扱う。retry()とrefresh()は同じloadTodos()に委譲し、呼ぶ目的を名前で区別する。
+
+画面遷移と画面間の通知はNavHostが担当し、ViewModelにNavControllerや別画面のViewModelを渡さない。登録画面の入力状態のプロセス再生成対応、自動テスト、詳細な入力エラーやレイアウト改善は後続の課題とする。
+
 現在のAndroidモジュールと主要パッケージは次の構成。
 
 ```text
@@ -131,10 +159,14 @@ android/
         │   ├── remote/
         │   │   ├── ApiClient.kt
         │   │   ├── api/TodoApi.kt
-        │   │   └── model/{TodoDto,CategoryDto,Priority,TodoStatus}.kt
+        │   │   └── model/{TodoDto,TodoCreateRequest,CategoryDto,Priority,TodoStatus}.kt
         │   └── repository/TodoRepository.kt
         └── ui/
-            ├── todo/{TodoListRoute,TodoListScreen,TodoListUiState,TodoListViewModel,TodoListViewModelFactory}.kt
+            ├── navigation/{KotlinTodoNavHost,TodoDestinations}.kt
+            ├── todo/
+            │   ├── TodoList{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   ├── TodoDetail{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   └── TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             └── theme/
 ```
 
@@ -606,11 +638,13 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 01 | `GET /todos`をRetrofitで取得し、ViewModel / StateFlowを通してComposeで一覧表示 **完了** |
 | Android 02 | Todo一覧のLoading / Success / Empty / Errorと再試行を追加 **完了** |
 | Android 03 | ローカルAPIベースURLをGradle設定へ分離し、`BuildConfig`経由で`ApiClient`へ渡す **完了** |
+| Android 04 | Todo詳細とNavigation Compose **完了（PR #48でマージ済み）** |
+| Android 05 | Todo登録、失敗表示、二重送信防止、成功後の一覧更新 **実装・手動確認済み** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- AndroidでのTodo詳細、作成、編集、削除
-- Navigation、DI、Androidテスト
+- AndroidでのTodo編集、削除
+- DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期
 

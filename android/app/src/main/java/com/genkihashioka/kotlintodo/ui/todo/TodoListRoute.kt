@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun TodoListRoute(
     viewModel: TodoListViewModel,
     onTodoClick: (Long) -> Unit,
+    onCreateClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // StateFlowから状態を取得
@@ -22,6 +23,7 @@ fun TodoListRoute(
         uiState = uiState,
         onRetry = { viewModel.retry() },
         onTodoClick = onTodoClick,
+        onCreateClick = onCreateClick,
         modifier = modifier,
     )
 }

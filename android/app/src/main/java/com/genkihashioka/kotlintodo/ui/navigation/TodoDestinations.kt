@@ -17,3 +17,9 @@ data object TodoListDestination
 data class TodoDetailDestination(
     val todoId: Long,
 )
+
+/**
+ * Todo作成画面。
+ */
+@Serializable
+data object TodoCreateDestination

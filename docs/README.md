@@ -1,6 +1,6 @@
 # kotlin-todo ドキュメント
 
-このディレクトリは、学習しながら育てるドキュメント一式。以下の3種類を運用する。
+このディレクトリは、学習しながら育てるドキュメント一式。目的に応じて、以下の文書を運用する。
 
 ## 構成
 
@@ -19,11 +19,16 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 02: [設計メモ](design-notes/android/02-todo-list-ui-state.md) / [学習ジャーナル](journal/android/02-todo-list-ui-state.md)
 - Android 03: [設計メモ](design-notes/android/03-configurable-api-base-url.md) / [学習ジャーナル](journal/android/03-configurable-api-base-url.md)
 
+- Android 04: [設計メモ](design-notes/android/04-todo-detail-navigation.md) / [学習ジャーナル](journal/android/04-todo-detail-navigation.md)
+- Android 05: [設計メモ](design-notes/android/05-todo-create.md) / [学習ジャーナル](journal/android/05-todo-create.md)
+
 ## 運用方針
 
 - コードは原則として開発者本人が書く。ドキュメント（journal・ADR・README等）は、AIアシスタントが下書きを生成し、開発者が事実関係と判断内容をレビュー・修正する。
 - ジャーナルとADRは、実装がある程度形になった時点（フェーズ完了時）にAIアシスタントが下書きし、内容が合っているか開発者がレビューする。
 - ルート`README.md`は初見の人向けの概要と起動手順、`architecture.md`は構成と責務の一次ソースとして、プロジェクトが進むごとに更新する。
+
+- 着手前・実装後・PR前の更新手順は[AGENTS.md](../AGENTS.md#documentation-workflow)に従う。設計メモは実装前にレビューし、PR準備時には進捗・構成・要件・ロードマップの整合を確認する。
 
 ## 現在の進捗
 
@@ -46,5 +51,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 01: Ktor APIからTodo一覧を取得し、Composeで表示（完了）
   - Android 02: Todo一覧のLoading / Success / Empty / Errorと再試行（完了）
   - Android 03: ローカルAPIベースURLをGradle設定へ分離（完了）
-  - 次: Todo詳細
+  - Android 04: Todo詳細とNavigation（完了、PR #48でマージ済み）
+  - Android 05: Todo登録と成功後の一覧更新（実装・手動確認済み）
+  - 次: Todo編集
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）

@@ -33,6 +33,13 @@ class TodoListViewModel(
     }
 
     /**
+     * 登録後に最新の一覧を取得する。
+     */
+    fun refresh() {
+        loadTodos()
+    }
+
+    /**
      * Todoリストの一覧を取得し、画面情報を更新する。
      */
     private fun loadTodos() {

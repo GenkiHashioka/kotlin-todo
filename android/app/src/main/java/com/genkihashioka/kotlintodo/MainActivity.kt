@@ -12,6 +12,7 @@ import com.genkihashioka.kotlintodo.data.remote.ApiClient
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 import com.genkihashioka.kotlintodo.ui.navigation.KotlinTodoNavHost
 import com.genkihashioka.kotlintodo.ui.theme.KotlinTodoTheme
+import com.genkihashioka.kotlintodo.ui.todo.todoCreateViewModelFactory
 import com.genkihashioka.kotlintodo.ui.todo.todoDetailViewModelFactory
 import com.genkihashioka.kotlintodo.ui.todo.todoListViewModelFactory
 
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
     private val todoRepository = TodoRepository(ApiClient.todoApi)
     private val todoListFactory = todoListViewModelFactory(todoRepository)
     private val todoDetailFactory = todoDetailViewModelFactory(todoRepository)
+    private val todoCreateFactory = todoCreateViewModelFactory(todoRepository)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
                     KotlinTodoNavHost(
                         todoListViewModelFactory = todoListFactory,
                         todoDetailViewModelFactory = todoDetailFactory,
+                        todoCreateViewModelFactory = todoCreateFactory,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
