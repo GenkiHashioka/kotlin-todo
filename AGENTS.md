@@ -55,6 +55,16 @@ Even then, explain:
 - Codex may run read-only Git and GitHub commands such as `git status`, `git diff`, `git log`, and `gh pr view`.
 - The developer performs all Git and GitHub write operations, including `commit`, `push`, `merge`, issue creation, and pull request creation. Codex may prepare commands and draft text for the developer.
 
+## Documentation Workflow
+
+- Before starting a new feature, inspect the existing requirements, architecture, and relevant ADRs, then discuss the design. Draft a design note in `docs/design-notes/{track}/` covering the goal, scope, responsibilities, design choices, implementation steps, and validation. The developer reviews it before implementation proceeds. Follow the [design-note guide](docs/design-notes/README.md).
+- When taking over work without a design note, add the missing note before proceeding with further implementation. If written after implementation, state its actual creation date and retrospective nature; do not present it as a pre-implementation record.
+- After implementation, draft a journal in `docs/journal/{track}/` using the matching sequence number and topic. Record results, learning, differences from the design, and validation for developer review. Distinguish checks performed by the agent from checks reported by the developer; never mark unverified behavior as verified.
+- Before preparing a PR, review `README.md`, `docs/README.md`, `docs/architecture.md`, `docs/requirements.md`, `docs/roadmap.md`, and relevant ADRs. Update progress, responsibilities, API contracts, data flow, and links where affected. Leave unaffected documents unchanged and preserve older design notes and journals as historical records.
+- In status reports, distinguish implementation, validation, documentation review, and merge status. In maintained project documents (README, documentation index, architecture, requirements, and roadmap), describe the implementation included in the same PR, validation, and remaining work. Do not embed temporary workflow states such as "awaiting review", "preparing a PR", or "not yet merged" that become stale when the PR merges. Track those states in the conversation or GitHub instead. Before committing, verify that these documents will remain accurate after the PR merges; do not rely on a later cleanup PR. Historical records may include dated facts, but never claim an unperformed merge or review.
+- Save documentation drafts directly in the working repository for the feature. When Windows and WSL use separate clones, verify the target branch and path and keep implementation and documentation in the same clone. Do not use a temporary directory as the default location for reviewing drafts.
+- When requesting review, identify changes to the design note, journal, and progress documents, along with deferred work. Follow the existing responsibility boundaries for Git and GitHub write operations.
+
 ## Definition of Done
 
 AI-generated code is not considered complete unless the developer can understand and explain it.
