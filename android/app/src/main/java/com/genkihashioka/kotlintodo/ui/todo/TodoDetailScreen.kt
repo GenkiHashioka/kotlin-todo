@@ -26,6 +26,7 @@ fun TodoDetailScreen(
     uiState: TodoDetailUiState,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    onEditClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -108,6 +109,10 @@ fun TodoDetailScreen(
                                 todo.updatedAt,
                             ),
                         )
+
+                        Button(onClick = { onEditClick(todo.id) }) {
+                            Text(text = stringResource(R.string.edit_button))
+                        }
                     }
                 }
 

@@ -15,6 +15,8 @@ import com.genkihashioka.kotlintodo.ui.todo.TodoCreateRoute
 import com.genkihashioka.kotlintodo.ui.todo.TodoCreateViewModel
 import com.genkihashioka.kotlintodo.ui.todo.TodoDetailRoute
 import com.genkihashioka.kotlintodo.ui.todo.TodoDetailViewModel
+import com.genkihashioka.kotlintodo.ui.todo.TodoEditRoute
+import com.genkihashioka.kotlintodo.ui.todo.TodoEditViewModel
 import com.genkihashioka.kotlintodo.ui.todo.TodoListRoute
 import com.genkihashioka.kotlintodo.ui.todo.TodoListViewModel
 
@@ -28,6 +30,7 @@ fun KotlinTodoNavHost(
     todoListViewModelFactory: ViewModelProvider.Factory,
     todoDetailViewModelFactory: ViewModelProvider.Factory,
     todoCreateViewModelFactory: ViewModelProvider.Factory,
+    todoEditViewModelFactory: ViewModelProvider.Factory,
     modifier: Modifier = Modifier,
 ) {
     // 現在のDestinationを管理するNavController
@@ -71,15 +74,33 @@ fun KotlinTodoNavHost(
         }
 
         // Todo詳細表示
-        composable<TodoDetailDestination> {
+        composable<TodoDetailDestination> { backStackEntry ->
+            // Todo再取得通知を受け取る。通知ありの場合true。
+            val refreshRequired by backStackEntry.savedStateHandle
+                .getStateFlow("todo_detail_refresh_required", false)
+                .collectAsStateWithLifecycle()
+
             val todoDetailViewModel: TodoDetailViewModel = viewModel(
                 factory = todoDetailViewModelFactory,
             )
+
+            // Todo再取得通知がtrueなら再取得を行い、通知を処理済みにする。
+            LaunchedEffect(refreshRequired) {
+                if (refreshRequired) {
+                    todoDetailViewModel.refresh()
+                    backStackEntry.savedStateHandle["todo_detail_refresh_required"] = false
+                }
+            }
 
             TodoDetailRoute(
                 viewModel = todoDetailViewModel,
                 onBack = {
                     navController.popBackStack()
+                },
+                onEditClick = { todoId ->
+                    navController.navigate(
+                        TodoEditDestination(todoId = todoId),
+                    )
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -98,6 +119,28 @@ fun KotlinTodoNavHost(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("todo_list_refresh_required", true)
+                    navController.popBackStack()
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        // Todo編集
+        composable<TodoEditDestination> {
+            val todoEditViewModel: TodoEditViewModel = viewModel(
+                factory = todoEditViewModelFactory,
+            )
+
+            TodoEditRoute(
+                viewModel = todoEditViewModel,
+                onUpdated = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("todo_detail_refresh_required", true)
+
+                    navController.getBackStackEntry(TodoListDestination)
+                        .savedStateHandle["todo_list_refresh_required"] = true
+
                     navController.popBackStack()
                 },
                 modifier = Modifier.fillMaxSize(),
