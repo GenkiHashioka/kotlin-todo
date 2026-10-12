@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.8（Android詳細・登録と一覧更新の実装時点）
-**最終更新**: 2026-10-04
+**バージョン**: 0.9（Android編集と詳細・一覧更新の実装時点）
+**最終更新**: 2026-10-12
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -74,7 +74,7 @@ flowchart LR
 
 ### Androidクライアント
 
-現在のAndroidクライアントは、一覧・詳細・登録の責務を分離している。登録機能はIssue #49で実装し、手動確認済み。
+現在のAndroidクライアントは、一覧・詳細・登録・編集の責務を分離している。編集機能はIssue #52で実装し、保存成功・失敗と送信中の入力制御を手動確認している。個別の確認範囲は[Android 06のjournal](journal/android/06-todo-edit.md)を参照。
 
 | 要素 | 責務 |
 |---|---|
@@ -84,16 +84,21 @@ flowchart LR
 | `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
 | `TodoListUiState` | `sealed interface`でTodo一覧画面のLoading / Success / Empty / Errorを表す |
 | Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
-| `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`契約 |
+| `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`、`PUT /todos/{id}`契約 |
 | `ApiClient` | `BuildConfig`からベースURLを受け取り、RetrofitとJSON converterを設定して`TodoApi`を生成する |
 | `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
 | `KotlinTodoNavHost` / `TodoDestinations` | 型安全な画面定義、画面ごとのViewModel生成、遷移と戻り先への更新通知 |
-| `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視とLoading / Success / Errorの表示、再試行・戻る操作の通知 |
+| `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視とLoading / Success / Errorの表示、再試行・戻る・編集操作の通知 |
 | `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる詳細取得と状態更新 |
 | `TodoCreateRoute` | 入力callbackを接続し、`LaunchedEffect(isCreated)`から成功callbackを呼ぶ |
 | `TodoCreateScreen` | 入力欄、送信ボタン、共通の登録失敗メッセージを表示する |
 | `TodoCreateViewModel` / `TodoCreateUiState` | 入力値、送信中、失敗、登録済みの状態と登録処理を管理する |
 | `TodoCreateRequest` | `POST /todos`のJSONリクエストを表す |
+| `TodoEditRoute` | 編集callbackを接続し、`LaunchedEffect(isUpdated)`から成功callbackを呼ぶ |
+| `TodoEditScreen` | 取得中・取得失敗・編集フォーム・保存失敗を表示し、送信中・更新済みの入力操作を無効にする |
+| `TodoEditViewModel` / `TodoEditUiState` | IDから初期取得し、Loading / LoadError / Editing、入力と保存結果を管理する |
+| `TodoEditViewModelFactory` | RepositoryとNavigationに対応したSavedStateHandleを渡す |
+| `TodoUpdateRequest` | `PUT /todos/{id}`のJSONリクエストを表す |
 
 状態は一方向に流す。
 
@@ -148,6 +153,29 @@ POST /todos成功
 
 画面遷移と画面間の通知はNavHostが担当し、ViewModelにNavControllerや別画面のViewModelを渡さない。登録画面の入力状態のプロセス再生成対応、自動テスト、詳細な入力エラーやレイアウト改善は後続の課題とする。
 
+### 編集と成功後の詳細・一覧更新
+
+詳細から`TodoEditDestination(todoId)`へ進む。編集ViewModelがIDから取得し、成功時に一度だけEditingの初期値を設定する。API DTO全体をNavigation引数や編集状態として渡さず、入力項目と操作状態を分けて保持する。
+
+更新は[ADR 0005](decisions/0005-update-uses-put-not-patch.md)のPUT契約に従う。タイトル、説明、期日、優先度、ステータス、categoryIdを送信内容に含め、説明の空白と期日の解除はnullへ変換する。カテゴリ選択UIは追加せず、取得時の`category?.id`を保持する。ステータスは既存値から編集し、選択の遷移順序は制限しない。
+
+送信内容は保存開始時の入力から確定する。ViewModelは空白タイトル・送信中・更新済みの保存を拒否する。Screenも送信中・更新済みは入力と保存を無効にする。保存失敗では入力を保持し、finallyで送信中を解除して操作を再開する。CancellationExceptionは再スローする。
+
+```text
+PUT /todos/{id}成功
+  → isUpdated = true
+  → RouteのLaunchedEffectからonUpdated()
+  → NavHostが直前の詳細へtodo_detail_refresh_required = trueを保存
+  → Back Stackの一覧へtodo_list_refresh_required = trueを保存
+  → popBackStack()で編集画面を取り除く
+  → 各画面が通知を受け付け、refresh()を開始して通知をfalseへ戻す
+  → APIの取得結果で各ViewModelのStateFlowを更新し、表示へ反映
+```
+
+一覧・詳細・編集の経路を前提とし、一覧のBackStackEntryを明示的に取得する。通知は通信完了を待たずに消費し、再取得失敗は各画面の既存のError表示とretry()で扱う。設計理由と代替案は[ADR 0023](decisions/0023-navigation-refresh-notification.md)へ記録する。保存せず戻る場合は更新リクエストと通知を送らない。ただし、送信後に画面を破棄してもBackendでの保存を取り消せる保証はない。
+
+入力のプロセス再生成対応、競合更新の検出、自動テスト、レイアウト・タップ範囲、一覧の並び順は後続課題とする。
+
 現在のAndroidモジュールと主要パッケージは次の構成。
 
 ```text
@@ -159,16 +187,19 @@ android/
         │   ├── remote/
         │   │   ├── ApiClient.kt
         │   │   ├── api/TodoApi.kt
-        │   │   └── model/{TodoDto,TodoCreateRequest,CategoryDto,Priority,TodoStatus}.kt
+        │   │   └── model/{TodoDto,TodoCreateRequest,TodoUpdateRequest,CategoryDto,Priority,TodoStatus}.kt
         │   └── repository/TodoRepository.kt
         └── ui/
             ├── navigation/{KotlinTodoNavHost,TodoDestinations}.kt
             ├── todo/
             │   ├── TodoList{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             │   ├── TodoDetail{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
-            │   └── TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   ├── TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   └── TodoEdit{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             └── theme/
 ```
+
+`ui/todo`には一覧・詳細・登録・編集のファイルが集まっている。削除機能まで揃った時点を見直しの候補とし、画面別のサブパッケージへの整理と、各クラスの責務・依存関係を確認する。ファイルを探しにくい、変更の影響範囲を把握しにくいなどの問題が先に生じた場合は前倒しする。現在のUI・Repository・通信境界の分離を土台に、具体的な問題に応じて整理する。
 
 `app`は現在唯一のAndroid application moduleである。機能が少ない段階ではmoduleを分割せず、各packageの責務が大きくなり、分割で解決できる具体的な問題が生じた時点で再検討する。
 
@@ -640,10 +671,11 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 03 | ローカルAPIベースURLをGradle設定へ分離し、`BuildConfig`経由で`ApiClient`へ渡す **完了** |
 | Android 04 | Todo詳細とNavigation Compose **完了（PR #48でマージ済み）** |
 | Android 05 | Todo登録、失敗表示、二重送信防止、成功後の一覧更新 **実装・手動確認済み** |
+| Android 06 | Todo編集、保存失敗時の入力保持、送信中の入力制御、成功後の詳細・一覧更新 **実装・手動確認（個別の確認範囲はjournal参照）** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- AndroidでのTodo編集、削除
+- AndroidでのTodo削除
 - DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期

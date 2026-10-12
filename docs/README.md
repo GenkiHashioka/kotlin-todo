@@ -21,6 +21,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 
 - Android 04: [設計メモ](design-notes/android/04-todo-detail-navigation.md) / [学習ジャーナル](journal/android/04-todo-detail-navigation.md)
 - Android 05: [設計メモ](design-notes/android/05-todo-create.md) / [学習ジャーナル](journal/android/05-todo-create.md)
+- Android 06: [設計メモ](design-notes/android/06-todo-edit.md) / [学習ジャーナル](journal/android/06-todo-edit.md)
 
 ## 運用方針
 
@@ -53,5 +54,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 03: ローカルAPIベースURLをGradle設定へ分離（完了）
   - Android 04: Todo詳細とNavigation（完了、PR #48でマージ済み）
   - Android 05: Todo登録と成功後の一覧更新（実装・手動確認済み）
-  - 次: Todo編集
+  - Android 06: Todo編集と成功後の詳細・一覧更新（実装、保存成功・失敗と送信中の入力制御を手動確認。個別の確認範囲はjournal参照）
+  - 次: Todo削除
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）
