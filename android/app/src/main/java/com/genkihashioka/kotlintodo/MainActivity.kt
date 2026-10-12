@@ -14,6 +14,7 @@ import com.genkihashioka.kotlintodo.ui.navigation.KotlinTodoNavHost
 import com.genkihashioka.kotlintodo.ui.theme.KotlinTodoTheme
 import com.genkihashioka.kotlintodo.ui.todo.todoCreateViewModelFactory
 import com.genkihashioka.kotlintodo.ui.todo.todoDetailViewModelFactory
+import com.genkihashioka.kotlintodo.ui.todo.todoEditViewModelFactory
 import com.genkihashioka.kotlintodo.ui.todo.todoListViewModelFactory
 
 class MainActivity : ComponentActivity() {
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
     private val todoListFactory = todoListViewModelFactory(todoRepository)
     private val todoDetailFactory = todoDetailViewModelFactory(todoRepository)
     private val todoCreateFactory = todoCreateViewModelFactory(todoRepository)
+    private val todoEditFactory = todoEditViewModelFactory(todoRepository)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,7 @@ class MainActivity : ComponentActivity() {
                         todoListViewModelFactory = todoListFactory,
                         todoDetailViewModelFactory = todoDetailFactory,
                         todoCreateViewModelFactory = todoCreateFactory,
+                        todoEditViewModelFactory = todoEditFactory,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),

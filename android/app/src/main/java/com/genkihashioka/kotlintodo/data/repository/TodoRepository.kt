@@ -3,6 +3,7 @@ package com.genkihashioka.kotlintodo.data.repository
 import com.genkihashioka.kotlintodo.data.remote.api.TodoApi
 import com.genkihashioka.kotlintodo.data.remote.model.TodoCreateRequest
 import com.genkihashioka.kotlintodo.data.remote.model.TodoDto
+import com.genkihashioka.kotlintodo.data.remote.model.TodoUpdateRequest
 
 /**
  * TodoのAPIを扱うリポジトリクラス。
@@ -29,5 +30,15 @@ class TodoRepository(
      */
     suspend fun createTodo(todoCreateRequest: TodoCreateRequest): TodoDto {
         return todoApi.createTodo(todoCreateRequest)
+    }
+
+    /**
+     * 既存のTodoの内容を更新する。
+     */
+    suspend fun updateTodo(todoId: Long, todoUpdateRequest: TodoUpdateRequest): TodoDto {
+        return todoApi.updateTodo(
+            todoId = todoId,
+            todoUpdateRequest = todoUpdateRequest,
+        )
     }
 }

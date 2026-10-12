@@ -23,3 +23,11 @@ data class TodoDetailDestination(
  */
 @Serializable
 data object TodoCreateDestination
+
+/**
+ * Todo更新画面。
+ */
+@Serializable
+data class TodoEditDestination(
+    val todoId: Long,
+)

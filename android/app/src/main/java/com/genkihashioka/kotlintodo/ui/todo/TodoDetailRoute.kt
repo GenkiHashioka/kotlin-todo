@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun TodoDetailRoute(
     viewModel: TodoDetailViewModel,
     onBack: () -> Unit,
+    onEditClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // StateFlowから状態を取得
@@ -21,6 +22,7 @@ fun TodoDetailRoute(
         uiState = uiState,
         onRetry = { viewModel.retry() },
         onBack = onBack,
+        onEditClick = onEditClick,
         modifier = modifier,
     )
 }

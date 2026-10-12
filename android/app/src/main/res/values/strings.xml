@@ -5,10 +5,14 @@
     <string name="retry">再試行</string>
     <string name="back">戻る</string>
     <string name="unset">未設定</string>
+    <string name="priority">優先度</string>
+    <string name="todo_status">状態</string>
     <string name="create_todo">Todoを作成</string>
+    <string name="edit_button">編集</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">キャンセル</string>
     <string name="submit_button">送信</string>
+    <string name="save_button">保存</string>
     <string name="todo_detail_error">Todoの取得に失敗しました。再試行してください。</string>
     <string name="todo_detail_title">タイトル: %1$s</string>
     <string name="todo_detail_description">説明: %1$s</string>
@@ -24,4 +28,9 @@
     <string name="todo_create_due_date">期日: %1$s</string>
     <string name="todo_create_due_date_clear">期日を解除</string>
     <string name="todo_create_error">登録に失敗しました。再度お試しください。</string>
+    <string name="todo_edit_load_error">Todoの取得に失敗しました。再試行してください。</string>
+    <string name="todo_edit_due_date">期日: %1$s</string>
+    <string name="todo_edit_due_date_button">期日を選択</string>
+    <string name="todo_edit_due_date_clear">期日を解除</string>
+    <string name="todo_update_error">Todoの更新に失敗しました。再試行してください。</string>
 </resources>

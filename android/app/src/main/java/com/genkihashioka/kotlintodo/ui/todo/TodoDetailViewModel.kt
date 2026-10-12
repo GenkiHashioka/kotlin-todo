@@ -43,6 +43,13 @@ class TodoDetailViewModel(
     }
 
     /**
+     * 更新完了後、Todoの最新状態を取得する。
+     */
+    fun refresh() {
+        loadTodo()
+    }
+
+    /**
      * todoIdに紐づくTodoを取得し、画面情報を更新する。
      */
     private fun loadTodo() {
