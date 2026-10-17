@@ -1,5 +1,6 @@
 package com.genkihashioka.kotlintodo.ui.todo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,14 @@ fun TodoEditScreen(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // 戻る操作の可否を計算する
+    val editingState = uiState as? TodoEditUiState.Editing
+    val canGoBack = editingState == null || (!editingState.isSubmitting && !editingState.isUpdated)
+
+    BackHandler(enabled = !canGoBack) {
+        // 更新中・更新済みの場合戻る操作は処理を行わない。
+    }
+
     Column(modifier = modifier) {
         Box(
             modifier = Modifier
@@ -191,12 +200,18 @@ fun TodoEditScreen(
 
                         Button(
                             onClick = { onSubmit() },
-                            enabled = !uiState.title.isBlank()
+                            enabled = uiState.title.isNotBlank()
                                 && !uiState.isSubmitting
                                 && !uiState.isUpdated,
                         ) {
                             Text(text = stringResource(R.string.save_button))
                         }
+
+                        // 送信中表示
+                        if (uiState.isSubmitting) {
+                            Text(text = stringResource(R.string.submitting))
+                        }
+
                         if (uiState.hasSubmitError) {
                             Text(text = stringResource(R.string.todo_update_error))
                         }

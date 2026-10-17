@@ -29,14 +29,16 @@ docs/          設計判断と学習過程の記録
 - [x] Todoを新規作成する（実装・手動確認済み）
 - [x] Todoを編集する（実装、保存成功・失敗と送信中の入力制御を手動確認。個別の確認範囲は[Android 06のjournal](journal/android/06-todo-edit.md)参照）
 - [x] Todoを削除する（[Issue #54](https://github.com/GenkiHashioka/kotlin-todo/issues/54)。削除中の戻る制御とタイムアウトを含め実装・手動確認。範囲と制約は[Android 07のjournal](journal/android/07-todo-delete.md)参照）
-- [ ] 登録・編集の保存中も戻る操作を抑止する（削除とは別の修正Issueで扱う）
+- [x] 登録・編集の保存中も戻る操作を抑止する（[Issue #57](https://github.com/GenkiHashioka/kotlin-todo/issues/57)。送信中表示と登録フォームの入力制御を含め実装・手動確認。[journal](journal/android/08-todo-submit-navigation.md)参照）
 - [ ] タイムアウト・レスポンス喪失時の結果確認と整合回復を設計する（エラー文言、既に削除済みの場合の操作も含む）
 - [ ] 登録・編集・削除の成功結果を明示する（[Issue #55](https://github.com/GenkiHashioka/kotlin-todo/issues/55)。着手時に表示方式を決める）
-- [ ] `ui/todo`のパッケージ構成と責務・依存関係を見直す（削除機能とは別Issueで扱う。削除機能まで揃った時点を候補とし、探索や変更の把握が難しくなれば前倒しする。まず画面別の整理を検討）
+- [ ] `ui/todo`のパッケージ構成と責務・依存関係を見直す（[Issue #58](https://github.com/GenkiHashioka/kotlin-todo/issues/58)で扱う。削除機能まで揃った時点を候補とし、探索や変更の把握が難しくなれば前倒しする。まず画面別の整理を検討）
 - [x] Navigationを追加する
 - [ ] DIを導入する
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する
+
+CRUD実装後の保存中の戻る制御（#57）に続き、#55（成功フィードバック）→ #58（パッケージ整理）の順で進める。
 
 この順序は固定ではない。たとえば通信失敗が開発を妨げる場合は、CRUD完了前でもError Stateを先に実装する。順序を変えるときは、問題と判断理由をIssueまたはdesign noteに残す。
 

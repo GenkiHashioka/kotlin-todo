@@ -1,5 +1,6 @@
 package com.genkihashioka.kotlintodo.ui.todo
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -39,6 +40,13 @@ fun TodoCreateScreen(
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // 戻る操作の可否を計算する。
+    val canGoBack = !uiState.isSubmitting && !uiState.isCreated
+
+    BackHandler(enabled = !canGoBack) {
+        // 送信中・登録済みの戻る操作は処理を行わない。
+    }
+
     Column(modifier = modifier) {
         OutlinedTextField(
             value = uiState.title,
@@ -46,6 +54,7 @@ fun TodoCreateScreen(
                 Text(text = stringResource(R.string.todo_create_title_label))
             },
             onValueChange = onTitleChange,
+            enabled = !uiState.isSubmitting && !uiState.isCreated,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
@@ -54,6 +63,7 @@ fun TodoCreateScreen(
                 Text(text = stringResource(R.string.todo_create_description_label))
             },
             onValueChange = onDescriptionChange,
+            enabled = !uiState.isSubmitting && !uiState.isCreated,
             modifier = Modifier.fillMaxWidth(),
         )
         Priority.entries.forEach { priority ->
@@ -62,7 +72,8 @@ fun TodoCreateScreen(
             ) {
                 RadioButton(
                     selected = uiState.priority == priority,
-                    onClick = { onPriorityChange(priority) }
+                    onClick = { onPriorityChange(priority) },
+                    enabled = !uiState.isSubmitting && !uiState.isCreated,
                 )
                 Text(
                     text = priority.name,
@@ -79,14 +90,16 @@ fun TodoCreateScreen(
         var showDatePicker by remember { mutableStateOf(false) }
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
-                onClick = { showDatePicker = true }
+                onClick = { showDatePicker = true },
+                enabled = !uiState.isSubmitting && !uiState.isCreated,
             ) {
                 Text(text = stringResource(R.string.todo_create_due_date_button))
             }
 
             if (uiState.dueDate != null) {
                 Button(
-                    onClick = { onDueDateChange(null) }
+                    onClick = { onDueDateChange(null) },
+                    enabled = !uiState.isSubmitting && !uiState.isCreated,
                 ) {
                     Text(text = stringResource(R.string.todo_create_due_date_clear))
                 }
@@ -122,10 +135,18 @@ fun TodoCreateScreen(
 
         Button(
             onClick = { onSubmit() },
-            enabled = !uiState.title.isBlank() && !uiState.isSubmitting,
+            enabled = uiState.title.isNotBlank()
+                && !uiState.isSubmitting
+                && !uiState.isCreated,
         ) {
             Text(text = stringResource(R.string.submit_button))
         }
+
+        // 送信中表示
+        if (uiState.isSubmitting) {
+            Text(text = stringResource(R.string.submitting))
+        }
+
         if (uiState.hasSubmitError) {
             Text(text = stringResource(R.string.todo_create_error))
         }
