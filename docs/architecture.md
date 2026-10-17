@@ -1,6 +1,6 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.10（Android削除・戻る制御・通信タイムアウトの実装時点）
+**バージョン**: 0.11（Android登録・編集の戻る制御の実装時点）
 **最終更新**: 2026-10-17
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
@@ -91,11 +91,11 @@ flowchart LR
 | `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視、削除確認・進行・失敗表示、削除中の操作と戻る制御、削除操作・成功のcallback接続 |
 | `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる取得・削除と状態更新。Successにtodoと削除中・失敗・削除済みを保持する |
 | `TodoCreateRoute` | 入力callbackを接続し、`LaunchedEffect(isCreated)`から成功callbackを呼ぶ |
-| `TodoCreateScreen` | 入力欄、送信ボタン、共通の登録失敗メッセージを表示する |
+| `TodoCreateScreen` | 入力フォーム・送信中・失敗を表示し、送信中と登録済みの入力・追加送信・システムの戻る操作を制御する |
 | `TodoCreateViewModel` / `TodoCreateUiState` | 入力値、送信中、失敗、登録済みの状態と登録処理を管理する |
 | `TodoCreateRequest` | `POST /todos`のJSONリクエストを表す |
 | `TodoEditRoute` | 編集callbackを接続し、`LaunchedEffect(isUpdated)`から成功callbackを呼ぶ |
-| `TodoEditScreen` | 取得中・取得失敗・編集フォーム・保存失敗を表示し、送信中・更新済みの入力操作を無効にする |
+| `TodoEditScreen` | 取得・入力・送信中・保存失敗を表示し、送信中と更新済みの入力・追加送信・システムの戻る操作を制御する |
 | `TodoEditViewModel` / `TodoEditUiState` | IDから初期取得し、Loading / LoadError / Editing、入力と保存結果を管理する |
 | `TodoEditViewModelFactory` | RepositoryとNavigationに対応したSavedStateHandleを渡す |
 | `TodoUpdateRequest` | `PUT /todos/{id}`のJSONリクエストを表す |
@@ -176,6 +176,14 @@ PUT /todos/{id}成功
 
 入力のプロセス再生成対応、競合更新の検出、自動テスト、レイアウト・タップ範囲、一覧の並び順は後続課題とする。
 
+### 登録・編集の保存中の戻る制御
+
+各Screenは既存のUiStateから戻る操作の可否を計算する。登録はisSubmittingもisCreatedもfalseの場合に許可する。編集はLoading / LoadErrorで許可し、EditingではisSubmittingもisUpdatedもfalseの場合に許可する。可否はローカルのvalとし、状態の変更を受けた再コンポーズで計算し直す。新しい状態フラグは追加しない。
+
+各ScreenのBackHandlerは、戻れない状態だけ有効にして操作を消費し、通常時はNavigationへ任せる。登録・編集に画面上の戻るボタンは新設していない。成功後のRouteのcallbackとNavHostのpopBackStack・再取得通知は既存のままで、自動遷移は妨げない。
+
+両画面はisSubmittingがtrueの間、共通の「送信中…」を表示する。登録フォームのタイトル・説明・優先度・期日の選択と解除も、送信中と登録済みには無効にする。送信ボタンは空白タイトル・送信中・登録済みで無効とする。保存失敗では入力を保持し、既存のfinallyによる送信中の解除で操作を再開する。編集の入力制御とViewModelの送信ガードは維持する。詳細は[Android 08のjournal](journal/android/08-todo-submit-navigation.md)を参照。
+
 ### 詳細からの削除と待機中の操作制御
 
 削除は詳細のSuccess内に置き、確認ダイアログで承認後に開始する。ダイアログ開閉はScreen内のrememberで保持する。キャンセル・dismissは閉じるだけでAPIを呼ばない。DELETEは[ADR 0006](decisions/0006-delete-returns-200-with-body.md)に従いTodoDtoを返し、ViewModelは正常終了を成功として扱う。
@@ -190,7 +198,7 @@ Screenは削除中と削除済みの編集・削除ボタンを無効にする�
 
 ApiClientは共有OkHttpClientにcallTimeout(30, TimeUnit.SECONDS)を設定し、Retrofitへclientとして渡す。宣言順はOkHttpClient、Retrofit、TodoApiとする。設定は削除だけでなく一覧・詳細取得、登録・編集にも適用される。接続・読み書きの既定のタイムアウトは変更しておらず、常に30秒待つという意味ではない。判断は[ADR 0024](decisions/0024-http-call-timeout.md)を参照。
 
-HTTPタイムアウトは既存の例外処理で失敗表示と操作復帰につなげる。通信を打ち切ってもBackendの処理完了を取り消す保証はない。検証ではタイムアウト後に削除が完了し、古い詳細からの編集・更新が失敗することも確認された。結果不明時の再取得・整合回復、削除失敗を断定する現在の文言の見直しは後続課題とする。登録・編集の保存中の戻る制御も未対応であり、別の修正Issueで扱う。
+HTTPタイムアウトは既存の例外処理で失敗表示と操作復帰につなげる。通信を打ち切ってもBackendの処理完了を取り消す保証はない。検証ではタイムアウト後に削除が完了し、古い詳細からの編集・更新が失敗することも確認された。結果不明時の再取得・整合回復、削除失敗を断定する現在の文言の見直しは後続課題とする。登録・編集・削除の戻る制御は画面操作による離脱への対策であり、プロセス終了や通信断への対応ではない。
 
 現在のAndroidモジュールと主要パッケージは次の構成。
 
@@ -689,10 +697,11 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 05 | Todo登録、失敗表示、二重送信防止、成功後の一覧更新 **実装・手動確認済み** |
 | Android 06 | Todo編集、保存失敗時の入力保持、送信中の入力制御、成功後の詳細・一覧更新 **実装・手動確認（個別の確認範囲はjournal参照）** |
 | Android 07 | 詳細からのTodo削除、削除中の操作・戻る制御、共有HTTPタイムアウト **実装・手動確認（範囲と制約はjournal参照）** |
+| Android 08 | 登録・編集の保存中と成功後の戻る制御、送信中表示、登録フォームの入力制御 **実装・手動確認（範囲はjournal参照）** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- 成功フィードバック、登録・編集の保存中の戻る制御、結果不明時の整合回復
+- 成功フィードバック（#55）、ui/todoの構成整理（#58）、結果不明時の整合回復
 - DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期
