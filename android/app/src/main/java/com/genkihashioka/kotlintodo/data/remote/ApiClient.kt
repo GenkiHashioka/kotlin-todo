@@ -4,8 +4,10 @@ import com.genkihashioka.kotlintodo.BuildConfig
 import com.genkihashioka.kotlintodo.data.remote.api.TodoApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import java.util.concurrent.TimeUnit
 
 /**
  * Retrofitを構築し、APIの実装を提供するオブジェクト。
@@ -18,12 +20,20 @@ object ApiClient {
 
     private val contentType = "application/json".toMediaType()
 
+    // 通信のタイムアウト設定。上限を30秒とする。
+    private val httpClient = OkHttpClient.Builder()
+        .callTimeout(30, TimeUnit.SECONDS)
+        .build()
+
     // Retrofitのインスタンスを生成
     private val retrofit = Retrofit.Builder()
         .baseUrl(BuildConfig.API_BASE_URL)
         .addConverterFactory(json.asConverterFactory(contentType))
+        .client(httpClient)
         .build()
+
 
     // TodoApiインタフェースの実装オブジェクトを取得し提供
     val todoApi: TodoApi = retrofit.create(TodoApi::class.java)
+
 }

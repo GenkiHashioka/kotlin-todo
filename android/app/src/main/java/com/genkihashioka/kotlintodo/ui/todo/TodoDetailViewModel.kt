@@ -9,6 +9,7 @@ import com.genkihashioka.kotlintodo.ui.navigation.TodoDetailDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -47,6 +48,68 @@ class TodoDetailViewModel(
      */
     fun refresh() {
         loadTodo()
+    }
+
+    /**
+     * todoIdに紐づく対象のTodoを削除する。
+     */
+    fun deleteTodo() {
+        val currentState = _uiState.value
+        // 現在のStateの状態がSuccess以外なら以降の処理は行わない。
+        if (currentState !is TodoDetailUiState.Success) {
+            return
+        }
+        // Todo削除中、またはTodo削除済みなら以降の処理は行わない。
+        if (currentState.isDeleting || currentState.isDeleted) {
+            return
+        }
+
+        // 削除開始
+        _uiState.update { state ->
+            if (state is TodoDetailUiState.Success) {
+                state.copy(
+                    isDeleting = true,
+                    hasDeleteError = false,
+                )
+            } else {
+                state
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                todoRepository.deleteTodo(todoId)
+
+                // 削除成功
+                _uiState.update { state ->
+                    if (state is TodoDetailUiState.Success) {
+                        state.copy(isDeleted = true)
+                    } else {
+                        state
+                    }
+                }
+            } catch (cancellationException: CancellationException) {
+                // CoroutineのキャンセルはErrorへ変換せず、呼び出し元へ伝播させる
+                throw cancellationException
+            } catch (exception: Exception) {
+                // その他のExceptionはエラーとして扱う（削除エラーフラグをtrueにする）
+                _uiState.update { state ->
+                    if (state is TodoDetailUiState.Success) {
+                        state.copy(hasDeleteError = true)
+                    } else {
+                        state
+                    }
+                }
+            } finally {
+                _uiState.update { state ->
+                    if (state is TodoDetailUiState.Success) {
+                        state.copy(isDeleting = false)
+                    } else {
+                        state
+                    }
+                }
+            }
+        }
     }
 
     /**

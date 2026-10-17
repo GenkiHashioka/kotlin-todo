@@ -41,4 +41,11 @@ class TodoRepository(
             todoUpdateRequest = todoUpdateRequest,
         )
     }
+
+    /**
+     * Todoを削除する。
+     */
+    suspend fun deleteTodo(todoId: Long): TodoDto {
+        return todoApi.deleteTodo(todoId)
+    }
 }
