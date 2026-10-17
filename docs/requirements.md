@@ -1,7 +1,7 @@
 # 要件定義書
 
-**バージョン**: 0.8（Android登録・編集の戻る制御の実装時点）
-**最終更新**: 2026-10-17
+**バージョン**: 0.9（Android成功フィードバックの実装時点）
+**最終更新**: 2026-10-18
 
 このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
 
@@ -141,9 +141,10 @@ Todo削除は実装・手動確認済み（Issue #54）。タイムアウト後�
 
 登録・編集の戻る制御は実装・手動確認済み（Issue #57）。確認範囲は[Android 08のjournal](journal/android/08-todo-submit-navigation.md)を参照。
 
+登録・編集・削除の成功後、元の画面へ戻れた場合に共通Snackbarで結果を短時間表示する（Issue #55）。操作失敗・キャンセルでは成功メッセージを出さない。成功はAPI操作の結果を表し、戻り先の再取得完了を意味しない。通知の永続化やActivity再作成後の復元は対象外とする。実装・手動確認の範囲は[Android 09のjournal](journal/android/09-todo-success-feedback.md)を参照。
+
 **今後追加するもの**:
 
-- 登録・編集・削除の成功フィードバック（Issue #55）
 - タイムアウトなどで結果が不明な場合の再取得・整合回復と、結果を断定しないエラー文言
 - DI
 - ViewModel / Repository / UIのテスト
