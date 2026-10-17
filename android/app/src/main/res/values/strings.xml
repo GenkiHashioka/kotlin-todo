@@ -13,6 +13,7 @@
     <string name="cancel_button">キャンセル</string>
     <string name="submit_button">送信</string>
     <string name="save_button">保存</string>
+    <string name="delete_button">削除</string>
     <string name="todo_detail_error">Todoの取得に失敗しました。再試行してください。</string>
     <string name="todo_detail_title">タイトル: %1$s</string>
     <string name="todo_detail_description">説明: %1$s</string>
@@ -33,4 +34,8 @@
     <string name="todo_edit_due_date_button">期日を選択</string>
     <string name="todo_edit_due_date_clear">期日を解除</string>
     <string name="todo_update_error">Todoの更新に失敗しました。再試行してください。</string>
+    <string name="todo_delete_dialog_title">Todoの削除</string>
+    <string name="todo_delete_dialog_text">このTodoを削除しますか？</string>
+    <string name="todo_delete_error">削除に失敗しました。再度お試しください。</string>
+    <string name="deleting">削除中…</string>
 </resources>

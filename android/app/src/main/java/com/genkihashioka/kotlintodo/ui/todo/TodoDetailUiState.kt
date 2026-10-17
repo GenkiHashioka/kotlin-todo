@@ -10,6 +10,9 @@ sealed interface TodoDetailUiState {
 
     data class Success(
         val todo: TodoDto,
+        val isDeleting: Boolean = false,
+        val hasDeleteError: Boolean = false,
+        val isDeleted: Boolean = false,
     ) : TodoDetailUiState
 
     data object Error : TodoDetailUiState

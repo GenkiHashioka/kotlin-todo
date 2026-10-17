@@ -4,6 +4,7 @@ import com.genkihashioka.kotlintodo.data.remote.model.TodoCreateRequest
 import com.genkihashioka.kotlintodo.data.remote.model.TodoDto
 import com.genkihashioka.kotlintodo.data.remote.model.TodoUpdateRequest
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -30,5 +31,10 @@ interface TodoApi {
     suspend fun updateTodo(
         @Path("id") todoId: Long,
         @Body todoUpdateRequest: TodoUpdateRequest,
+    ): TodoDto
+
+    @DELETE("todos/{id}")
+    suspend fun deleteTodo(
+        @Path("id") todoId: Long,
     ): TodoDto
 }

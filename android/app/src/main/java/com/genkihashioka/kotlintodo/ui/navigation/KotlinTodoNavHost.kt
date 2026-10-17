@@ -102,6 +102,13 @@ fun KotlinTodoNavHost(
                         TodoEditDestination(todoId = todoId),
                     )
                 },
+                onDeleted = {
+                    // Todo一覧画面に「再取得が必要」と記録。
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("todo_list_refresh_required", true)
+                    navController.popBackStack()
+                },
                 modifier = Modifier.fillMaxSize(),
             )
         }
