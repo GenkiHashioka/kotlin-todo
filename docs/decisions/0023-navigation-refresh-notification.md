@@ -33,9 +33,17 @@
 
 Repositoryの共有キャッシュやFlowを各画面で監視する方法は、共有状態の管理が必要になる。現状の規模では既存の取得処理で対応できるため導入しない。画面や更新経路が増え、通知の維持が難しくなった時点で再検討する。
 
+## 2026-10-17の適用範囲追加: Todo削除
+
+詳細からの削除成功にも同じ通知方式を適用する。RouteのonDeletedからNavHostへ伝え、直前の一覧へtodo_list_refresh_requiredを保存して詳細を閉じる。削除済みの詳細は再取得しない。詳細からの削除も、一覧 → 詳細という経路を前提とする。
+
+この通知はAndroidが成功を受け取った場合に送る。タイムアウトなどで結果を受け取れない場合の整合回復は保証しない。
+
 ## 関連
 
 - [Android 05: Todo登録の設計メモ](../design-notes/android/05-todo-create.md)
 - [Android 06: Todo編集の設計メモ](../design-notes/android/06-todo-edit.md)
 - [Android 06: 学習ジャーナル](../journal/android/06-todo-edit.md)
+- [Android 07: Todo削除の設計メモ](../design-notes/android/07-todo-delete.md)
+- [Android 07: 学習ジャーナル](../journal/android/07-todo-delete.md)
 - [Architecture](../architecture.md)

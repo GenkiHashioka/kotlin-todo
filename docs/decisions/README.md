@@ -30,4 +30,5 @@
 | 0020 | [OpenAPI 仕様はルーティングのコードから生成し、スナップショットを持たない](0020-generate-openapi-from-routing.md) |
 | 0021 | [Gradle のバージョンを IntelliJ IDEA 同梱の Tooling API に合わせる](0021-pin-gradle-to-ide-tooling-api.md) |
 | 0022 | [Androidクライアントを主要な開発対象にする](0022-prioritize-android-client.md) |
-| 0023 | [登録・編集成功後はNavigationの通知からAPIを再取得する](0023-navigation-refresh-notification.md) |
+| 0023 | [登録・編集成功後はNavigationの通知からAPIを再取得する](0023-navigation-refresh-notification.md)（削除成功にも適用） |
+| 0024 | [AndroidのHTTP呼び出し全体に30秒の制限時間を設ける](0024-http-call-timeout.md) |

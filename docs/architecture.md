@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.9（Android編集と詳細・一覧更新の実装時点）
-**最終更新**: 2026-10-12
+**バージョン**: 0.10（Android削除・戻る制御・通信タイムアウトの実装時点）
+**最終更新**: 2026-10-17
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -84,12 +84,12 @@ flowchart LR
 | `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
 | `TodoListUiState` | `sealed interface`でTodo一覧画面のLoading / Success / Empty / Errorを表す |
 | Android `TodoRepository` | ViewModelとremote data sourceの境界。現在は`TodoApi`を委譲する |
-| `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`、`PUT /todos/{id}`契約 |
-| `ApiClient` | `BuildConfig`からベースURLを受け取り、RetrofitとJSON converterを設定して`TodoApi`を生成する |
+| `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`、`PUT /todos/{id}`、`DELETE /todos/{id}`契約 |
+| `ApiClient` | `BuildConfig`のベースURL、JSON converter、30秒のcallTimeoutを持つ共有OkHttpClientからRetrofitとTodoApiを生成する |
 | `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
 | `KotlinTodoNavHost` / `TodoDestinations` | 型安全な画面定義、画面ごとのViewModel生成、遷移と戻り先への更新通知 |
-| `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視とLoading / Success / Errorの表示、再試行・戻る・編集操作の通知 |
-| `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる詳細取得と状態更新 |
+| `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視、削除確認・進行・失敗表示、削除中の操作と戻る制御、削除操作・成功のcallback接続 |
+| `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる取得・削除と状態更新。Successにtodoと削除中・失敗・削除済みを保持する |
 | `TodoCreateRoute` | 入力callbackを接続し、`LaunchedEffect(isCreated)`から成功callbackを呼ぶ |
 | `TodoCreateScreen` | 入力欄、送信ボタン、共通の登録失敗メッセージを表示する |
 | `TodoCreateViewModel` / `TodoCreateUiState` | 入力値、送信中、失敗、登録済みの状態と登録処理を管理する |
@@ -175,6 +175,22 @@ PUT /todos/{id}成功
 一覧・詳細・編集の経路を前提とし、一覧のBackStackEntryを明示的に取得する。通知は通信完了を待たずに消費し、再取得失敗は各画面の既存のError表示とretry()で扱う。設計理由と代替案は[ADR 0023](decisions/0023-navigation-refresh-notification.md)へ記録する。保存せず戻る場合は更新リクエストと通知を送らない。ただし、送信後に画面を破棄してもBackendでの保存を取り消せる保証はない。
 
 入力のプロセス再生成対応、競合更新の検出、自動テスト、レイアウト・タップ範囲、一覧の並び順は後続課題とする。
+
+### 詳細からの削除と待機中の操作制御
+
+削除は詳細のSuccess内に置き、確認ダイアログで承認後に開始する。ダイアログ開閉はScreen内のrememberで保持する。キャンセル・dismissは閉じるだけでAPIを呼ばない。DELETEは[ADR 0006](decisions/0006-delete-returns-200-with-body.md)に従いTodoDtoを返し、ViewModelは正常終了を成功として扱う。
+
+Successはtodoに加えてisDeleting、hasDeleteError、isDeletedを持つ。削除開始前にSuccess・削除中・削除済みを確認し、launch前に削除中へ更新する。失敗時もSuccessの詳細を保持し、通常の例外でhasDeleteErrorを更新、CancellationExceptionは再スロー、finallyでisDeletingを解除する。
+
+Screenは削除中と削除済みの編集・削除ボタンを無効にする。canGoBackはSuccess以外ならtrue、SuccessならisDeletingもisDeletedもfalseの場合にtrueとする。画面上の戻るボタンにはcanGoBackを渡し、BackHandler(enabled = !canGoBack)は戻る操作を受け取って画面を戻さない。成功後のNavHostによるpopBackStackは妨げない。削除中には「削除中…」を表示する。
+
+削除成功はRouteのLaunchedEffectからonDeletedでNavHostへ通知する。直前の一覧のSavedStateHandleへtodo_list_refresh_requiredを保存して詳細を閉じ、一覧がAPIから再取得する。詳細は再取得しない。通知方針は[ADR 0023](decisions/0023-navigation-refresh-notification.md)を使う。
+
+### HTTP呼び出しの制限時間と制約
+
+ApiClientは共有OkHttpClientにcallTimeout(30, TimeUnit.SECONDS)を設定し、Retrofitへclientとして渡す。宣言順はOkHttpClient、Retrofit、TodoApiとする。設定は削除だけでなく一覧・詳細取得、登録・編集にも適用される。接続・読み書きの既定のタイムアウトは変更しておらず、常に30秒待つという意味ではない。判断は[ADR 0024](decisions/0024-http-call-timeout.md)を参照。
+
+HTTPタイムアウトは既存の例外処理で失敗表示と操作復帰につなげる。通信を打ち切ってもBackendの処理完了を取り消す保証はない。検証ではタイムアウト後に削除が完了し、古い詳細からの編集・更新が失敗することも確認された。結果不明時の再取得・整合回復、削除失敗を断定する現在の文言の見直しは後続課題とする。登録・編集の保存中の戻る制御も未対応であり、別の修正Issueで扱う。
 
 現在のAndroidモジュールと主要パッケージは次の構成。
 
@@ -672,10 +688,11 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 04 | Todo詳細とNavigation Compose **完了（PR #48でマージ済み）** |
 | Android 05 | Todo登録、失敗表示、二重送信防止、成功後の一覧更新 **実装・手動確認済み** |
 | Android 06 | Todo編集、保存失敗時の入力保持、送信中の入力制御、成功後の詳細・一覧更新 **実装・手動確認（個別の確認範囲はjournal参照）** |
+| Android 07 | 詳細からのTodo削除、削除中の操作・戻る制御、共有HTTPタイムアウト **実装・手動確認（範囲と制約はjournal参照）** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- AndroidでのTodo削除
+- 成功フィードバック、登録・編集の保存中の戻る制御、結果不明時の整合回復
 - DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期
