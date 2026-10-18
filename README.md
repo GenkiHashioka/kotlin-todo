@@ -30,7 +30,7 @@ KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学
 - 共通のHTTPクライアントに呼び出し全体の30秒タイムアウトを設定
 - 登録・編集も送信中と成功後の戻る操作を抑止し、送信中表示と登録フォームの入力制御を追加
 
-Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。次はパッケージ整理（#58）を進める。自動テストと結果不明時の整合回復は後続課題とする。
+Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。Todo UIは画面別パッケージへ整理し、主要経路を手動確認した（[Android 10のjournal](docs/journal/android/10-todo-ui-packages.md)）。次は機能横断の回帰テスト計画と自動化の範囲を検討する。自動テストと結果不明時の整合回復は後続課題とする。
 
 ## システム構成
 

@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.create
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -7,35 +7,30 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
- * TodoEditViewModelのStateFlowとTodoEditScreenを接続するComposable
+ * TodoCreateViewModelのStateFlowとTodoCreateScreenを接続するComposable。
  */
 @Composable
-fun TodoEditRoute(
-    viewModel: TodoEditViewModel,
-    onUpdated: () -> Unit,
+fun TodoCreateRoute(
+    viewModel: TodoCreateViewModel,
+    onCreated: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // StateFlowから状態を取得
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // 更新完了フラグ
-    val isUpdated = (uiState as? TodoEditUiState.Editing)?.isUpdated ?: false
-
-    LaunchedEffect(isUpdated) {
-        if (isUpdated) {
-            onUpdated()
+    LaunchedEffect(uiState.isCreated) {
+        if (uiState.isCreated) {
+            onCreated()
         }
     }
 
-    TodoEditScreen(
+    TodoCreateScreen(
         uiState = uiState,
-        onRetry = viewModel::retry,
         onTitleChange = viewModel::updateTitle,
         onDescriptionChange = viewModel::updateDescription,
         onPriorityChange = viewModel::updatePriority,
-        onStatusChange = viewModel::updateStatus,
         onDueDateChange = viewModel::updateDueDate,
-        onSubmit = viewModel::updateTodo,
+        onSubmit = viewModel::createTodo,
         modifier = modifier,
     )
 }

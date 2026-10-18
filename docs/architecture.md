@@ -1,6 +1,6 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.12（Android成功フィードバックの実装時点）
+**バージョン**: 0.13（Android画面別パッケージ整理の実装時点）
 **最終更新**: 2026-10-18
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
@@ -224,14 +224,14 @@ android/
         └── ui/
             ├── navigation/{KotlinTodoNavHost,TodoDestinations}.kt
             ├── todo/
-            │   ├── TodoList{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
-            │   ├── TodoDetail{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
-            │   ├── TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
-            │   └── TodoEdit{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   ├── list/TodoList{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   ├── detail/TodoDetail{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   ├── create/TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
+            │   └── edit/TodoEdit{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             └── theme/
 ```
 
-`ui/todo`には一覧・詳細・登録・編集のファイルが集まっている。削除機能まで揃った時点を見直しの候補とし、画面別のサブパッケージへの整理と、各クラスの責務・依存関係を確認する。ファイルを探しにくい、変更の影響範囲を把握しにくいなどの問題が先に生じた場合は前倒しする。現在のUI・Repository・通信境界の分離を土台に、具体的な問題に応じて整理する。
+`ui/todo`はlist / detail / create / editに分け、各画面のRoute・Screen・UiState・ViewModel・Factoryを5ファイルずつまとめる。削除は詳細の操作としてdetailに含める。1画面の変更で関連ファイルを追いやすくするための配置であり、既存のUI・Repository・通信境界の責務と依存関係は維持する。Navigationとテーマは共通の配置に残す。種類別との比較と採用理由は[ADR 0025](decisions/0025-screen-based-todo-ui-packages.md)、実施結果と確認範囲は[Android 10のjournal](journal/android/10-todo-ui-packages.md)を参照。
 
 `app`は現在唯一のAndroid application moduleである。機能が少ない段階ではmoduleを分割せず、各packageの責務が大きくなり、分割で解決できる具体的な問題が生じた時点で再検討する。
 
@@ -709,7 +709,7 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- ui/todoの構成整理（#58）、結果不明時の整合回復
+- 結果不明時の整合回復
 - DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期

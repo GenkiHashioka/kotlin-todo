@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.detail
 
 import com.genkihashioka.kotlintodo.data.remote.model.TodoDto
 

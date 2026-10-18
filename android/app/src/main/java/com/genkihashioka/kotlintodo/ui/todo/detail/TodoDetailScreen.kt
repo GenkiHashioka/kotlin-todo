@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.detail
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement

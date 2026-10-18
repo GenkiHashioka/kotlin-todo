@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.detail
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
@@ -7,12 +7,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 
 /**
- * TodoEditViewModelを生成するためのFactory
+ * TodoDetailViewModelを生成するためのFactory
  */
-fun todoEditViewModelFactory(todoRepository: TodoRepository): ViewModelProvider.Factory {
+fun todoDetailViewModelFactory(todoRepository: TodoRepository): ViewModelProvider.Factory {
     return viewModelFactory {
         initializer {
-            TodoEditViewModel(
+            TodoDetailViewModel(
                 todoRepository = todoRepository,
                 savedStateHandle = createSavedStateHandle(),
             )

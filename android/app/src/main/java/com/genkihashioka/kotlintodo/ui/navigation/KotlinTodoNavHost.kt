@@ -11,14 +11,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.genkihashioka.kotlintodo.ui.todo.TodoCreateRoute
-import com.genkihashioka.kotlintodo.ui.todo.TodoCreateViewModel
-import com.genkihashioka.kotlintodo.ui.todo.TodoDetailRoute
-import com.genkihashioka.kotlintodo.ui.todo.TodoDetailViewModel
-import com.genkihashioka.kotlintodo.ui.todo.TodoEditRoute
-import com.genkihashioka.kotlintodo.ui.todo.TodoEditViewModel
-import com.genkihashioka.kotlintodo.ui.todo.TodoListRoute
-import com.genkihashioka.kotlintodo.ui.todo.TodoListViewModel
+import com.genkihashioka.kotlintodo.ui.todo.create.TodoCreateRoute
+import com.genkihashioka.kotlintodo.ui.todo.create.TodoCreateViewModel
+import com.genkihashioka.kotlintodo.ui.todo.detail.TodoDetailRoute
+import com.genkihashioka.kotlintodo.ui.todo.detail.TodoDetailViewModel
+import com.genkihashioka.kotlintodo.ui.todo.edit.TodoEditRoute
+import com.genkihashioka.kotlintodo.ui.todo.edit.TodoEditViewModel
+import com.genkihashioka.kotlintodo.ui.todo.list.TodoListRoute
+import com.genkihashioka.kotlintodo.ui.todo.list.TodoListViewModel
 
 /**
  * KotlinTodoNavHost。

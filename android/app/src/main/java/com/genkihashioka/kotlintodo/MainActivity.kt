@@ -17,10 +17,10 @@ import com.genkihashioka.kotlintodo.data.remote.ApiClient
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 import com.genkihashioka.kotlintodo.ui.navigation.KotlinTodoNavHost
 import com.genkihashioka.kotlintodo.ui.theme.KotlinTodoTheme
-import com.genkihashioka.kotlintodo.ui.todo.todoCreateViewModelFactory
-import com.genkihashioka.kotlintodo.ui.todo.todoDetailViewModelFactory
-import com.genkihashioka.kotlintodo.ui.todo.todoEditViewModelFactory
-import com.genkihashioka.kotlintodo.ui.todo.todoListViewModelFactory
+import com.genkihashioka.kotlintodo.ui.todo.create.todoCreateViewModelFactory
+import com.genkihashioka.kotlintodo.ui.todo.detail.todoDetailViewModelFactory
+import com.genkihashioka.kotlintodo.ui.todo.edit.todoEditViewModelFactory
+import com.genkihashioka.kotlintodo.ui.todo.list.todoListViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {

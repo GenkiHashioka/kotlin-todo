@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.edit
 
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
 import com.genkihashioka.kotlintodo.data.remote.model.TodoStatus
