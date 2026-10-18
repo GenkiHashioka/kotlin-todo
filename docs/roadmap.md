@@ -32,13 +32,13 @@ docs/          設計判断と学習過程の記録
 - [x] 登録・編集の保存中も戻る操作を抑止する（[Issue #57](https://github.com/GenkiHashioka/kotlin-todo/issues/57)。送信中表示と登録フォームの入力制御を含め実装・手動確認。[journal](journal/android/08-todo-submit-navigation.md)参照）
 - [ ] タイムアウト・レスポンス喪失時の結果確認と整合回復を設計する（エラー文言、既に削除済みの場合の操作も含む）
 - [x] 登録・編集・削除の成功結果をSnackbarで明示する（[Issue #55](https://github.com/GenkiHashioka/kotlin-todo/issues/55)、[設計メモ](design-notes/android/09-todo-success-feedback.md)、実装・手動確認の範囲は[journal](journal/android/09-todo-success-feedback.md)参照）
-- [ ] `ui/todo`のパッケージ構成と責務・依存関係を見直す（[Issue #58](https://github.com/GenkiHashioka/kotlin-todo/issues/58)で扱う。削除機能まで揃った時点を候補とし、探索や変更の把握が難しくなれば前倒しする。まず画面別の整理を検討）
+- [x] `ui/todo`を画面別のlist / detail / create / editへ整理する（[Issue #58](https://github.com/GenkiHashioka/kotlin-todo/issues/58)。責務と振る舞いを維持し、主要経路を手動確認。[設計メモ](design-notes/android/10-todo-ui-packages.md)、[journal](journal/android/10-todo-ui-packages.md)、[ADR 0025](decisions/0025-screen-based-todo-ui-packages.md)参照）
 - [x] Navigationを追加する
 - [ ] DIを導入する
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する
 
-CRUD実装後の保存中の戻る制御（#57）と成功フィードバック（#55）を実装した。次は#58（パッケージ整理）を進める。
+CRUD実装後の保存中の戻る制御（#57）、成功フィードバック（#55）、画面別パッケージ整理（#58）を実装した。次は機能横断の回帰テスト計画と自動化の範囲を検討する。
 
 実装が一通り揃った段階で、Todo CRUD・成功通知・失敗後の復帰・処理中の入力／追加送信／戻る操作の制御などを横断して回帰テストを実施する。対象・手順・期待結果を整理し、手動確認と自動化する範囲を検討する。これは各機能の実装時に行う動作確認とは別に扱う。
 

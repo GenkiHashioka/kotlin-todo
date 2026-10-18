@@ -32,3 +32,4 @@
 | 0022 | [Androidクライアントを主要な開発対象にする](0022-prioritize-android-client.md) |
 | 0023 | [登録・編集成功後はNavigationの通知からAPIを再取得する](0023-navigation-refresh-notification.md)（削除成功にも適用） |
 | 0024 | [AndroidのHTTP呼び出し全体に30秒の制限時間を設ける](0024-http-call-timeout.md) |
+| 0025 | [Todo UIは画面別パッケージにまとめる](0025-screen-based-todo-ui-packages.md) |
