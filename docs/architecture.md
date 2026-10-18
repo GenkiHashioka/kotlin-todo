@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.11（Android登録・編集の戻る制御の実装時点）
-**最終更新**: 2026-10-17
+**バージョン**: 0.12（Android成功フィードバックの実装時点）
+**最終更新**: 2026-10-18
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -78,7 +78,7 @@ flowchart LR
 
 | 要素 | 責務 |
 |---|---|
-| `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する |
+| `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する。共通Snackbarの状態・Scopeを保持して成功メッセージを表示する |
 | `TodoListRoute` | ViewModelの`StateFlow`をライフサイクルに合わせて監視し、状態と再試行callbackをScreenへ渡す |
 | `TodoListScreen` | 渡された`TodoListUiState`に応じてLoading / Success / Empty / Errorを描画する |
 | `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
@@ -175,6 +175,14 @@ PUT /todos/{id}成功
 一覧・詳細・編集の経路を前提とし、一覧のBackStackEntryを明示的に取得する。通知は通信完了を待たずに消費し、再取得失敗は各画面の既存のError表示とretry()で扱う。設計理由と代替案は[ADR 0023](decisions/0023-navigation-refresh-notification.md)へ記録する。保存せず戻る場合は更新リクエストと通知を送らない。ただし、送信後に画面を破棄してもBackendでの保存を取り消せる保証はない。
 
 入力のプロセス再生成対応、競合更新の検出、自動テスト、レイアウト・タップ範囲、一覧の並び順は後続課題とする。
+
+### 操作成功のSnackbar表示
+
+MainActivityの共通ScaffoldにSnackbarHostを配置し、SnackbarHostStateをrememberで保持する。表示用のrememberCoroutineScopeもこの共通部分で取得するため、NavHost内の画面遷移後も表示を継続できる。
+
+NavHostは既存の再取得通知を保存し、popBackStackが成功した場合にonTodoCreated / onTodoUpdated / onTodoDeletedを呼ぶ。MainActivityがstrings.xmlから取得した文言を、launch内のshowSnackbarで表示する。アクションなし・既定の短時間表示とし、同じHostへの連続した表示依頼は順番に処理される。表示終了を待ってから画面を戻す構成にはしない。
+
+成功通知はAPI操作の結果を表し、再取得完了とは区別する。再取得用BooleanをSnackbarの契機には使わない。Route・ViewModel・UiState・Repositoryの責務は維持し、Snackbar専用の状態を追加しない。画面再訪だけでは再表示せず、Activity再作成やプロセス再生成後の通知復元は保証しない。共通Hostのため、表示中に別画面へ移動しても通知が続き得る。設計理由と確認範囲は[設計メモ](design-notes/android/09-todo-success-feedback.md)と[journal](journal/android/09-todo-success-feedback.md)を参照。
 
 ### 登録・編集の保存中の戻る制御
 
@@ -701,7 +709,7 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
-- 成功フィードバック（#55）、ui/todoの構成整理（#58）、結果不明時の整合回復
+- ui/todoの構成整理（#58）、結果不明時の整合回復
 - DI、Androidテスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期

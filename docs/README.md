@@ -24,6 +24,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 06: [設計メモ](design-notes/android/06-todo-edit.md) / [学習ジャーナル](journal/android/06-todo-edit.md)
 - Android 07: [設計メモ](design-notes/android/07-todo-delete.md) / [学習ジャーナル](journal/android/07-todo-delete.md)
 - Android 08: [設計メモ](design-notes/android/08-todo-submit-navigation.md) / [学習ジャーナル](journal/android/08-todo-submit-navigation.md)
+- Android 09: [設計メモ](design-notes/android/09-todo-success-feedback.md) / [学習ジャーナル](journal/android/09-todo-success-feedback.md)（成功結果のSnackbar表示）
 
 ## 運用方針
 
@@ -59,5 +60,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 06: Todo編集と成功後の詳細・一覧更新（実装、保存成功・失敗と送信中の入力制御を手動確認。個別の確認範囲はjournal参照）
   - Android 07: 詳細からのTodo削除、一覧更新、削除中の戻る制御と通信タイムアウト（実装・手動確認。範囲と制約はjournal参照）
   - Android 08: 登録・編集の戻る制御、送信中表示、登録フォームの入力制御（実装・手動確認。範囲はjournal参照）
-  - 次: 成功フィードバック（#55）、その後にui/todoの構成整理（#58）。自動テストと結果不明時の整合回復は後続課題
+  - Android 09: 登録・編集・削除の成功を共通Snackbarで表示（実装・手動確認。範囲と制約はjournal参照）
+  - 次: ui/todoの構成整理（#58）。自動テストと結果不明時の整合回復は後続課題
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）

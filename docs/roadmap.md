@@ -1,6 +1,6 @@
 # プロジェクトロードマップ
 
-**最終更新**: 2026-10-17
+**最終更新**: 2026-10-18
 
 このドキュメントは、`kotlin-todo`で何をどの順序で進めるかを示す。プロダクトの要件は[requirements.md](requirements.md)、現在の構成は[architecture.md](architecture.md)、Androidを優先する判断の背景は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
@@ -31,14 +31,16 @@ docs/          設計判断と学習過程の記録
 - [x] Todoを削除する（[Issue #54](https://github.com/GenkiHashioka/kotlin-todo/issues/54)。削除中の戻る制御とタイムアウトを含め実装・手動確認。範囲と制約は[Android 07のjournal](journal/android/07-todo-delete.md)参照）
 - [x] 登録・編集の保存中も戻る操作を抑止する（[Issue #57](https://github.com/GenkiHashioka/kotlin-todo/issues/57)。送信中表示と登録フォームの入力制御を含め実装・手動確認。[journal](journal/android/08-todo-submit-navigation.md)参照）
 - [ ] タイムアウト・レスポンス喪失時の結果確認と整合回復を設計する（エラー文言、既に削除済みの場合の操作も含む）
-- [ ] 登録・編集・削除の成功結果を明示する（[Issue #55](https://github.com/GenkiHashioka/kotlin-todo/issues/55)。着手時に表示方式を決める）
+- [x] 登録・編集・削除の成功結果をSnackbarで明示する（[Issue #55](https://github.com/GenkiHashioka/kotlin-todo/issues/55)、[設計メモ](design-notes/android/09-todo-success-feedback.md)、実装・手動確認の範囲は[journal](journal/android/09-todo-success-feedback.md)参照）
 - [ ] `ui/todo`のパッケージ構成と責務・依存関係を見直す（[Issue #58](https://github.com/GenkiHashioka/kotlin-todo/issues/58)で扱う。削除機能まで揃った時点を候補とし、探索や変更の把握が難しくなれば前倒しする。まず画面別の整理を検討）
 - [x] Navigationを追加する
 - [ ] DIを導入する
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する
 
-CRUD実装後の保存中の戻る制御（#57）に続き、#55（成功フィードバック）→ #58（パッケージ整理）の順で進める。
+CRUD実装後の保存中の戻る制御（#57）と成功フィードバック（#55）を実装した。次は#58（パッケージ整理）を進める。
+
+実装が一通り揃った段階で、Todo CRUD・成功通知・失敗後の復帰・処理中の入力／追加送信／戻る操作の制御などを横断して回帰テストを実施する。対象・手順・期待結果を整理し、手動確認と自動化する範囲を検討する。これは各機能の実装時に行う動作確認とは別に扱う。
 
 この順序は固定ではない。たとえば通信失敗が開発を妨げる場合は、CRUD完了前でもError Stateを先に実装する。順序を変えるときは、問題と判断理由をIssueまたはdesign noteに残す。
 

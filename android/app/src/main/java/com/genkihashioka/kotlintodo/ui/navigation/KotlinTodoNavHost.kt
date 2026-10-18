@@ -31,6 +31,9 @@ fun KotlinTodoNavHost(
     todoDetailViewModelFactory: ViewModelProvider.Factory,
     todoCreateViewModelFactory: ViewModelProvider.Factory,
     todoEditViewModelFactory: ViewModelProvider.Factory,
+    onTodoCreated: () -> Unit,
+    onTodoUpdated: () -> Unit,
+    onTodoDeleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // 現在のDestinationを管理するNavController
@@ -107,7 +110,11 @@ fun KotlinTodoNavHost(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("todo_list_refresh_required", true)
-                    navController.popBackStack()
+
+                    // popBackStackで前画面に戻れた場合、Snackbarの表示を依頼する。
+                    if (navController.popBackStack()) {
+                        onTodoDeleted()
+                    }
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -126,7 +133,11 @@ fun KotlinTodoNavHost(
                     navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set("todo_list_refresh_required", true)
-                    navController.popBackStack()
+
+                    // popBackStackで前画面に戻れた場合、Snackbarの表示を依頼する。
+                    if (navController.popBackStack()) {
+                        onTodoCreated()
+                    }
                 },
                 modifier = Modifier.fillMaxSize(),
             )
@@ -148,7 +159,10 @@ fun KotlinTodoNavHost(
                     navController.getBackStackEntry(TodoListDestination)
                         .savedStateHandle["todo_list_refresh_required"] = true
 
-                    navController.popBackStack()
+                    // popBackStackで前画面に戻れた場合、Snackbarの表示を依頼する。
+                    if (navController.popBackStack()) {
+                        onTodoUpdated()
+                    }
                 },
                 modifier = Modifier.fillMaxSize(),
             )
