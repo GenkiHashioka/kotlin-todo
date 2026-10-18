@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.create
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

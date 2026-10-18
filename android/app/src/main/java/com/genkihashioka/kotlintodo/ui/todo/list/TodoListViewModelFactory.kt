@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.list
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
@@ -6,12 +6,12 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 
 /**
- * TodoCreateViewModelを生成するためのFactory
+ * TodoListViewModelを生成するためのFactory
  */
-fun todoCreateViewModelFactory(todoRepository: TodoRepository): ViewModelProvider.Factory {
+fun todoListViewModelFactory(todoRepository: TodoRepository): ViewModelProvider.Factory {
     return viewModelFactory {
         initializer {
-            TodoCreateViewModel(todoRepository)
+            TodoListViewModel(todoRepository)
         }
     }
 }

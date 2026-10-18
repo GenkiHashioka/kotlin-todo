@@ -1,4 +1,4 @@
-package com.genkihashioka.kotlintodo.ui.todo
+package com.genkihashioka.kotlintodo.ui.todo.create
 
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
 import java.time.LocalDate
