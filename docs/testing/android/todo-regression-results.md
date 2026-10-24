@@ -454,4 +454,3 @@ A01〜A17およびB01〜B09、C01の計画ケースについて結果を記録�
 ## 次の作業
 
 計画した手動確認と検証用コードの除去、通常構成での最終確認まで完了した。結果・学び・制約は[journal 11](../../journal/android/11-todo-regression-testing.md)へまとめた。自動テストは未実装。2026-10-24に、一覧ViewModelの状態遷移とretry / refreshを対象とする[Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)を起票した。着手順はUI改善の区切りと併せて判断する。
-
