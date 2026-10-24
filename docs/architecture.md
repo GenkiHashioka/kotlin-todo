@@ -1,9 +1,9 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.13（Android画面別パッケージ整理の実装時点）
-**最終更新**: 2026-10-18
+**バージョン**: 0.14（Android手動回帰テストの記録時点）
+**最終更新**: 2026-10-19
 
-このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
+このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、テスト設計は[test-plans](test-plans/README.md)、実施結果は[testing](testing/README.md)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
 ---
 
@@ -611,7 +611,17 @@ Exposed の transaction 挙動と、本プロジェクトでの使い分け。
 
 ## 7. テスト戦略
 
-### 現状（Phase 4.10 完了時点）
+### Android
+
+Issue #62で機能横断の手動回帰テストを実施した。CRUD・入力変換・操作制御・失敗後の復帰・成功通知・再取得失敗を確認し、タイムアウト時にDBでは削除済みでも古い詳細が残る制約を観察した。結果不明時の整合回復は未対応である。
+
+Loadingや処理中の確認にはRepositoryのAPI呼び出し前の一時待機を使った。操作成功後の再取得失敗には1回だけ取得例外を投げる仕掛けを使い、実HTTP障害とは区別した。結果不明の確認ではBackendの削除完了後に応答を遅らせた。検証用コードはすべて除去し、通常構成で登録・編集・削除を再確認した。本番コードの変更はない。
+
+実行確認は開発者の報告、Codexは差分と文書の静的確認である。手動確認範囲と未検証事項は[実施記録](testing/android/todo-regression-results.md)、学びと設計との差分は[journal](journal/android/11-todo-regression-testing.md)を参照する。
+
+Android自動テストは未追加。最初は一覧ViewModelの状態遷移とretry / refreshを、テスト用TodoApiと既存Repositoryを使うローカル単体テストで確認する計画とする。Coroutineテストの具体的な構成は後続の設計で決める。ViewModelテストだけで画面遷移・Snackbar・HTTP契約まで検証したとは扱わない。
+
+### Backendの現状（Phase 4.10 完了時点）
 
 - **Repository テスト** (5): 実 PostgreSQL に対して CRUD の挙動確認、FK CASCADE / SET NULL の動作確認
 - **Service テスト** (5): 業務ロジック（例外投出、複数 Repository の組み合わせ）を実 PostgreSQL 上で確認

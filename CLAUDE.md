@@ -75,5 +75,7 @@ cd backend
 | [`docs/requirements.md`](docs/requirements.md) | 何を作るか |
 | [`docs/architecture.md`](docs/architecture.md) | どう作るか（全体構成） |
 | [`docs/design-notes/`](docs/design-notes/README.md) | 実装前の詳細設計メモ（書き捨て） |
+| [`docs/test-plans/`](docs/test-plans/README.md) | テスト観点・前提条件・手順・期待結果 |
+| [`docs/testing/`](docs/testing/README.md) | 実施環境・実際の結果・証拠・判定 |
 | [`docs/journal/`](docs/journal/) | フェーズごとの学習記録 |
 | [`docs/decisions/`](docs/decisions/README.md) | 設計判断の記録（ADR） |
