@@ -1,7 +1,7 @@
 # 要件定義書
 
-**バージョン**: 0.9（Android成功フィードバックの実装時点）
-**最終更新**: 2026-10-18
+**バージョン**: 0.11（学習サンドボックスの方針反映時点）
+**最終更新**: 2026-10-24
 
 このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
 
@@ -11,7 +11,7 @@
 
 **kotlin-todo**は、個人利用のTodo管理を題材とした**Kotlin / Android学習用の趣味プロジェクト**。
 
-既存のKtorバックエンドをAPI基盤として利用し、Jetpack ComposeによるAndroidクライアントを段階的に構築する。Kotlin、Compose、Coroutines、Flow / StateFlow、ViewModel、Android Architectureを、実際に機能を作りながら理解することが現在の主目的である。副次的に、開発者本人が日常で使えるTodoアプリになることを目指す。
+既存のKtorバックエンドをAPI基盤として利用し、Jetpack ComposeによるAndroidクライアントを段階的に構築する。Kotlin、Compose、Coroutines、Flow / StateFlow、ViewModel、Android Architectureを、実際に機能を作りながら理解することが現在の主目的である。副次的に、開発者本人が日常で使えるTodoアプリになることを目指す。UI・操作性の改善を一つの区切りとし、その後も状態管理・テスト・設計などを小さく試す学習サンドボックスとして維持する。別プロダクトの公開計画は、このTodoアプリの機能追加要件とは区別する。区切りと実装順序は[roadmap](roadmap.md)を参照。
 
 ---
 
@@ -142,6 +142,8 @@ Todo削除は実装・手動確認済み（Issue #54）。タイムアウト後�
 登録・編集の戻る制御は実装・手動確認済み（Issue #57）。確認範囲は[Android 08のjournal](journal/android/08-todo-submit-navigation.md)を参照。
 
 登録・編集・削除の成功後、元の画面へ戻れた場合に共通Snackbarで結果を短時間表示する（Issue #55）。操作失敗・キャンセルでは成功メッセージを出さない。成功はAPI操作の結果を表し、戻り先の再取得完了を意味しない。通知の永続化やActivity再作成後の復元は対象外とする。実装・手動確認の範囲は[Android 09のjournal](journal/android/09-todo-success-feedback.md)を参照。
+
+Issue #62で上記機能を横断する手動回帰テストを実施した。確認条件と結果は[実施記録](testing/android/todo-regression-results.md)を参照する。操作の成功と戻り先の取得結果は別に扱い、DBでは削除済みでも応答を受信できず、Androidに古い詳細が残る場合があることを確認した。整合回復は未対応であり、自動テスト・全条件の網羅を実施したという意味ではない。
 
 **今後追加するもの**:
 
