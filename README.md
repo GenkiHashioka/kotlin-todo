@@ -6,7 +6,9 @@ Kotlinを学習しながら育てるTodoアプリ。Jetpack ComposeによるAndr
 
 ## 現在の方針
 
-KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学習目標をKotlin / Androidへ集中するよう見直した。2027年前半まではAndroidクライアントを主な開発対象とし、バックエンドはAndroidから必要になる変更を除いて安定したAPI基盤として扱う。
+Kotlin / Androidを技術の軸とし、コードと設計理由を理解・説明できることを優先する。直近は既存機能と検証結果を土台に、対象と完了条件を決めてUI・操作性を改善する。その区切りの後も、状態管理・テスト・設計などを小さく比較・検証する学習用サンドボックスとして維持する。
+
+主力の個人開発は、その区切りを経て別プロダクトのSkySubaruへ移す計画である。KotlinTodoでは改善を無制限に積み増さず、目的と検証範囲を決めて進める。既存Ktorバックエンドは、引き続き安定したAPI基盤として扱う。
 
 バックエンドのテスト戦略再構築（旧Phase 4.11）や機能拡張は中止ではなく保留している。判断の背景は[ADR 0022](docs/decisions/0022-prioritize-android-client.md)、今後の順序は[プロジェクトロードマップ](docs/roadmap.md)を参照。
 
@@ -30,7 +32,7 @@ KtorバックエンドのTodo CRUDとOpenAPI生成までを完了した後、学
 - 共通のHTTPクライアントに呼び出し全体の30秒タイムアウトを設定
 - 登録・編集も送信中と成功後の戻る操作を抑止し、送信中表示と登録フォームの入力制御を追加
 
-Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。Todo UIは画面別パッケージへ整理し、主要経路を手動確認した（[Android 10のjournal](docs/journal/android/10-todo-ui-packages.md)）。次は機能横断の回帰テスト計画と自動化の範囲を検討する。自動テストと結果不明時の整合回復は後続課題とする。
+Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。Todo UIは画面別パッケージへ整理し、主要経路を手動確認した（[Android 10のjournal](docs/journal/android/10-todo-ui-packages.md)）。機能横断の手動回帰テストと、検証用コード除去後の通常構成での一気通貫確認を実施した（[Android 11のjournal](docs/journal/android/11-todo-regression-testing.md)、[実施記録](docs/testing/android/todo-regression-results.md)）。一覧ViewModelの自動テストは次の学習候補とし、UI改善の区切りに必要な範囲と併せて着手順を決める。結果不明時の整合回復は引き続き後続課題とする。
 
 ## システム構成
 

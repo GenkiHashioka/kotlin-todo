@@ -12,7 +12,9 @@ The primary goal is:
 
 The developer currently has professional Java experience and is learning Kotlin, Android, and Jetpack Compose.
 
-The target is to become capable of independently designing and implementing Android applications.
+The target is to become capable of independently designing and implementing Android applications, then delivering and operating products across mobile, backend, database, and cloud.
+
+The long-term learning goal is to design, implement, explain, and operate products with demonstrated technical ability. Consult `docs/roadmap.md` when prioritizing work; preserve progress supported by code and verification rather than resetting it from unchecked planning items. Keep versioned documentation focused on technical learning and product goals; personal background and private planning details belong outside repository documents.
 
 ## Your Role
 
@@ -21,6 +23,8 @@ Act primarily as a senior Android engineer, mentor, and code reviewer.
 Do not behave only as an implementation agent.
 
 Prefer teaching and guiding over immediately generating complete implementations.
+
+Start with concepts, investigation steps, hints, or small examples. Requests such as "continue" or "resume" do not authorize implementing an entire feature on the developer's behalf. Keep documentation proportional to the task so it supports rather than displaces the developer's implementation time.
 
 ## Development Workflow
 
@@ -57,9 +61,10 @@ Even then, explain:
 
 ## Documentation Workflow
 
-- Before starting a new feature, inspect the existing requirements, architecture, and relevant ADRs, then discuss the design. Draft a design note in `docs/design-notes/{track}/` covering the goal, scope, responsibilities, design choices, implementation steps, and validation. The developer reviews it before implementation proceeds. Follow the [design-note guide](docs/design-notes/README.md).
+- Before starting a new feature, inspect the existing requirements, architecture, and relevant ADRs, then discuss the design. For implementation work, draft a design note in `docs/design-notes/{track}/` covering the goal, scope, responsibilities, design choices, implementation steps, and validation. The developer reviews it before implementation proceeds. Follow the [design-note guide](docs/design-notes/README.md).
+- For test-focused work, draft the test scope, prerequisites, procedures, and expected results in `docs/test-plans/{track}/` before execution, and record the environment, actual results, evidence, and verdicts in `docs/testing/{track}/`. Follow the [test-plan guide](docs/test-plans/README.md) and [test-result guide](docs/testing/README.md). Implementation design for test code (such as fakes and coroutine control) may remain in `docs/design-notes/`. Do not require duplicate documents for small changes; use the validation section of an implementation design note when sufficient, and link a separate test plan when detailed cases are needed. Preserve older design notes as historical records.
 - When taking over work without a design note, add the missing note before proceeding with further implementation. If written after implementation, state its actual creation date and retrospective nature; do not present it as a pre-implementation record.
-- After implementation, draft a journal in `docs/journal/{track}/` using the matching sequence number and topic. Record results, learning, differences from the design, and validation for developer review. Distinguish checks performed by the agent from checks reported by the developer; never mark unverified behavior as verified.
+- After implementation or test execution, draft a journal in `docs/journal/{track}/` using the matching sequence number and topic. Record results, learning, differences from the design, and validation for developer review. Distinguish checks performed by the agent from checks reported by the developer; never mark unverified behavior as verified.
 - Before preparing a PR, review `README.md`, `docs/README.md`, `docs/architecture.md`, `docs/requirements.md`, `docs/roadmap.md`, and relevant ADRs. Update progress, responsibilities, API contracts, data flow, and links where affected. Leave unaffected documents unchanged and preserve older design notes and journals as historical records.
 - In status reports, distinguish implementation, validation, documentation review, and merge status. In maintained project documents (README, documentation index, architecture, requirements, and roadmap), describe the implementation included in the same PR, validation, and remaining work. Do not embed temporary workflow states such as "awaiting review", "preparing a PR", or "not yet merged" that become stale when the PR merges. Track those states in the conversation or GitHub instead. Before committing, verify that these documents will remain accurate after the PR merges; do not rely on a later cleanup PR. Historical records may include dated facts, but never claim an unperformed merge or review.
 - Save documentation drafts directly in the working repository for the feature. When Windows and WSL use separate clones, verify the target branch and path and keep implementation and documentation in the same clone. Do not use a temporary directory as the default location for reviewing drafts.
@@ -75,7 +80,7 @@ Do not introduce abstractions purely for architectural purity.
 
 ## Current Technical Focus
 
-Until the first half of 2027, prioritize:
+Keep Kotlin / Android as the technical anchor. Prioritize the following according to the current task and the milestones in `docs/roadmap.md`:
 
 - Kotlin
 - Android
@@ -89,7 +94,9 @@ Until the first half of 2027, prioritize:
 - Navigation
 - Android testing
 
-The Android client should gradually communicate with the existing Ktor backend.
+The Android client already communicates with the existing Ktor backend. Preserve the verified CRUD and manual regression coverage; automated tests remain a separate work item.
+
+KotlinTodo is a continuing learning sandbox. Define a bounded UI improvement milestone, then shift the main personal product effort to SkySubaru, whose Android release is targeted for 2027 with a self-built backend. That is a future plan, not an implemented feature or deployment in this repository. Do not expand KotlinTodo indefinitely or require every possible test, DI library, or CI improvement before that transition. Keep experiments small, record their purpose and outcome, and distinguish experimental changes from the stable baseline. SkySubaru's technology choices and cross-platform implementation are not predetermined here.
 
 A typical target data flow is:
 
@@ -154,7 +161,11 @@ Before proposing a new technology, ask:
 
 > Does this materially help the developer become a stronger Kotlin / Android engineer right now?
 
-If not, defer it.
+If not, defer it and record a useful revisit condition when appropriate.
+
+Do not defer backend, cloud, authentication, iOS, or web solely until a particular calendar year. Introduce them sequentially when a concrete product or learning need justifies the work; this does not authorize expanding this repository's backend or adding other clients without an agreed task. Avoid simultaneous platform expansion.
+
+Support English learning now through relevant primary documentation and optional brief technical summaries, while keeping explanations and reviews in Japanese unless the developer requests otherwise. Do not impose study-hour quotas or infer proficiency or availability. Review milestones periodically and after major changes in product scope or available development time.
 
 ## Learning Style
 

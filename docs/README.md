@@ -7,8 +7,10 @@
 - `requirements.md` — 要件定義書。「何を作るか」の一次ソース。目的・想定ユーザー・機能要件・非機能要件・スコープ外・用語定義を記述。
 - `roadmap.md` — 現在の優先順位と実装順序。Android Trackと保留中のBackend Trackを記述。
 - `architecture.md` — アーキテクチャ設計。技術スタック・レイヤー構成・モジュール構造・データフロー・エラー処理フロー・トランザクション境界・テスト戦略の全体像。基本設計相当。
-- `design-notes/` — Track / Phase / 機能実装前の詳細設計メモ。`android/`と`backend/`に分けて配置する（[運用ガイド](design-notes/README.md)）。詳細設計相当。
-- `journal/` — 実装後の学習ジャーナル。`android/`と`backend/`に分け、何を学び、なぜその設計にしたか、自己確認の結果を記録する。
+- `design-notes/` — Track / Phase / 機能の実装前に、責務・構成・処理方式を決める詳細設計メモ。`android/`と`backend/`に分けて配置する（[運用ガイド](design-notes/README.md)）。詳細設計相当。
+- `test-plans/` — テスト実施前の観点・前提条件・手順・期待結果（[運用ガイド](test-plans/README.md)）。
+- `testing/` — 実施環境・実際の結果・証拠・判定（[運用ガイド](testing/README.md)）。
+- `journal/` — 実装・テスト実施後の学習ジャーナル。`android/`と`backend/`に分け、何を学び、なぜその設計にしたか、自己確認の結果を記録する。
 - `decisions/` — 設計判断のみを短く切り出した記録（ADR）。ジャーナルより粒度が細かく、「なぜこの実装にしたか」を後から検索しやすくするためのもの。Phase 3から運用開始（[一覧](decisions/README.md)）。
 - `db-schema.md` — DBスキーマ設計（ER図・テーブル定義・インデックス方針）。Flyway マイグレーション (`V1__init.sql`) と Exposed の Table 定義の両方の正となるドキュメント。
 - `api/` — API 仕様書の見方。OpenAPI 仕様はルーティングのコードから自動生成され、リポジトリにスナップショットは置かない（[運用ガイド](api/README.md)、[ADR 0020](decisions/0020-generate-openapi-from-routing.md)）。
@@ -26,6 +28,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 08: [設計メモ](design-notes/android/08-todo-submit-navigation.md) / [学習ジャーナル](journal/android/08-todo-submit-navigation.md)
 - Android 09: [設計メモ](design-notes/android/09-todo-success-feedback.md) / [学習ジャーナル](journal/android/09-todo-success-feedback.md)（成功結果のSnackbar表示）
 - Android 10: [設計メモ](design-notes/android/10-todo-ui-packages.md) / [学習ジャーナル](journal/android/10-todo-ui-packages.md)（Todo UIの画面別パッケージ整理）
+- Android 11: [テスト設計](test-plans/android/11-todo-regression-testing.md) / [学習ジャーナル](journal/android/11-todo-regression-testing.md) / [テスト実施記録](testing/android/todo-regression-results.md)（Todo機能の手動回帰テスト）
 
 ## 運用方針
 
@@ -63,5 +66,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 08: 登録・編集の戻る制御、送信中表示、登録フォームの入力制御（実装・手動確認。範囲はjournal参照）
   - Android 09: 登録・編集・削除の成功を共通Snackbarで表示（実装・手動確認。範囲と制約はjournal参照）
   - Android 10: Todo UIを画面別パッケージへ整理（実装・主要経路を手動確認。範囲はjournal参照）
-  - 次: 機能横断の回帰テスト計画と自動化の範囲を検討する。結果不明時の整合回復は後続課題
+  - Android 11: 機能横断の手動回帰テストと通常構成での最終確認を実施（範囲と制約はjournal・実施記録参照）
+  - 次: UI改善の区切り・完了条件と、それに必要な最小限の自動テストの範囲を決める。一覧ViewModelのテスト案は候補として維持。結果不明時の整合回復は後続課題
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）
