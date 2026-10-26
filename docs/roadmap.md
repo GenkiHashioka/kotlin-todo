@@ -1,6 +1,6 @@
 # プロジェクトロードマップ
 
-**最終更新**: 2026-10-24
+**最終更新**: 2026-10-25
 
 このドキュメントは、`kotlin-todo`で何をどの順序で進めるかを示す。プロダクトの要件は[requirements.md](requirements.md)、現在の構成は[architecture.md](architecture.md)、Androidを優先する判断の背景は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
@@ -25,8 +25,8 @@ KotlinTodo（リポジトリ名はkotlin-todo）は、UI・操作性の改善を
 直近の進め方は次のとおり。
 
 1. 既存CRUD・構成・手動回帰テストの記録を土台に現在地を把握する。根拠のある完了項目は作り直さず、未実装・未検証・改善候補を区別する。
-2. UI改善の対象画面・困りごと・完了条件と対象外を決め、Issueと設計へ落とし込む。現在もComposeを使っているため、「近代化」を技術の全面置換とは解釈しない。
-3. 一覧ViewModelの自動テスト案は候補として維持し、UI変更のリスクと学習上の必要性を踏まえて、今回先に行う範囲を決める。全画面の自動化・DIライブラリ・CI整備を一律に主力移行の必須条件にしない。
+2. [Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)で追加した一覧ViewModelのローカル単体テスト6件と検証記録を土台にする。依存先の差し替えとCoroutineの実行制御を経験した。全画面の自動化・DIライブラリ・CI整備を一律に主力移行の必須条件にしない。
+3. その後[Issue #65](https://github.com/GenkiHashioka/kotlin-todo/issues/65)で、合意した対象をもとにUI改善の詳細と完了条件を設計し、実装・検証する。現在もComposeを使っているため、「近代化」を技術の全面置換とは解釈しない。追加の気付きは今回へ含めるか別課題へ分けるかを相談する。
 4. 開発者が改善結果・検証・説明を確認して区切りを判断し、残課題をBacklogへ分ける。改善項目を増やし続けて区切りを延ばさない。
 5. 主力の個人開発をSkySubaruへ移し、KotlinTodoは必要な実験に絞って続ける。
 
@@ -52,12 +52,12 @@ SkySubaruは2027年のAndroid版公開と自作バックエンドを目標とす
 - [x] Navigationを追加する
 - [ ] DIを導入する
 - [x] 機能横断の手動回帰テストを設計・実施する（[Issue #62](https://github.com/GenkiHashioka/kotlin-todo/issues/62)。[テスト設計](test-plans/android/11-todo-regression-testing.md)、[journal](journal/android/11-todo-regression-testing.md)、[実施記録](testing/android/todo-regression-results.md)参照）
-- [ ] 一覧ViewModelの状態遷移・retry / refreshをローカル単体テストする（[Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)。UI改善の区切りと併せて着手順を決める）
-- [ ] UI・操作性の改善対象と完了条件を決め、実装・検証して一区切りにする
+- [x] 一覧ViewModelの状態遷移・retry / refreshをローカル単体テストする（[Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)。[実装設計](design-notes/android/12-todo-list-viewmodel-tests.md)、[テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md)参照）
+- [ ] UI・操作性の改善対象と完了条件を決め、実装・検証して一区切りにする（[Issue #65](https://github.com/GenkiHashioka/kotlin-todo/issues/65)）
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する
 
-CRUD実装後の保存中の戻る制御（#57）、成功フィードバック（#55）、画面別パッケージ整理（#58）を実装した。手動回帰テストと検証用コード除去後の通常構成での最終確認を実施した。一覧ViewModelのローカル単体テストは最初の自動化候補として残し、次の区切りに必要なUI改善と検証の範囲を決める。
+CRUD実装後の保存中の戻る制御（#57）、成功フィードバック（#55）、画面別パッケージ整理（#58）を実装した。手動回帰テストと検証用コード除去後の通常構成での最終確認を実施した。一覧ViewModelのローカル単体テスト6件とtestDebugUnitTest全体が成功した（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)、[journal](journal/android/12-todo-list-viewmodel-tests.md)）。次は#65のUI・操作性改善へ進む。
 
 手動回帰ではTodo CRUD・成功通知・失敗後の復帰・処理中の操作制御・操作成功後の取得失敗を確認し、タイムアウト時の結果不明も観察した。全端末・全条件や、自動テストで検証したという意味ではない。後続では、入力変換・送信ガード・Compose UI・画面連携も必要性に応じて段階的に自動化する。
 
