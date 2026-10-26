@@ -12,11 +12,11 @@ Kotlin 学習を目的とした Todo アプリのモノレポ。バックエン�
 
 ## 開発環境
 
-Windows 11 + WSL2 (Ubuntu)。リポジトリは WSL 側 (`~/projects/kotlin-todo`) にある。
-
-- **git / gradle は必ず `wsl -d Ubuntu` 経由で実行する。** Windows 側から `//wsl.localhost/...` を直接叩くと `fatal: detected dubious ownership` で失敗する
-- **gradle 実行前に `source ~/.sdkman/bin/sdkman-init.sh` が要る。** 通さないと `JAVA_HOME is not set` になる
-- ファイルのパーミッション（Unix mode bit）は Windows 側の git が誤検知する。WSL 側の `git status` を信頼する
+Windows 11 + WSL2 (Ubuntu)。クローンが 2 つある。
+- WSL 側 `~/projects/kotlin-todo`：主に backend。WSL で起動した Claude Code は git / gradle をそのまま実行する
+- Windows 側 `C:\Users\gensh\projects\kotlin-todo`：主に android。Windows で起動した Claude Code は、このクローンに対して Windows の git と `android\gradlew.bat` を使う。`wsl -d Ubuntu` は付けない（別クローンを操作してしまうため）
+- backend の gradle 実行前に `source ~/.sdkman/bin/sdkman-init.sh` が要る（WSL 側）
+- ファイルのパーミッション（Unix mode bit）は Windows 側の git が誤検知することがある
 
 ## コマンド
 
