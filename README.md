@@ -32,7 +32,7 @@ Kotlin / Androidを技術の軸とし、コードと設計理由を理解・説�
 - 共通のHTTPクライアントに呼び出し全体の30秒タイムアウトを設定
 - 登録・編集も送信中と成功後の戻る操作を抑止し、送信中表示と登録フォームの入力制御を追加
 
-Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。Todo UIは画面別パッケージへ整理し、主要経路を手動確認した（[Android 10のjournal](docs/journal/android/10-todo-ui-packages.md)）。機能横断の手動回帰テストと、検証用コード除去後の通常構成での一気通貫確認を実施した（[Android 11のjournal](docs/journal/android/11-todo-regression-testing.md)、[実施記録](docs/testing/android/todo-regression-results.md)）。一覧ViewModelの自動テストは次の学習候補とし、UI改善の区切りに必要な範囲と併せて着手順を決める。結果不明時の整合回復は引き続き後続課題とする。
+Todo CRUDに加え、登録・編集・削除の処理中の操作制御を実装している。登録・編集の戻る制御、送信中表示、失敗後の操作復帰と成功後の画面更新は手動確認済み。範囲は[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md)、タイムアウト後の制約は[Android 07のjournal](docs/journal/android/07-todo-delete.md)を参照。登録・編集・削除の成功を共通Snackbarで伝える機能も実装し、成功・失敗・キャンセル・再訪・連続操作を手動確認した（[Android 09のjournal](docs/journal/android/09-todo-success-feedback.md)）。Todo UIは画面別パッケージへ整理し、主要経路を手動確認した（[Android 10のjournal](docs/journal/android/10-todo-ui-packages.md)）。機能横断の手動回帰テストと、検証用コード除去後の通常構成での一気通貫確認を実施した（[Android 11のjournal](docs/journal/android/11-todo-regression-testing.md)、[実施記録](docs/testing/android/todo-regression-results.md)）。[Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)で一覧ViewModelの初回取得・retry・refreshをローカル単体テスト6件で確認した（[実施結果](docs/testing/android/12-todo-list-viewmodel-tests.md)、[journal](docs/journal/android/12-todo-list-viewmodel-tests.md)）。次は[Issue #65](https://github.com/GenkiHashioka/kotlin-todo/issues/65)で対象を絞ってUI・操作性を改善する。結果不明時の整合回復は引き続き後続課題とする。
 
 ## システム構成
 
@@ -142,7 +142,13 @@ cd android
 .\gradlew.bat :app:assembleDebug
 ```
 
-Androidの自動テストは後続フェーズで追加する。現在はdebugビルドとエミュレータでの手動確認を行っている。
+一覧ViewModelのローカル単体テストを実行する場合は、同じ`android/`で次を実行する。Backend・DB・Emulatorへの接続は不要。
+
+```powershell
+.\gradlew.bat testDebugUnitTest
+```
+
+6件の確認範囲は[実施結果](docs/testing/android/12-todo-list-viewmodel-tests.md)を参照。UI・実通信・他画面の自動テストを含むものではなく、Emulatorでの手動確認と組み合わせる。
 
 ## ドキュメント
 

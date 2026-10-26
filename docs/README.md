@@ -30,6 +30,8 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 10: [設計メモ](design-notes/android/10-todo-ui-packages.md) / [学習ジャーナル](journal/android/10-todo-ui-packages.md)（Todo UIの画面別パッケージ整理）
 - Android 11: [テスト設計](test-plans/android/11-todo-regression-testing.md) / [学習ジャーナル](journal/android/11-todo-regression-testing.md) / [テスト実施記録](testing/android/todo-regression-results.md)（Todo機能の手動回帰テスト）
 
+- Android 12: [実装設計](design-notes/android/12-todo-list-viewmodel-tests.md) / [テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md) / [学習ジャーナル](journal/android/12-todo-list-viewmodel-tests.md) / [実施結果](testing/android/12-todo-list-viewmodel-tests.md)（Todo一覧ViewModelのローカル単体テスト）
+
 ## 運用方針
 
 - コードは原則として開発者本人が書く。ドキュメント（journal・ADR・README等）は、AIアシスタントが下書きを生成し、開発者が事実関係と判断内容をレビュー・修正する。
@@ -67,5 +69,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 09: 登録・編集・削除の成功を共通Snackbarで表示（実装・手動確認。範囲と制約はjournal参照）
   - Android 10: Todo UIを画面別パッケージへ整理（実装・主要経路を手動確認。範囲はjournal参照）
   - Android 11: 機能横断の手動回帰テストと通常構成での最終確認を実施（範囲と制約はjournal・実施記録参照）
-  - 次: UI改善の区切り・完了条件と、それに必要な最小限の自動テストの範囲を決める。一覧ViewModelのテスト案は候補として維持。結果不明時の整合回復は後続課題
+  - Android 12: 一覧ViewModelのローカル単体テスト6件と`testDebugUnitTest`全体が成功（確認範囲と条件は実施結果参照）
+  - 次: #65でUI・操作性を改善する。他画面・UI・実通信の自動テストと、結果不明時の整合回復は後続課題
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）

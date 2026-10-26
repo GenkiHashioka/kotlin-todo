@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.14（Android手動回帰テストの記録時点）
-**最終更新**: 2026-10-19
+**バージョン**: 0.15（Android一覧ViewModelのローカル単体テスト）
+**最終更新**: 2026-10-25
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、テスト設計は[test-plans](test-plans/README.md)、実施結果は[testing](testing/README.md)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -619,7 +619,11 @@ Loadingや処理中の確認にはRepositoryのAPI呼び出し前の一時待機
 
 実行確認は開発者の報告、Codexは差分と文書の静的確認である。手動確認範囲と未検証事項は[実施記録](testing/android/todo-regression-results.md)、学びと設計との差分は[journal](journal/android/11-todo-regression-testing.md)を参照する。
 
-Android自動テストは未追加。最初は一覧ViewModelの状態遷移とretry / refreshを、テスト用TodoApiと既存Repositoryを使うローカル単体テストで確認する計画とする。Coroutineテストの具体的な構成は後続の設計で決める。ViewModelテストだけで画面遷移・Snackbar・HTTP契約まで検証したとは扱わない。
+一覧ViewModelの初回取得（Loading / Success / Empty / Error）とretry / refreshを、テスト用TodoApiと既存Repositoryを経由するローカル単体テスト6件で検証した。JUnit 4.13.2とkotlinx-coroutines-test 1.9.0を使用し、`src/test`だけにFakeを配置する。本番コードとAPI契約は変更していない。
+
+ViewModel生成前にMainをStandardTestDispatcherへ差し替え、runTestと同じschedulerで進行を制御する。CompletableDeferredで応答を保留し、取得中の状態と完了後のデータを確認する。各テストのfinallyでviewModelScopeをキャンセルし、@AfterでMainを復元する。
+
+対象クラス6件とtestDebugUnitTest全体の成功は開発者の報告、Codexは静的レビューと生成済みJUnit XMLの集計確認を行った。[実装設計](design-notes/android/12-todo-list-viewmodel-tests.md)、[テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md)、[実施結果](testing/android/12-todo-list-viewmodel-tests.md)、[journal](journal/android/12-todo-list-viewmodel-tests.md)を参照。画面遷移・Snackbar・HTTP契約や他画面まで自動検証したとは扱わない。
 
 ### Backendの現状（Phase 4.10 完了時点）
 
