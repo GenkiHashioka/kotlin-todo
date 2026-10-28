@@ -40,5 +40,9 @@ out/
 .kotlin
 
 ### Claude Code ###
-.claude/
+# 共有する設定・スキル・フックだけを管理し、引き継ぎファイルや個人設定は除外する
+.claude/*
+!.claude/settings.json
+!.claude/skills/
+!.claude/hooks/
 .mcp.json

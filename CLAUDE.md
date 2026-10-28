@@ -61,7 +61,8 @@ cd backend
 
   下書きファイルは使い終わったら削除する
 - **PR 内のコミットは「変更の理由が同じか」で分ける。** squash されても各コミットの本文は `main` に残る
-- **Claude Code のセッションは 1 Issue につき 1 つ。** 話題が Issue の範囲を外れたら、決定事項を design-note / journal に残したうえで `/clear` を勧める
+- **Claude Code のセッションは 1 Issue につき 1 つ。** セッションを終えるときは本人が `/handoff` で引き継ぎを `.claude/handoff/<ブランチ名>.md` に残し、`/clear` する。次のセッションでは SessionStart フックが両クローンのブランチと引き継ぎを読み込む。話題が Issue の範囲を外れたら、`/handoff` と `/clear` を勧める
+- **Issue が終わったら、引き継ぎファイルの残す価値のある内容を journal に移し、ファイルを削除する**
 
 ## コーディング
 
