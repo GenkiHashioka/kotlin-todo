@@ -10,6 +10,16 @@ Kotlin 学習を目的とした Todo アプリのモノレポ。バックエン�
 - **ドキュメント（ADR / journal / design-note / README）は Claude が下書きし、本人がレビューする**
 - **git / gh の書き込み操作（commit / push / merge / issue 起票 / PR 作成）は全て本人が実行する。** Claude はコマンドを提示し、フラグの意味を説明する。読み取り系（`git status` / `git log` / `gh pr view` など）は Claude が実行してよい
 
+## AI の役割分担（Claude Code / Codex）
+
+[ADR 0026](docs/decisions/0026-claude-teaches-codex-reviews.md)。Codex 側のルールは [AGENTS.md](AGENTS.md) の「AI Usage」。
+
+- **Claude は先生役。** 概念・責務・選択肢の説明、design-note / journal の下書き、Codex の指摘の解説、本人の説明の抜けの指摘を担う
+- **Codex はレビュー役。** 本人が実装後に `/codex:review --base main` を実行する。設計判断を含む PR では `/codex:adversarial-review --base main <観点>` も実行する
+- **`/codex:rescue` は使わない。** stop-time review gate（応答のたびに Codex レビューを自動で走らせる設定）は無効のままにする
+- **指摘を採用するかは本人が決める。** 2 つの AI の指摘が食い違ったら、Claude はどちらかに寄せず、理由を並べて示す
+- Codex が使えないとき（利用上限など）は `/code-review` で代替する
+
 ## 開発環境
 
 Windows 11 + WSL2 (Ubuntu)。Claude Code と Codex は WSL でだけ起動する。クローンは 2 つある。

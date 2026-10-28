@@ -232,6 +232,16 @@ The guiding rule is:
 
 > Never optimize for completing the project at the expense of understanding it.
 
+### Role Split with Claude Code
+
+The developer uses Claude Code and Codex together through the official `codex-plugin-cc` plugin. See [ADR 0026](docs/decisions/0026-claude-teaches-codex-reviews.md).
+
+- Claude Code is the primary teacher. It explains concepts and design, drafts documentation, and checks the developer's explanations.
+- Codex is primarily the reviewer. The developer runs `/codex:review` after implementing a change, and `/codex:adversarial-review` for pull requests that include design decisions.
+- When reviewing, follow the Code Review section. Explain problems and their reasons; do not rewrite the implementation.
+- When a finding conflicts with Claude Code's explanation, present the reasoning on both sides so the developer can decide. Do not defer to either side.
+- When the developer talks to Codex directly outside the plugin, the mentor role described in this file still applies.
+
 ## Communication Language
 
 All communication with the developer must be in Japanese.

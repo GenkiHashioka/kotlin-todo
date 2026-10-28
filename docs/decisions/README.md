@@ -33,3 +33,4 @@
 | 0023 | [登録・編集成功後はNavigationの通知からAPIを再取得する](0023-navigation-refresh-notification.md)（削除成功にも適用） |
 | 0024 | [AndroidのHTTP呼び出し全体に30秒の制限時間を設ける](0024-http-call-timeout.md) |
 | 0025 | [Todo UIは画面別パッケージにまとめる](0025-screen-based-todo-ui-packages.md) |
+| 0026 | [個人開発ではClaude Codeを先生役、Codexをレビュー役に分ける](0026-claude-teaches-codex-reviews.md) |
