@@ -12,11 +12,11 @@ Kotlin 学習を目的とした Todo アプリのモノレポ。バックエン�
 
 ## 開発環境
 
-Windows 11 + WSL2 (Ubuntu)。クローンが 2 つある。
-- WSL 側 `~/projects/kotlin-todo`：主に backend。WSL で起動した Claude Code は git / gradle をそのまま実行する
-- Windows 側 `C:\Users\gensh\projects\kotlin-todo`：主に android。Windows で起動した Claude Code は、このクローンに対して Windows の git と `android\gradlew.bat` を使う。`wsl -d Ubuntu` は付けない（別クローンを操作してしまうため）
-- backend の gradle 実行前に `source ~/.sdkman/bin/sdkman-init.sh` が要る（WSL 側）
-- ファイルのパーミッション（Unix mode bit）は Windows 側の git が誤検知することがある
+Windows 11 + WSL2 (Ubuntu)。Claude Code と Codex は WSL でだけ起動する。クローンは 2 つある。
+- WSL 側 `~/projects/kotlin-todo`：backend とドキュメント。git / gradle はそのまま実行する。gradle の前に `source ~/.sdkman/bin/sdkman-init.sh` が要る
+- Windows 側 `/mnt/c/Users/gensh/projects/kotlin-todo`（Windows では `C:\Users\gensh\projects\kotlin-todo`）：android。Claude は WSL からこのパスでファイルを読み書きする。Android のビルド・テストは開発者が Windows 側で `android\gradlew.bat` を使って実行し、Claude は `android/app/build/` の結果やレポートを読んで確認する
+- Windows 側クローンは `core.fileMode=false` を前提とする
+- 作業前に、どちらのクローン・ブランチで作業しているかを確認する
 
 ## コマンド
 
@@ -51,6 +51,7 @@ cd backend
 
   下書きファイルは使い終わったら削除する
 - **PR 内のコミットは「変更の理由が同じか」で分ける。** squash されても各コミットの本文は `main` に残る
+- **Claude Code のセッションは 1 Issue につき 1 つ。** 話題が Issue の範囲を外れたら、決定事項を design-note / journal に残したうえで `/clear` を勧める
 
 ## コーディング
 
