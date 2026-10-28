@@ -16,6 +16,11 @@ Kotlin 学習を目的とした Todo アプリのモノレポ。バックエン�
 
 - **Claude は先生役。** 概念・責務・選択肢の説明、design-note / journal の下書き、Codex の指摘の解説、本人の説明の抜けの指摘を担う
 - **Codex はレビュー役。** 本人が実装後に `/codex:review --base main` を実行する。設計判断を含む PR では `/codex:adversarial-review --base main <観点>` も実行する
+- **Android のブランチは `--cwd` で Windows 側クローンを指定してレビューする。** `--wait` か `--background` を必ず付ける。レビューの前に Windows 側の `main` を最新にしておく
+
+  ```
+  /codex:review --wait --base main --cwd /mnt/c/Users/gensh/projects/kotlin-todo
+  ```
 - **`/codex:rescue` は使わない。** stop-time review gate（応答のたびに Codex レビューを自動で走らせる設定）は無効のままにする
 - **指摘を採用するかは本人が決める。** 2 つの AI の指摘が食い違ったら、Claude はどちらかに寄せず、理由を並べて示す
 - Codex が使えないとき（利用上限など）は `/code-review` で代替する
