@@ -44,4 +44,10 @@
     <string name="todo_created">Todoを登録しました。</string>
     <string name="todo_updated">Todoを更新しました。</string>
     <string name="todo_deleted">Todoを削除しました。</string>
+    <string name="priority_low">低</string>
+    <string name="priority_medium">中</string>
+    <string name="priority_high">高</string>
+    <string name="todo_status_not_started">未着手</string>
+    <string name="todo_status_in_progress">進行中</string>
+    <string name="todo_status_done">完了</string>
 </resources>

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
+import com.genkihashioka.kotlintodo.ui.todo.displayNameResourceId
 
 /**
  * Todo詳細を表示するコンポーネント。
@@ -102,13 +103,13 @@ fun TodoDetailScreen(
                         Text(
                             text = stringResource(
                                 R.string.todo_detail_priority,
-                                todo.priority.name,
+                                stringResource(todo.priority.displayNameResourceId()),
                             ),
                         )
                         Text(
                             text = stringResource(
                                 R.string.todo_detail_status,
-                                todo.status.name,
+                                stringResource(todo.status.displayNameResourceId()),
                             ),
                         )
                         Text(
