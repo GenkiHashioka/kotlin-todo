@@ -1,9 +1,13 @@
 package com.genkihashioka.kotlintodo.ui.todo.create
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -22,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
 import java.time.LocalDate
@@ -47,7 +52,16 @@ fun TodoCreateScreen(
         // 送信中・登録済みの戻る操作は処理を行わない。
     }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 16.dp,
+            ),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
         OutlinedTextField(
             value = uiState.title,
             label = {
@@ -66,6 +80,8 @@ fun TodoCreateScreen(
             enabled = !uiState.isSubmitting && !uiState.isCreated,
             modifier = Modifier.fillMaxWidth(),
         )
+
+        Text(text = stringResource(R.string.priority))
         Priority.entries.forEach { priority ->
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -138,8 +154,9 @@ fun TodoCreateScreen(
             enabled = uiState.title.isNotBlank()
                 && !uiState.isSubmitting
                 && !uiState.isCreated,
+            modifier = Modifier.fillMaxWidth(),
         ) {
-            Text(text = stringResource(R.string.submit_button))
+            Text(text = stringResource(R.string.create_button))
         }
 
         // 送信中表示

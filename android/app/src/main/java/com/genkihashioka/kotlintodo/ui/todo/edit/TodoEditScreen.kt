@@ -96,14 +96,22 @@ fun TodoEditScreen(
                     ) {
                         OutlinedTextField(
                             value = uiState.title,
+                            label = {
+                                Text(text = stringResource(R.string.todo_edit_title_label))
+                            },
                             onValueChange = onTitleChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         OutlinedTextField(
                             value = uiState.description,
+                            label = {
+                                Text(text = stringResource(R.string.todo_edit_description_label))
+                            },
                             onValueChange = onDescriptionChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         Text(text = stringResource(R.string.priority))
@@ -203,6 +211,7 @@ fun TodoEditScreen(
                             enabled = uiState.title.isNotBlank()
                                 && !uiState.isSubmitting
                                 && !uiState.isUpdated,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(text = stringResource(R.string.save_button))
                         }
