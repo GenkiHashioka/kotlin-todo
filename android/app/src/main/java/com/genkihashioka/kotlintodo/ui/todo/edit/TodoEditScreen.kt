@@ -106,6 +106,7 @@ fun TodoEditScreen(
                             },
                             onValueChange = onTitleChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
+                            singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
 

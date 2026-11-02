@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 
@@ -51,7 +52,13 @@ fun TodoListScreen(
                             key = { todo -> todo.id },
                         ) { todo ->
                             ListItem(
-                                headlineContent = { Text(text = todo.title) },
+                                headlineContent = {
+                                    Text(
+                                        text = todo.title,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
                                 trailingContent = {
                                     Icon(
                                         painter = painterResource(R.drawable.ic_chevron_right),

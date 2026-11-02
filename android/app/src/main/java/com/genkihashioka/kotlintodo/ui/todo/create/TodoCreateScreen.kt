@@ -74,6 +74,7 @@ fun TodoCreateScreen(
             },
             onValueChange = onTitleChange,
             enabled = !uiState.isSubmitting && !uiState.isCreated,
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
