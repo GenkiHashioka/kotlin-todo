@@ -6,6 +6,7 @@ import com.genkihashioka.kotlintodo.data.remote.model.Priority
 import com.genkihashioka.kotlintodo.data.remote.model.TodoCreateRequest
 import com.genkihashioka.kotlintodo.data.remote.model.TodoStatus
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
+import com.genkihashioka.kotlintodo.ui.todo.normalizeTodoTitle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +30,7 @@ class TodoCreateViewModel(
      */
     fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
-            currentState.copy(title = newTitle)
+            currentState.copy(title = normalizeTodoTitle(newTitle))
         }
     }
 

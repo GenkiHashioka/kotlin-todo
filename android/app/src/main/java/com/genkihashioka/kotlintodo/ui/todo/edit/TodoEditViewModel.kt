@@ -9,6 +9,7 @@ import com.genkihashioka.kotlintodo.data.remote.model.TodoStatus
 import com.genkihashioka.kotlintodo.data.remote.model.TodoUpdateRequest
 import com.genkihashioka.kotlintodo.data.repository.TodoRepository
 import com.genkihashioka.kotlintodo.ui.navigation.TodoEditDestination
+import com.genkihashioka.kotlintodo.ui.todo.normalizeTodoTitle
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +54,7 @@ class TodoEditViewModel(
     fun updateTitle(newTitle: String) {
         _uiState.update { currentState ->
             if (currentState is TodoEditUiState.Editing) {
-                currentState.copy(title = newTitle)
+                currentState.copy(title = normalizeTodoTitle(newTitle))
             } else {
                 currentState
             }
@@ -198,7 +199,7 @@ class TodoEditViewModel(
                 val todo = todoRepository.getTodo(todoId)
 
                 _uiState.value = TodoEditUiState.Editing(
-                    title = todo.title,
+                    title = normalizeTodoTitle(todo.title),
                     description = todo.description ?: "",
                     dueDate = todo.dueDate?.let {
                         LocalDate.parse(it)

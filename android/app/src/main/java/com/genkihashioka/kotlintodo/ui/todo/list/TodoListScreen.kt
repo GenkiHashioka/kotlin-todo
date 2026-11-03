@@ -10,11 +10,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 
@@ -46,13 +51,25 @@ fun TodoListScreen(
                             items = uiState.todos,
                             key = { todo -> todo.id },
                         ) { todo ->
-                            Text(
-                                text = todo.title,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onTodoClick(todo.id) }
-                                    .padding(16.dp),
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = todo.title,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                trailingContent = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_chevron_right),
+                                        contentDescription = null,
+                                    )
+                                },
+                                // 行全体をタップ可能範囲にする。
+                                modifier = Modifier.clickable { onTodoClick(todo.id) },
                             )
+                            // 区切り線
+                            HorizontalDivider()
                         }
                     }
                 }
@@ -78,7 +95,12 @@ fun TodoListScreen(
                 }
             }
         }
-        Button(onClick = onCreateClick) {
+        Button(
+            onClick = onCreateClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
             Text(text = stringResource(R.string.create_todo))
         }
     }

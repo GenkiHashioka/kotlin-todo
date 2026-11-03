@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
 **バージョン**: 0.15（Android一覧ViewModelのローカル単体テスト）
-**最終更新**: 2026-10-25
+**最終更新**: 2026-11-03
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、テスト設計は[test-plans](test-plans/README.md)、実施結果は[testing](testing/README.md)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -78,7 +78,7 @@ flowchart LR
 
 | 要素 | 責務 |
 |---|---|
-| `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する。共通Snackbarの状態・Scopeを保持して成功メッセージを表示する |
+| `MainActivity` | Androidのエントリポイント。RepositoryとViewModel Factoryを組み立て、Composeを開始する。共通Snackbarの状態・Scopeを保持して成功メッセージを表示する。Scaffoldの余白を使用済みとして子へ伝え、入力画面の`imePadding`と二重にならないようにする |
 | `TodoListRoute` | ViewModelの`StateFlow`をライフサイクルに合わせて監視し、状態と再試行callbackをScreenへ渡す |
 | `TodoListScreen` | 渡された`TodoListUiState`に応じてLoading / Success / Empty / Errorを描画する |
 | `TodoListViewModel` | Repositoryへ取得を指示し、取得結果または例外を画面状態へ変換する |
@@ -98,6 +98,8 @@ flowchart LR
 | `TodoEditScreen` | 取得・入力・送信中・保存失敗を表示し、送信中と更新済みの入力・追加送信・システムの戻る操作を制御する |
 | `TodoEditViewModel` / `TodoEditUiState` | IDから初期取得し、Loading / LoadError / Editing、入力と保存結果を管理する |
 | `TodoEditViewModelFactory` | RepositoryとNavigationに対応したSavedStateHandleを渡す |
+| `TodoDisplayNames` | 優先度・状態の表示名の文字列リソースIDを返す。登録・編集・詳細で共有する |
+| `TodoTitle` | タイトルの改行を半角空白へ置き換える。登録・編集のViewModelで共有する |
 | `TodoUpdateRequest` | `PUT /todos/{id}`のJSONリクエストを表す |
 
 状態は一方向に流す。
@@ -224,6 +226,7 @@ android/
         └── ui/
             ├── navigation/{KotlinTodoNavHost,TodoDestinations}.kt
             ├── todo/
+            │   ├── {TodoDisplayNames,TodoTitle}.kt
             │   ├── list/TodoList{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             │   ├── detail/TodoDetail{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
             │   ├── create/TodoCreate{Route,Screen,UiState,ViewModel,ViewModelFactory}.kt
@@ -231,7 +234,7 @@ android/
             └── theme/
 ```
 
-`ui/todo`はlist / detail / create / editに分け、各画面のRoute・Screen・UiState・ViewModel・Factoryを5ファイルずつまとめる。削除は詳細の操作としてdetailに含める。1画面の変更で関連ファイルを追いやすくするための配置であり、既存のUI・Repository・通信境界の責務と依存関係は維持する。Navigationとテーマは共通の配置に残す。種類別との比較と採用理由は[ADR 0025](decisions/0025-screen-based-todo-ui-packages.md)、実施結果と確認範囲は[Android 10のjournal](journal/android/10-todo-ui-packages.md)を参照。
+`ui/todo`はlist / detail / create / editに分け、各画面のRoute・Screen・UiState・ViewModel・Factoryを5ファイルずつまとめる。削除は詳細の操作としてdetailに含める。1画面の変更で関連ファイルを追いやすくするための配置であり、既存のUI・Repository・通信境界の責務と依存関係は維持する。Navigationとテーマは共通の配置に残す。複数画面で使う小さな関数は、`common`パッケージを作らず`ui/todo`の直下に置く（[Android 13のjournal](journal/android/13-todo-ui-usability.md)）。種類別との比較と採用理由は[ADR 0025](decisions/0025-screen-based-todo-ui-packages.md)、実施結果と確認範囲は[Android 10のjournal](journal/android/10-todo-ui-packages.md)を参照。
 
 `app`は現在唯一のAndroid application moduleである。機能が少ない段階ではmoduleを分割せず、各packageの責務が大きくなり、分割で解決できる具体的な問題が生じた時点で再検討する。
 

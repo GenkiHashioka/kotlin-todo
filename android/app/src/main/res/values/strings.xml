@@ -11,13 +11,13 @@
     <string name="edit_button">編集</string>
     <string name="ok_button">OK</string>
     <string name="cancel_button">キャンセル</string>
-    <string name="submit_button">送信</string>
+    <string name="create_button">登録</string>
     <string name="save_button">保存</string>
     <string name="delete_button">削除</string>
     <string name="todo_detail_error">Todoの取得に失敗しました。再試行してください。</string>
     <string name="todo_detail_title">タイトル: %1$s</string>
     <string name="todo_detail_description">説明: %1$s</string>
-    <string name="todo_detail_due_date">期限: %1$s</string>
+    <string name="todo_detail_due_date">期日: %1$s</string>
     <string name="todo_detail_priority">優先度: %1$s</string>
     <string name="todo_detail_status">状態: %1$s</string>
     <string name="todo_detail_category">カテゴリー: %1$s</string>
@@ -29,6 +29,8 @@
     <string name="todo_create_due_date">期日: %1$s</string>
     <string name="todo_create_due_date_clear">期日を解除</string>
     <string name="todo_create_error">登録に失敗しました。再度お試しください。</string>
+    <string name="todo_edit_title_label">タイトル</string>
+    <string name="todo_edit_description_label">説明</string>
     <string name="todo_edit_load_error">Todoの取得に失敗しました。再試行してください。</string>
     <string name="todo_edit_due_date">期日: %1$s</string>
     <string name="todo_edit_due_date_button">期日を選択</string>
@@ -42,4 +44,10 @@
     <string name="todo_created">Todoを登録しました。</string>
     <string name="todo_updated">Todoを更新しました。</string>
     <string name="todo_deleted">Todoを削除しました。</string>
+    <string name="priority_low">低</string>
+    <string name="priority_medium">中</string>
+    <string name="priority_high">高</string>
+    <string name="todo_status_not_started">未着手</string>
+    <string name="todo_status_in_progress">進行中</string>
+    <string name="todo_status_done">完了</string>
 </resources>

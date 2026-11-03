@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -28,10 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
 import com.genkihashioka.kotlintodo.data.remote.model.TodoStatus
+import com.genkihashioka.kotlintodo.ui.todo.displayNameResourceId
 import java.time.LocalDate
 
 /**
@@ -86,6 +92,7 @@ fun TodoEditScreen(
                 is TodoEditUiState.Editing -> {
                     Column(
                         modifier = Modifier
+                            .imePadding()
                             .verticalScroll(rememberScrollState())
                             .padding(
                                 start = 16.dp,
@@ -96,44 +103,45 @@ fun TodoEditScreen(
                     ) {
                         OutlinedTextField(
                             value = uiState.title,
+                            label = {
+                                Text(text = stringResource(R.string.todo_edit_title_label))
+                            },
                             onValueChange = onTitleChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         OutlinedTextField(
                             value = uiState.description,
+                            label = {
+                                Text(text = stringResource(R.string.todo_edit_description_label))
+                            },
                             onValueChange = onDescriptionChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         Text(text = stringResource(R.string.priority))
-                        Priority.entries.forEach { priority ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
+                        Column(modifier = Modifier.selectableGroup()) {
+                            Priority.entries.forEach { priority ->
+                                RadioOptionRow(
+                                    text = stringResource(priority.displayNameResourceId()),
                                     selected = uiState.priority == priority,
-                                    onClick = { onPriorityChange(priority) },
                                     enabled = !uiState.isSubmitting && !uiState.isUpdated,
-                                )
-                                Text(
-                                    text = priority.name,
+                                    onClick = { onPriorityChange(priority) },
                                 )
                             }
                         }
 
                         Text(stringResource(R.string.todo_status))
-                        TodoStatus.entries.forEach { todoStatus ->
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                RadioButton(
+                        Column(modifier = Modifier.selectableGroup()) {
+                            TodoStatus.entries.forEach { todoStatus ->
+                                RadioOptionRow(
+                                    text = stringResource(todoStatus.displayNameResourceId()),
                                     selected = uiState.status == todoStatus,
-                                    onClick = { onStatusChange(todoStatus) },
                                     enabled = !uiState.isSubmitting && !uiState.isUpdated,
-                                )
-                                Text(
-                                    text = todoStatus.name,
+                                    onClick = { onStatusChange(todoStatus) },
                                 )
                             }
                         }
@@ -203,6 +211,7 @@ fun TodoEditScreen(
                             enabled = uiState.title.isNotBlank()
                                 && !uiState.isSubmitting
                                 && !uiState.isUpdated,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(text = stringResource(R.string.save_button))
                         }
@@ -219,5 +228,36 @@ fun TodoEditScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * ラジオボタンの行を作成する。
+ */
+@Composable
+private fun RadioOptionRow(
+    text: String,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                role = Role.RadioButton,
+                onClick = onClick,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(
+            selected = selected,
+            onClick = null,
+            enabled = enabled,
+        )
+        Text(text = text)
     }
 }
