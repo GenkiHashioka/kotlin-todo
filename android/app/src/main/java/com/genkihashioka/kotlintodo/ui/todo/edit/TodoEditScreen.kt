@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -91,6 +92,7 @@ fun TodoEditScreen(
                 is TodoEditUiState.Editing -> {
                     Column(
                         modifier = Modifier
+                            .imePadding()
                             .verticalScroll(rememberScrollState())
                             .padding(
                                 start = 16.dp,
