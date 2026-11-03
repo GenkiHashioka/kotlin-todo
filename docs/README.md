@@ -31,6 +31,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 11: [テスト設計](test-plans/android/11-todo-regression-testing.md) / [学習ジャーナル](journal/android/11-todo-regression-testing.md) / [テスト実施記録](testing/android/todo-regression-results.md)（Todo機能の手動回帰テスト）
 
 - Android 12: [実装設計](design-notes/android/12-todo-list-viewmodel-tests.md) / [テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md) / [学習ジャーナル](journal/android/12-todo-list-viewmodel-tests.md) / [実施結果](testing/android/12-todo-list-viewmodel-tests.md)（Todo一覧ViewModelのローカル単体テスト）
+- Android 13: [設計メモ](design-notes/android/13-todo-ui-usability.md) / [学習ジャーナル](journal/android/13-todo-ui-usability.md)（Todo画面の見やすさと操作性の改善）
 
 ## 運用方針
 

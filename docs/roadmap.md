@@ -1,6 +1,6 @@
 # プロジェクトロードマップ
 
-**最終更新**: 2026-10-25
+**最終更新**: 2026-11-03
 
 このドキュメントは、`kotlin-todo`で何をどの順序で進めるかを示す。プロダクトの要件は[requirements.md](requirements.md)、現在の構成は[architecture.md](architecture.md)、Androidを優先する判断の背景は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
@@ -53,17 +53,17 @@ SkySubaruは2027年のAndroid版公開と自作バックエンドを目標とす
 - [ ] DIを導入する
 - [x] 機能横断の手動回帰テストを設計・実施する（[Issue #62](https://github.com/GenkiHashioka/kotlin-todo/issues/62)。[テスト設計](test-plans/android/11-todo-regression-testing.md)、[journal](journal/android/11-todo-regression-testing.md)、[実施記録](testing/android/todo-regression-results.md)参照）
 - [x] 一覧ViewModelの状態遷移・retry / refreshをローカル単体テストする（[Issue #63](https://github.com/GenkiHashioka/kotlin-todo/issues/63)。[実装設計](design-notes/android/12-todo-list-viewmodel-tests.md)、[テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md)参照）
-- [ ] UI・操作性の改善対象と完了条件を決め、実装・検証して一区切りにする（[Issue #65](https://github.com/GenkiHashioka/kotlin-todo/issues/65)）
+- [x] UI・操作性の改善対象と完了条件を決め、実装・検証して一区切りにする（[Issue #65](https://github.com/GenkiHashioka/kotlin-todo/issues/65)。[設計メモ](design-notes/android/13-todo-ui-usability.md)、[journal](journal/android/13-todo-ui-usability.md)参照）
 - [ ] ViewModel / Repository / UIのテストを追加する
 - [ ] GitHub ActionsでAndroidの検証を自動実行する
 
-CRUD実装後の保存中の戻る制御（#57）、成功フィードバック（#55）、画面別パッケージ整理（#58）を実装した。手動回帰テストと検証用コード除去後の通常構成での最終確認を実施した。一覧ViewModelのローカル単体テスト6件とtestDebugUnitTest全体が成功した（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)、[journal](journal/android/12-todo-list-viewmodel-tests.md)）。次は#65のUI・操作性改善へ進む。
+CRUD実装後の保存中の戻る制御（#57）、成功フィードバック（#55）、画面別パッケージ整理（#58）を実装した。手動回帰テストと検証用コード除去後の通常構成での最終確認を実施した。一覧ViewModelのローカル単体テスト6件とtestDebugUnitTest全体が成功した（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)、[journal](journal/android/12-todo-list-viewmodel-tests.md)）。#65で一覧の見た目、登録・編集フォームの配置と項目名、行全体で選べる選択肢と日本語の表示名、1行のタイトル、キーボード表示中の到達性を改善した。Pixel 8（縦・横向き）と画面の小さいSmall Phone（縦向き）のエミュレーター（どちらもAndroid 17.0）で手動確認し、タイトルの改行置き換えの単体テスト4件を含む10件が成功した（[journal](journal/android/13-todo-ui-usability.md)）。次は区切りの判断と残課題の切り分けへ進む。
 
 手動回帰ではTodo CRUD・成功通知・失敗後の復帰・処理中の操作制御・操作成功後の取得失敗を確認し、タイムアウト時の結果不明も観察した。全端末・全条件や、自動テストで検証したという意味ではない。後続では、入力変換・送信ガード・Compose UI・画面連携も必要性に応じて段階的に自動化する。
 
 この順序は固定ではない。たとえば通信失敗が開発を妨げる場合は、CRUD完了前でもError Stateを先に実装する。順序を変えるときは、問題と判断理由をIssueまたはdesign noteに残す。
 
-後続の改善として、フォームのレイアウト・ラジオボタンの行全体の選択操作・一覧の並び順を扱う。ポートフォリオのUI仕上げでは、一覧のTodoがタップ可能だと伝わる見た目も改善する。登録・編集のタイトルを1行入力とする案も検討する。長いタイトルの表示上の折り返しと、入力・貼り付け・既存データに含まれる改行の扱いを分けて設計する。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
+#65の確認で見つかった、キーボードの外側をタップして閉じる操作と、登録・編集画面の画面上の戻るボタン（TopAppBar）は別課題とする。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
 
 ## 学習上の判断基準
 
