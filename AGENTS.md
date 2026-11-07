@@ -259,3 +259,13 @@ This includes:
 Code, identifiers, file names, Git commit messages, Issue titles, and technical terms may remain in English when appropriate.
 
 When explaining technical concepts, prefer clear Japanese while preserving commonly used English technical terms where translating them would reduce clarity.
+
+## Technical Blog Topic Suggestions
+
+- When finishing the work for an Issue (when drafting the journal), briefly include a "ブログ題材候補" (blog topic suggestions) section in the final report. Do not add it to every intermediate response.
+- Suggest up to three topics useful to readers, based on problems, design decisions, verification results, and lessons actually encountered during the task. Give each topic a tentative title and the lesson it would convey in one line. Do not present unverified claims as established results.
+- If there are no suitable topics, write "ブログ題材候補：なし". Do not add work or force a topic merely to make a suggestion.
+- Choosing a topic and turning it into an article are optional for the developer. Prioritize learning, implementation, and review.
+- When suitable topics exist, present the candidates only. Do not ask whether to draft an article. Start drafting only when the developer explicitly requests a draft.
+- Once the developer requests a draft, the AI writes it and the developer edits and reviews it. Base the draft on confirmed work and clearly identify anything that still needs verification. Do not treat an AI draft as a finished article before developer review.
+- Do not automatically publish articles. Publication is a separate decision made by the developer.
