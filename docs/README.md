@@ -32,6 +32,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 
 - Android 12: [実装設計](design-notes/android/12-todo-list-viewmodel-tests.md) / [テスト設計](test-plans/android/12-todo-list-viewmodel-tests.md) / [学習ジャーナル](journal/android/12-todo-list-viewmodel-tests.md) / [実施結果](testing/android/12-todo-list-viewmodel-tests.md)（Todo一覧ViewModelのローカル単体テスト）
 - Android 13: [設計メモ](design-notes/android/13-todo-ui-usability.md) / [学習ジャーナル](journal/android/13-todo-ui-usability.md)（Todo画面の見やすさと操作性の改善）
+- Android 14: [設計メモ](design-notes/android/14-form-keyboard-dismiss.md) / [学習ジャーナル](journal/android/14-form-keyboard-dismiss.md)（登録・編集画面でキーボードの外側をタップして閉じる）
 
 ## 運用方針
 
@@ -71,5 +72,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 10: Todo UIを画面別パッケージへ整理（実装・主要経路を手動確認。範囲はjournal参照）
   - Android 11: 機能横断の手動回帰テストと通常構成での最終確認を実施（範囲と制約はjournal・実施記録参照）
   - Android 12: 一覧ViewModelのローカル単体テスト6件と`testDebugUnitTest`全体が成功（確認範囲と条件は実施結果参照）
-  - 次: #65でUI・操作性を改善する。他画面・UI・実通信の自動テストと、結果不明時の整合回復は後続課題
+  - Android 13: 一覧の見た目、登録・編集フォームの配置、行全体で選べる選択肢、1行のタイトル、キーボード表示中の到達性を改善（範囲はjournal参照）
+  - Android 14: 登録・編集画面で、外側のタップとボタン操作でキーボードを閉じ、タイトル欄の確定キーで説明欄へ移る（実装・手動確認。範囲はjournal参照）
+  - 残課題: 登録・編集画面の画面上の戻る操作（#74）、他画面・UI・実通信の自動テスト、結果不明時の整合回復
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）
