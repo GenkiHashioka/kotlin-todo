@@ -1,10 +1,12 @@
 package com.genkihashioka.kotlintodo.ui.todo.edit
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,8 +34,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
@@ -64,6 +70,8 @@ fun TodoEditScreen(
         // 更新中・更新済みの場合戻る操作は処理を行わない。
     }
 
+    val focusManager = LocalFocusManager.current
+
     Column(modifier = modifier) {
         Box(
             modifier = Modifier
@@ -92,6 +100,11 @@ fun TodoEditScreen(
                 is TodoEditUiState.Editing -> {
                     Column(
                         modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                // 入力欄の外側の余白をタップしたら、フォーカスを外してキーボードを閉じる。
+                                detectTapGestures(onTap = { focusManager.clearFocus() })
+                            }
                             .imePadding()
                             .verticalScroll(rememberScrollState())
                             .padding(
@@ -109,6 +122,7 @@ fun TodoEditScreen(
                             onValueChange = onTitleChange,
                             enabled = !uiState.isSubmitting && !uiState.isUpdated,
                             singleLine = true,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             modifier = Modifier.fillMaxWidth(),
                         )
 
@@ -129,7 +143,10 @@ fun TodoEditScreen(
                                     text = stringResource(priority.displayNameResourceId()),
                                     selected = uiState.priority == priority,
                                     enabled = !uiState.isSubmitting && !uiState.isUpdated,
-                                    onClick = { onPriorityChange(priority) },
+                                    onClick = {
+                                        focusManager.clearFocus()
+                                        onPriorityChange(priority)
+                                    },
                                 )
                             }
                         }
@@ -141,7 +158,10 @@ fun TodoEditScreen(
                                     text = stringResource(todoStatus.displayNameResourceId()),
                                     selected = uiState.status == todoStatus,
                                     enabled = !uiState.isSubmitting && !uiState.isUpdated,
-                                    onClick = { onStatusChange(todoStatus) },
+                                    onClick = {
+                                        focusManager.clearFocus()
+                                        onStatusChange(todoStatus)
+                                    },
                                 )
                             }
                         }
@@ -162,7 +182,10 @@ fun TodoEditScreen(
                         var showDatePicker by remember { mutableStateOf(false) }
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Button(
-                                onClick = { showDatePicker = true },
+                                onClick = {
+                                    focusManager.clearFocus()
+                                    showDatePicker = true
+                                },
                                 enabled = !uiState.isSubmitting && !uiState.isUpdated,
                             ) {
                                 Text(text = stringResource(R.string.todo_edit_due_date_button))
@@ -170,7 +193,10 @@ fun TodoEditScreen(
 
                             if (uiState.dueDate != null) {
                                 Button(
-                                    onClick = { onDueDateChange(null) },
+                                    onClick = {
+                                        focusManager.clearFocus()
+                                        onDueDateChange(null)
+                                    },
                                     enabled = !uiState.isSubmitting && !uiState.isUpdated,
                                 ) {
                                     Text(text = stringResource(R.string.todo_edit_due_date_clear))
@@ -207,7 +233,10 @@ fun TodoEditScreen(
                         }
 
                         Button(
-                            onClick = { onSubmit() },
+                            onClick = {
+                                focusManager.clearFocus()
+                                onSubmit()
+                            },
                             enabled = uiState.title.isNotBlank()
                                 && !uiState.isSubmitting
                                 && !uiState.isUpdated,

@@ -1,6 +1,7 @@
 package com.genkihashioka.kotlintodo.ui.todo.create
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -29,8 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.genkihashioka.kotlintodo.R
 import com.genkihashioka.kotlintodo.data.remote.model.Priority
@@ -58,8 +63,14 @@ fun TodoCreateScreen(
         // 送信中・登録済みの戻る操作は処理を行わない。
     }
 
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
+            .pointerInput(Unit) {
+                // 入力欄の外側の余白をタップしたら、フォーカスを外してキーボードを閉じる。
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            }
             .imePadding()
             .verticalScroll(rememberScrollState())
             .padding(
@@ -77,6 +88,7 @@ fun TodoCreateScreen(
             onValueChange = onTitleChange,
             enabled = !uiState.isSubmitting && !uiState.isCreated,
             singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedTextField(
@@ -96,7 +108,10 @@ fun TodoCreateScreen(
                     text = stringResource(priority.displayNameResourceId()),
                     selected = uiState.priority == priority,
                     enabled = !uiState.isSubmitting && !uiState.isCreated,
-                    onClick = { onPriorityChange(priority) },
+                    onClick = {
+                        focusManager.clearFocus()
+                        onPriorityChange(priority)
+                    },
                 )
             }
         }
@@ -111,7 +126,10 @@ fun TodoCreateScreen(
         var showDatePicker by remember { mutableStateOf(false) }
         Row(modifier = Modifier.fillMaxWidth()) {
             Button(
-                onClick = { showDatePicker = true },
+                onClick = {
+                    focusManager.clearFocus()
+                    showDatePicker = true
+                },
                 enabled = !uiState.isSubmitting && !uiState.isCreated,
             ) {
                 Text(text = stringResource(R.string.todo_create_due_date_button))
@@ -119,7 +137,10 @@ fun TodoCreateScreen(
 
             if (uiState.dueDate != null) {
                 Button(
-                    onClick = { onDueDateChange(null) },
+                    onClick = {
+                        focusManager.clearFocus()
+                        onDueDateChange(null)
+                    },
                     enabled = !uiState.isSubmitting && !uiState.isCreated,
                 ) {
                     Text(text = stringResource(R.string.todo_create_due_date_clear))
@@ -155,7 +176,10 @@ fun TodoCreateScreen(
         }
 
         Button(
-            onClick = { onSubmit() },
+            onClick = {
+                focusManager.clearFocus()
+                onSubmit()
+            },
             enabled = uiState.title.isNotBlank()
                 && !uiState.isSubmitting
                 && !uiState.isCreated,
