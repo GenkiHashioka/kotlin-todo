@@ -54,6 +54,7 @@ fun TodoCreateScreen(
     onPriorityChange: (Priority) -> Unit,
     onDueDateChange: (LocalDate?) -> Unit,
     onSubmit: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // 戻る操作の可否を計算する。
@@ -65,136 +66,147 @@ fun TodoCreateScreen(
 
     val focusManager = LocalFocusManager.current
 
-    Column(
-        modifier = modifier
-            .pointerInput(Unit) {
-                // 入力欄の外側の余白をタップしたら、フォーカスを外してキーボードを閉じる。
-                detectTapGestures(onTap = { focusManager.clearFocus() })
-            }
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 16.dp,
-            ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        OutlinedTextField(
-            value = uiState.title,
-            label = {
-                Text(text = stringResource(R.string.todo_create_title_label))
-            },
-            onValueChange = onTitleChange,
-            enabled = !uiState.isSubmitting && !uiState.isCreated,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = uiState.description,
-            label = {
-                Text(text = stringResource(R.string.todo_create_description_label))
-            },
-            onValueChange = onDescriptionChange,
-            enabled = !uiState.isSubmitting && !uiState.isCreated,
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Text(text = stringResource(R.string.priority))
-        Column(modifier = Modifier.selectableGroup()) {
-            Priority.entries.forEach { priority ->
-                RadioOptionRow(
-                    text = stringResource(priority.displayNameResourceId()),
-                    selected = uiState.priority == priority,
-                    enabled = !uiState.isSubmitting && !uiState.isCreated,
-                    onClick = {
-                        focusManager.clearFocus()
-                        onPriorityChange(priority)
-                    },
-                )
-            }
+    Column(modifier = modifier) {
+        Button(
+            onClick = onBack,
+            enabled = canGoBack,
+        ) {
+            Text(text = stringResource(R.string.back))
         }
 
-        Text(
-            text = if (uiState.dueDate == null) {
-                stringResource(R.string.todo_create_due_date, stringResource(R.string.unset))
-            } else {
-                stringResource(R.string.todo_create_due_date, uiState.dueDate.toString())
-            }
-        )
-        var showDatePicker by remember { mutableStateOf(false) }
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Button(
-                onClick = {
-                    focusManager.clearFocus()
-                    showDatePicker = true
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .pointerInput(Unit) {
+                    // 入力欄の外側の余白をタップしたら、フォーカスを外してキーボードを閉じる。
+                    detectTapGestures(onTap = { focusManager.clearFocus() })
+                }
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp,
+                ),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            OutlinedTextField(
+                value = uiState.title,
+                label = {
+                    Text(text = stringResource(R.string.todo_create_title_label))
                 },
+                onValueChange = onTitleChange,
                 enabled = !uiState.isSubmitting && !uiState.isCreated,
-            ) {
-                Text(text = stringResource(R.string.todo_create_due_date_button))
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                value = uiState.description,
+                label = {
+                    Text(text = stringResource(R.string.todo_create_description_label))
+                },
+                onValueChange = onDescriptionChange,
+                enabled = !uiState.isSubmitting && !uiState.isCreated,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Text(text = stringResource(R.string.priority))
+            Column(modifier = Modifier.selectableGroup()) {
+                Priority.entries.forEach { priority ->
+                    RadioOptionRow(
+                        text = stringResource(priority.displayNameResourceId()),
+                        selected = uiState.priority == priority,
+                        enabled = !uiState.isSubmitting && !uiState.isCreated,
+                        onClick = {
+                            focusManager.clearFocus()
+                            onPriorityChange(priority)
+                        },
+                    )
+                }
             }
 
-            if (uiState.dueDate != null) {
+            Text(
+                text = if (uiState.dueDate == null) {
+                    stringResource(R.string.todo_create_due_date, stringResource(R.string.unset))
+                } else {
+                    stringResource(R.string.todo_create_due_date, uiState.dueDate.toString())
+                }
+            )
+            var showDatePicker by remember { mutableStateOf(false) }
+            Row(modifier = Modifier.fillMaxWidth()) {
                 Button(
                     onClick = {
                         focusManager.clearFocus()
-                        onDueDateChange(null)
+                        showDatePicker = true
                     },
                     enabled = !uiState.isSubmitting && !uiState.isCreated,
                 ) {
-                    Text(text = stringResource(R.string.todo_create_due_date_clear))
+                    Text(text = stringResource(R.string.todo_create_due_date_button))
                 }
-            }
-        }
 
-        if (showDatePicker) {
-            // 選択中の日付を管理するためのDatePickerState
-            val datePickerState = rememberDatePickerState(initialSelectedDate = uiState.dueDate)
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(
+                if (uiState.dueDate != null) {
+                    Button(
                         onClick = {
-                            onDueDateChange(datePickerState.getSelectedDate())
-                            showDatePicker = false
+                            focusManager.clearFocus()
+                            onDueDateChange(null)
                         },
+                        enabled = !uiState.isSubmitting && !uiState.isCreated,
                     ) {
-                        Text(stringResource(R.string.ok_button))
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = { showDatePicker = false },
-                    ) {
-                        Text(text = stringResource(R.string.cancel_button))
+                        Text(text = stringResource(R.string.todo_create_due_date_clear))
                     }
                 }
-            ) {
-                DatePicker(state = datePickerState)
             }
-        }
 
-        Button(
-            onClick = {
-                focusManager.clearFocus()
-                onSubmit()
-            },
-            enabled = uiState.title.isNotBlank()
-                && !uiState.isSubmitting
-                && !uiState.isCreated,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(text = stringResource(R.string.create_button))
-        }
+            if (showDatePicker) {
+                // 選択中の日付を管理するためのDatePickerState
+                val datePickerState = rememberDatePickerState(initialSelectedDate = uiState.dueDate)
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                onDueDateChange(datePickerState.getSelectedDate())
+                                showDatePicker = false
+                            },
+                        ) {
+                            Text(stringResource(R.string.ok_button))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { showDatePicker = false },
+                        ) {
+                            Text(text = stringResource(R.string.cancel_button))
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
 
-        // 送信中表示
-        if (uiState.isSubmitting) {
-            Text(text = stringResource(R.string.submitting))
-        }
+            Button(
+                onClick = {
+                    focusManager.clearFocus()
+                    onSubmit()
+                },
+                enabled = uiState.title.isNotBlank()
+                    && !uiState.isSubmitting
+                    && !uiState.isCreated,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(text = stringResource(R.string.create_button))
+            }
 
-        if (uiState.hasSubmitError) {
-            Text(text = stringResource(R.string.todo_create_error))
+            // 送信中表示
+            if (uiState.isSubmitting) {
+                Text(text = stringResource(R.string.submitting))
+            }
+
+            if (uiState.hasSubmitError) {
+                Text(text = stringResource(R.string.todo_create_error))
+            }
         }
     }
 }

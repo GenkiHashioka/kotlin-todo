@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -97,7 +98,7 @@ fun KotlinTodoNavHost(
 
             TodoDetailRoute(
                 viewModel = todoDetailViewModel,
-                onBack = {
+                onBack = dropUnlessResumed {
                     navController.popBackStack()
                 },
                 onEditClick = { todoId ->
@@ -139,6 +140,9 @@ fun KotlinTodoNavHost(
                         onTodoCreated()
                     }
                 },
+                onBack = dropUnlessResumed {
+                    navController.popBackStack()
+                },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -151,6 +155,9 @@ fun KotlinTodoNavHost(
 
             TodoEditRoute(
                 viewModel = todoEditViewModel,
+                onBack = dropUnlessResumed {
+                    navController.popBackStack()
+                },
                 onUpdated = {
                     navController.previousBackStackEntry
                         ?.savedStateHandle

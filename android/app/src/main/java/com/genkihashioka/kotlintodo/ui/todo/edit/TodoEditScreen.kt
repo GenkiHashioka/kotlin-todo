@@ -54,6 +54,7 @@ import java.time.LocalDate
 fun TodoEditScreen(
     uiState: TodoEditUiState,
     onRetry: () -> Unit,
+    onBack: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onPriorityChange: (Priority) -> Unit,
@@ -73,6 +74,13 @@ fun TodoEditScreen(
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier) {
+        Button(
+            onClick = onBack,
+            enabled = canGoBack,
+        ) {
+            Text(text = stringResource(R.string.back))
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
