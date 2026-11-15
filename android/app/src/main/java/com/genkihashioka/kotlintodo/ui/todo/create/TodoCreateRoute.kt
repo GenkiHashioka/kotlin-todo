@@ -13,6 +13,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun TodoCreateRoute(
     viewModel: TodoCreateViewModel,
     onCreated: () -> Unit,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // StateFlowから状態を取得
@@ -31,6 +32,7 @@ fun TodoCreateRoute(
         onPriorityChange = viewModel::updatePriority,
         onDueDateChange = viewModel::updateDueDate,
         onSubmit = viewModel::createTodo,
+        onBack = onBack,
         modifier = modifier,
     )
 }

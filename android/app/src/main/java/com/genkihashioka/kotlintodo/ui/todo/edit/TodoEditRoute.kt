@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @Composable
 fun TodoEditRoute(
     viewModel: TodoEditViewModel,
+    onBack: () -> Unit,
     onUpdated: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -30,6 +31,7 @@ fun TodoEditRoute(
     TodoEditScreen(
         uiState = uiState,
         onRetry = viewModel::retry,
+        onBack = onBack,
         onTitleChange = viewModel::updateTitle,
         onDescriptionChange = viewModel::updateDescription,
         onPriorityChange = viewModel::updatePriority,
