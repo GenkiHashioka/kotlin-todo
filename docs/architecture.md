@@ -1,7 +1,7 @@
 # アーキテクチャ設計
 
-**バージョン**: 0.15（Android一覧ViewModelのローカル単体テスト）
-**最終更新**: 2026-11-03
+**バージョン**: 0.16（Androidのデータフロー図と進捗表の整理）
+**最終更新**: 2026-11-15
 
 このドキュメントはkotlin-todoの**システム全体構成・レイヤー・依存・データフロー**の一次ソース。Androidクライアント、Ktorバックエンド、PostgreSQLを対象とする。「何を作るか」は[requirements.md](requirements.md)、実装順序は[roadmap.md](roadmap.md)、実装の詳細は[journal](journal/)と[design-notes](design-notes/)、テスト設計は[test-plans](test-plans/README.md)、実施結果は[testing](testing/README.md)、個別の設計判断は[decisions (ADR)](decisions/)を参照。
 
@@ -62,15 +62,18 @@ AndroidクライアントがKtor APIをHTTP / JSONで呼び出し、KtorがPostg
 
 ```mermaid
 flowchart LR
-    Compose[Jetpack Compose] --> ViewModel
-    ViewModel --> StateFlow[StateFlow / UI State]
+    Screen[Screen] -->|"操作（Routeが渡したcallback）"| ViewModel
+    ViewModel -.->|"状態（StateFlow / UiState）"| Route
+    Route -.->|uiState| Screen
     ViewModel --> AndroidRepository[Android TodoRepository]
-    AndroidRepository --> Retrofit
+    AndroidRepository --> Retrofit[TodoApi / Retrofit]
     Retrofit -->|HTTP / JSON| Routing[Ktor Routing]
     Routing --> Service
     Service --> BackendRepository[Backend Repository]
     BackendRepository --> DB[(PostgreSQL)]
 ```
+
+実線は呼び出しの向き、点線は状態が伝わる向きを表す。Android側では操作と状態が別の経路を通る。ViewModelはRepositoryの結果を`MutableStateFlow`へ書き、Routeが読み取り専用の`StateFlow`を監視してScreenへ渡す。StateFlowからRepositoryを呼ぶ経路はない。
 
 ### Androidクライアント
 
@@ -107,13 +110,15 @@ flowchart LR
 ```text
 ユーザー操作
     ↓
-ComposeからViewModelの関数を呼ぶ
+ScreenがRouteから渡されたcallbackを呼ぶ（中身はViewModelの関数）
     ↓
 ViewModelがRepositoryを呼ぶ
     ↓
 ViewModelがMutableStateFlowを更新する
     ↓
-Composeが読み取り専用StateFlowを監視して再描画する
+Routeが読み取り専用StateFlowを監視し、最新のUiStateをScreenへ渡す
+    ↓
+Screenが再描画する
 ```
 
 Todo一覧画面の状態遷移は次のとおり。
@@ -170,9 +175,12 @@ PUT /todos/{id}成功
   → NavHostが直前の詳細へtodo_detail_refresh_required = trueを保存
   → Back Stackの一覧へtodo_list_refresh_required = trueを保存
   → popBackStack()で編集画面を取り除く
-  → 各画面が通知を受け付け、refresh()を開始して通知をfalseへ戻す
+  → 表示された詳細が通知を受け付け、refresh()を開始して通知をfalseへ戻す
+  → さらに一覧へ戻ると、一覧が通知を受け付け、refresh()を開始して通知をfalseへ戻す
   → APIの取得結果で各ViewModelのStateFlowを更新し、表示へ反映
 ```
+
+詳細と一覧の再取得は同時には始まらない。通知を監視する処理は各Destinationのcomposable内にあり、その画面が表示されている間だけ動く。編集から戻った時点で表示されるのは詳細だけなので、一覧の通知は一覧へ戻るまで残り、戻った時点で再取得する。手動回帰テストのB09でも、詳細の再取得と一覧の再取得が別々の時点で起きることを確認した（[実施記録](testing/android/todo-regression-results.md)）。
 
 一覧・詳細・編集の経路を前提とし、一覧のBackStackEntryを明示的に取得する。通知は通信完了を待たずに消費し、再取得失敗は各画面の既存のError表示とretry()で扱う。設計理由と代替案は[ADR 0023](decisions/0023-navigation-refresh-notification.md)へ記録する。保存せず戻る場合は更新リクエストと通知を送らない。ただし、送信後に画面を破棄してもBackendでの保存を取り消せる保証はない。
 
@@ -408,7 +416,8 @@ backend/src/main/kotlin/com/example/kotlin_todo/
 │   └── ValidationException.kt  # List<FieldError> を運ぶ RuntimeException
 │
 ├── routes/                 # Ktor Routing 関数 (Presentation 層)
-│   └── TodoRoutes.kt       # Route.todoRoutes() — /todos の CRUD 5 エンドポイント
+│   ├── TodoRoutes.kt       # Route.todoRoutes() — /todos の CRUD 5 エンドポイント
+│   └── OpenApiRoutes.kt    # Route.openApiRoutes() — /openapi.json と /swagger
 │
 └── dev/                    # 開発用の暫定コード (認証実装時に削除: Issue #23)
     └── DevDataInitializer.kt   # ownerId 用の固定ユーザーを冪等に用意する
@@ -423,6 +432,8 @@ backend/src/test/kotlin/com/example/kotlin_todo/
 ├── repository/
 │   ├── UserRepositoryTest.kt
 │   └── TodoRepositoryTest.kt
+├── routes/
+│   └── OpenApiSpecTest.kt  # 生成した OpenAPI 仕様の検証 (DB に接続しない)
 └── service/
     └── TodoServiceTest.kt
 ```
@@ -723,11 +734,19 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 06 | Todo編集、保存失敗時の入力保持、送信中の入力制御、成功後の詳細・一覧更新 **実装・手動確認（個別の確認範囲はjournal参照）** |
 | Android 07 | 詳細からのTodo削除、削除中の操作・戻る制御、共有HTTPタイムアウト **実装・手動確認（範囲と制約はjournal参照）** |
 | Android 08 | 登録・編集の保存中と成功後の戻る制御、送信中表示、登録フォームの入力制御 **実装・手動確認（範囲はjournal参照）** |
+| Android 09 | 登録・編集・削除の成功を共通Snackbarで表示 **実装・手動確認（範囲はjournal参照）** |
+| Android 10 | Todo UIを画面別パッケージへ整理 **実装・主要経路を手動確認** |
+| Android 11 | 機能横断の手動回帰テスト **実施（範囲と制約は実施記録参照）** |
+| Android 12 | 一覧ViewModelのローカル単体テスト6件 **実装・成功** |
+| Android 13 | 一覧・フォームの見やすさと操作性の改善、タイトル整形の単体テスト4件 **実装・手動確認** |
+| Android 14 | 登録・編集画面でキーボードを外側のタップとボタン操作で閉じる **実装・手動確認** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
 - 結果不明時の整合回復
-- DI、Androidテスト
+- 登録・編集画面の画面上の戻る操作（[#74](https://github.com/GenkiHashioka/kotlin-todo/issues/74)）
+- DIライブラリ
+- 一覧以外のViewModel、ComposeのUI、画面遷移の自動テスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
 - Next.jsフロントエンドは延期
 
