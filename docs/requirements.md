@@ -1,7 +1,7 @@
 # 要件定義書
 
-**バージョン**: 0.11（学習サンドボックスの方針反映時点）
-**最終更新**: 2026-11-03
+**バージョン**: 0.12（Androidのデータフロー表現と残課題の整理）
+**最終更新**: 2026-11-15
 
 このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
 
@@ -106,7 +106,7 @@
 
 - Jetpack ComposeによるAndroidプロジェクトを`android/`に配置
 - `GET /todos`を呼び出し、Todoタイトルを一覧表示
-- `Compose → ViewModel → StateFlow → Repository → Retrofit → Ktor API`のデータフローを構築
+- 操作は`Screen → ViewModel → Repository → Retrofit → Ktor API`、状態は`ViewModel → StateFlow → Route → Screen`の経路で流す
 - Todo一覧のLoading / Success / Empty / Errorを表示
 - 通信失敗時にTodo一覧の取得を再試行
 - ローカルAPIベースURLをGit管理対象のKotlinコードから分離
@@ -123,7 +123,7 @@
 - `PUT /todos/{id}`で更新し、カテゴリ選択は追加せず既存の`categoryId`を保持
 - 初期取得失敗は再試行、保存失敗は入力保持とエラー表示で扱う
 - 送信中・保存成功後は入力操作と追加送信を防止
-- 編集成功後は詳細へ戻り、詳細と一覧を再取得
+- 編集成功後は詳細へ戻って詳細を再取得し、さらに一覧へ戻った時点で一覧を再取得
 
 Todo登録と成功後の一覧更新は実装・手動確認済み（Issue #49）。Todo編集は実装し、保存成功・失敗と送信中の入力制御を手動確認している（Issue #52）。個別の確認範囲は[Android 06のjournal](journal/android/06-todo-edit.md)を参照。
 
@@ -162,8 +162,9 @@ Issue #73で、登録・編集画面のキーボードを閉じる操作を追�
 **今後追加するもの**:
 
 - タイムアウトなどで結果が不明な場合の再取得・整合回復と、結果を断定しないエラー文言
-- DI
-- ViewModel / Repository / UIのテスト
+- 登録・編集画面の画面上の戻る操作（[#74](https://github.com/GenkiHashioka/kotlin-todo/issues/74)）
+- DIライブラリ
+- 自動テストの拡充。一覧ViewModelとタイトル整形の単体テスト計10件は実装済み（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)）。詳細・登録・編集のViewModel、ComposeのUI、画面遷移は未着手
 
 Next.jsによるWebフロントエンドは現在の計画から延期し、Androidクライアントを優先する。方針変更は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
