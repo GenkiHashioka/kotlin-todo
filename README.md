@@ -26,9 +26,9 @@ flowchart LR
 | 登録 | タイトル・説明・期日・優先度を入力して登録する。失敗しても入力を残し、そのまま再送信できる |
 | 編集 | タイトル・説明・期日・優先度・状態を変更する。失敗しても入力を残す。既存のカテゴリは保持する |
 | 削除 | 詳細画面の確認ダイアログから削除する。失敗時は詳細を残して再操作できる |
-| 共通 | 送信中・削除中は進行表示を出し、入力・再送信・戻る操作を止める。成功はSnackbarで知らせ、戻り先の画面をAPIから再取得する |
+| 共通 | 詳細・登録・編集の画面上部に戻るボタンを置く。送信中・削除中は進行表示を出し、入力・再送信・戻る操作を止める。成功はSnackbarで知らせ、戻り先の画面をAPIから再取得する |
 
-次の機能は実装していない。カテゴリの選択・管理画面、認証、検索・並べ替え、オフライン対応、登録・編集画面の画面上の戻るボタン（[#74](https://github.com/GenkiHashioka/kotlin-todo/issues/74)）。
+次の機能は実装していない。カテゴリの選択・管理画面、認証、検索・並べ替え、オフライン対応。
 
 <!--
 ## スクリーンショット
@@ -79,6 +79,7 @@ flowchart LR
 | 二重送信を2か所で止める | ボタンの無効化に加え、ViewModelでも送信中・完了済みの呼び出しを受け付けない | 同上、[Android 08のjournal](docs/journal/android/08-todo-submit-navigation.md) |
 | 保存の成功と再取得の結果を分ける | 成功のSnackbarは保存APIの結果だけを表す。戻り先の再取得が失敗した場合は、その画面の失敗表示と再試行で扱う | [回帰テスト B09](docs/testing/android/todo-regression-results.md) |
 | 更新通知をNavHostに集める | 保存に成功したら、NavHostが戻り先の画面へ「再取得が必要」と記録してから画面を戻す。更新後のデータを画面間で受け渡す方法や、共有キャッシュは採らなかった | [ADR 0023](docs/decisions/0023-navigation-refresh-notification.md) |
+| 戻るボタンの連打を画面遷移の定義で止める | 戻るボタンを素早く2回押すと、前の画面まで履歴から消えて画面が空になった。画面が操作を受け付けている間だけ処理を通す`dropUnlessResumed`で、NavHostの戻る処理を包んだ。画面側にフラグを持つ方法は、3画面に同じ仕組みが要るため採らなかった | [Android 15のjournal](docs/journal/android/15-form-back-button.md) |
 | 通信全体に30秒の上限を設ける | 送信中は戻る操作を止めるため、応答が来ないと操作を再開できない。HTTPクライアントの呼び出し全体に上限を設け、既存の失敗処理へつなげた | [ADR 0024](docs/decisions/0024-http-call-timeout.md) |
 | 通信の境界を差し替えてテストする | APIの呼び出し口（`TodoApi`）だけをテスト用の実装（`FakeTodoApi`）へ差し替え、ViewModelとRepositoryは本物を使う。応答を保留して、待っている間の状態と完了後の状態を別々に確認する | [`TodoListViewModelTest`](android/app/src/test/java/com/genkihashioka/kotlintodo/ui/todo/list/TodoListViewModelTest.kt) |
 
@@ -106,6 +107,7 @@ flowchart LR
 - **結果が不明なときの整合回復がない。** 削除の応答を受け取れずタイムアウトすると、サーバーでは削除済みでも、アプリには削除失敗の表示と古い詳細が残る。手動回帰テストで再現して記録した（[C01](docs/testing/android/todo-regression-results.md)）
 - **登録の再送信で重複する可能性がある。** 登録の応答だけを受け取れなかった場合、再送信すると同じTodoが2件できる。二重送信の防止は同時送信を止めるもので、この場合は防げない（[Android 05のjournal](docs/journal/android/05-todo-create.md)）
 - 入力中の値はViewModelにだけ持つ。OSがプロセスを終了した後の入力の復元には対応していない
+- 一覧の行、「Todoを作成」、詳細の「編集」を素早く2回押すと、同じ画面が2重に開く（[#78](https://github.com/GenkiHashioka/kotlin-todo/issues/78)）
 - 一覧APIは並び順を指定していないため、更新後の再取得で順序が変わることがある
 - 認証は未実装で、固定の1ユーザーを使う（[ADR 0007](docs/decisions/0007-fixed-user-until-auth-exists.md)）。ローカルでの起動だけを想定している
 
