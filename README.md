@@ -30,10 +30,7 @@ flowchart LR
 
 次の機能は実装していない。カテゴリの選択・管理画面、認証、検索・並べ替え、オフライン対応。
 
-<!--
 ## スクリーンショット
-
-画像を docs/images/android/ へ保存してから、このコメントを外す。
 
 | 一覧 | 詳細 | 登録 | 編集 |
 |---|---|---|---|
@@ -42,7 +39,6 @@ flowchart LR
 | 削除の確認 | 取得失敗と再試行 | 登録失敗後の入力保持 | 登録から一覧更新まで |
 |---|---|---|---|
 | <img src="docs/images/android/05-delete-dialog.png" width="180" alt="削除の確認ダイアログ"> | <img src="docs/images/android/06-list-error.png" width="180" alt="一覧の取得失敗と再試行ボタン"> | <img src="docs/images/android/07-create-error.png" width="180" alt="登録失敗後も入力が残った登録画面"> | <img src="docs/images/android/08-create-flow.gif" width="180" alt="登録して一覧へ戻り、Snackbarが出るまでの操作"> |
--->
 
 ## Androidの技術構成
 
