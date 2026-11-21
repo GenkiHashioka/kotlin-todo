@@ -34,6 +34,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 13: [設計メモ](design-notes/android/13-todo-ui-usability.md) / [学習ジャーナル](journal/android/13-todo-ui-usability.md)（Todo画面の見やすさと操作性の改善）
 - Android 14: [設計メモ](design-notes/android/14-form-keyboard-dismiss.md) / [学習ジャーナル](journal/android/14-form-keyboard-dismiss.md)（登録・編集画面でキーボードの外側をタップして閉じる）
 - Android 15: [設計メモ](design-notes/android/15-form-back-button.md) / [学習ジャーナル](journal/android/15-form-back-button.md)（登録・編集画面の画面上の戻るボタンと、戻る操作の連打対策）
+- Android 16: [学習ジャーナル](journal/android/16-readme-screenshots.md)（READMEにAndroidのスクリーンショットを載せる。コードの変更を伴わないため設計メモなし）
 - Android 17: [設計メモ](design-notes/android/17-forward-navigation-double-tap.md) / [学習ジャーナル](journal/android/17-forward-navigation-double-tap.md)（画面を進む操作の連打対策）
 
 ## 運用方針
