@@ -34,6 +34,7 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
 - Android 13: [設計メモ](design-notes/android/13-todo-ui-usability.md) / [学習ジャーナル](journal/android/13-todo-ui-usability.md)（Todo画面の見やすさと操作性の改善）
 - Android 14: [設計メモ](design-notes/android/14-form-keyboard-dismiss.md) / [学習ジャーナル](journal/android/14-form-keyboard-dismiss.md)（登録・編集画面でキーボードの外側をタップして閉じる）
 - Android 15: [設計メモ](design-notes/android/15-form-back-button.md) / [学習ジャーナル](journal/android/15-form-back-button.md)（登録・編集画面の画面上の戻るボタンと、戻る操作の連打対策）
+- Android 17: [設計メモ](design-notes/android/17-forward-navigation-double-tap.md) / [学習ジャーナル](journal/android/17-forward-navigation-double-tap.md)（画面を進む操作の連打対策）
 
 ## 運用方針
 
@@ -76,5 +77,6 @@ Android Trackの記録は、次の設計メモと学習ジャーナルから確�
   - Android 13: 一覧の見た目、登録・編集フォームの配置、行全体で選べる選択肢、1行のタイトル、キーボード表示中の到達性を改善（範囲はjournal参照）
   - Android 14: 登録・編集画面で、外側のタップとボタン操作でキーボードを閉じ、タイトル欄の確定キーで説明欄へ移る（実装・手動確認。範囲はjournal参照）
   - Android 15: 登録・編集画面に画面上の戻るボタンを追加し、詳細を含む3画面で戻る操作の連打を止める（実装・手動確認。範囲はjournal参照）
-  - 残課題: 画面を進む操作の連打（#78）、他画面・UI・実通信の自動テスト、結果不明時の整合回復
+  - Android 17: 一覧の行、「Todoを作成」、詳細の「編集」の連打で同じ画面が2重に開かないようにする（実装・手動確認。範囲はjournal参照）
+  - 残課題: 他画面・UI・実通信の自動テスト、結果不明時の整合回復
 - Backend Phase 5以降: フィルタ / ソート / 検索 / ページネーション等（保留）
