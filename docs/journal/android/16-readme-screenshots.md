@@ -143,7 +143,8 @@ ffmpeg -i ~/08-create-flow.mp4 -vf "fps=10,scale=360:-1:flags=lanczos,split[a][b
 | デモモードが想定どおりに表示される | 本人 |
 | 06 の後、バックエンド起動後に「再試行」で一覧が表示される | 本人 |
 | VS Code のプレビューで、README の表が崩れずに表示される | 本人 |
-| GitHub 上で README の画像が表示される | 要確認（push 後に本人が確認する） |
+| GitHub 上で README の画像が表示される | 本人（ブランチ `docs/readme-screenshots` の README で確認） |
+| Codex のレビュー（`/codex:review --base main`） | 指摘なし |
 
 ## 残る課題と次の作業
 
