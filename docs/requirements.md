@@ -165,10 +165,11 @@ Issue #74で、登録・編集画面に詳細画面と同じ画面上の戻る�
 - 入力途中で押すと、システムの戻る操作と同じく確認せずに戻り、入力は破棄される
 - 詳細・登録・編集の戻るボタンを素早く続けて押しても、1つ前の画面で止まる
 
+Issue #78で、一覧の行、「Todoを作成」、詳細の「編集」を素早く続けて押しても、画面が1つだけ開くようにした。確認範囲は[Android 17のjournal](journal/android/17-forward-navigation-double-tap.md)を参照。
+
 **今後追加するもの**:
 
 - タイムアウトなどで結果が不明な場合の再取得・整合回復と、結果を断定しないエラー文言
-- 画面を進む操作（一覧の行、登録、編集）の連打で同じ画面が2重に開くことの防止（[#78](https://github.com/GenkiHashioka/kotlin-todo/issues/78)）
 - DIライブラリ
 - 自動テストの拡充。一覧ViewModelとタイトル整形の単体テスト計10件は実装済み（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)）。詳細・登録・編集のViewModel、ComposeのUI、画面遷移は未着手
 

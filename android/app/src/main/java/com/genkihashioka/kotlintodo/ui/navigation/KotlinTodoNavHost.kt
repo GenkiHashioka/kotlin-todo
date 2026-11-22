@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -68,11 +69,16 @@ fun KotlinTodoNavHost(
             TodoListRoute(
                 viewModel = todoListViewModel,
                 onTodoClick = { todoId ->
-                    navController.navigate(
-                        TodoDetailDestination(todoId = todoId),
-                    )
+                    // 遷移中の2回目のタップで詳細画面が2重に開かないよう、一覧が操作を受け付けている（RESUMED）ときだけ遷移する。
+                    if (backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        navController.navigate(
+                            TodoDetailDestination(todoId = todoId),
+                        )
+                    }
                 },
-                onCreateClick = { navController.navigate(TodoCreateDestination) },
+                onCreateClick = dropUnlessResumed {
+                    navController.navigate(TodoCreateDestination)
+                },
                 modifier = Modifier.fillMaxSize(),
             )
         }
@@ -102,9 +108,12 @@ fun KotlinTodoNavHost(
                     navController.popBackStack()
                 },
                 onEditClick = { todoId ->
-                    navController.navigate(
-                        TodoEditDestination(todoId = todoId),
-                    )
+                    // 遷移中の2回目のタップで編集画面が2重に開かないよう、詳細が操作を受け付けている（RESUMED）ときだけ遷移する。
+                    if (backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                        navController.navigate(
+                            TodoEditDestination(todoId = todoId),
+                        )
+                    }
                 },
                 onDeleted = {
                     // Todo一覧画面に「再取得が必要」と記録。

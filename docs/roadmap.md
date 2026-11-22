@@ -1,6 +1,6 @@
 # プロジェクトロードマップ
 
-**最終更新**: 2026-11-15
+**最終更新**: 2026-11-21
 
 このドキュメントは、`kotlin-todo`で何をどの順序で進めるかを示す。プロダクトの要件は[requirements.md](requirements.md)、現在の構成は[architecture.md](architecture.md)、Androidを優先する判断の背景は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
@@ -63,7 +63,7 @@ CRUD実装後の保存中の戻る制御（#57）、成功フィードバック�
 
 この順序は固定ではない。たとえば通信失敗が開発を妨げる場合は、CRUD完了前でもError Stateを先に実装する。順序を変えるときは、問題と判断理由をIssueまたはdesign noteに残す。
 
-#65の確認で見つかった課題のうち、キーボードの外側をタップして閉じる操作は#73で実装し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/14-form-keyboard-dismiss.md)）。登録・編集画面の画面上の戻るボタンは#74で詳細画面と同じボタンとして実装し、確認中に見つかった戻る操作の連打で前の画面を越えて戻る不具合も3画面で直した（[journal](journal/android/15-form-back-button.md)）。画面を進む操作の連打は#78で扱う。READMEにAndroidの画面のスクリーンショット8点を載せた（#80、[journal](journal/android/16-readme-screenshots.md)）。全画面のタイトルバー（TopAppBar）と、詳細画面の作成日時・更新日時の表示（#81）は別課題で扱い、対応後に該当するスクリーンショットを撮り直す。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
+#65の確認で見つかった課題のうち、キーボードの外側をタップして閉じる操作は#73で実装し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/14-form-keyboard-dismiss.md)）。登録・編集画面の画面上の戻るボタンは#74で詳細画面と同じボタンとして実装し、確認中に見つかった戻る操作の連打で前の画面を越えて戻る不具合も3画面で直した（[journal](journal/android/15-form-back-button.md)）。画面を進む操作（一覧の行、「Todoを作成」、詳細の「編集」）の連打で同じ画面が2重に開く不具合は#78で直し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/17-forward-navigation-double-tap.md)）。READMEにAndroidの画面のスクリーンショット8点を載せた（#80、[journal](journal/android/16-readme-screenshots.md)）。全画面のタイトルバー（TopAppBar）と、詳細画面の作成日時・更新日時の表示（#81）は別課題で扱い、対応後に該当するスクリーンショットを撮り直す。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
 
 ## 学習上の判断基準
 

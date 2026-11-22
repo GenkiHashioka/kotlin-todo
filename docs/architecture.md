@@ -90,7 +90,7 @@ flowchart LR
 | `TodoApi` | Retrofitの`GET /todos`、`GET /todos/{id}`、`POST /todos`、`PUT /todos/{id}`、`DELETE /todos/{id}`契約 |
 | `ApiClient` | `BuildConfig`のベースURL、JSON converter、30秒のcallTimeoutを持つ共有OkHttpClientからRetrofitとTodoApiを生成する |
 | `TodoDto`ほか | Ktor APIのJSONレスポンスに対応する通信境界のモデル |
-| `KotlinTodoNavHost` / `TodoDestinations` | 型安全な画面定義、画面ごとのViewModel生成、遷移と戻り先への更新通知、画面上の戻る操作の連打防止 |
+| `KotlinTodoNavHost` / `TodoDestinations` | 型安全な画面定義、画面ごとのViewModel生成、遷移と戻り先への更新通知、画面を進む・戻る操作の連打防止 |
 | `TodoDetailRoute` / `TodoDetailScreen` | 詳細の状態監視、削除確認・進行・失敗表示、削除中の操作と戻る制御、削除操作・成功のcallback接続 |
 | `TodoDetailViewModel` / `TodoDetailUiState` | Navigation引数のTodo IDによる取得・削除と状態更新。Successにtodoと削除中・失敗・削除済みを保持する |
 | `TodoCreateRoute` | 入力callbackを接続し、`LaunchedEffect(isCreated)`から成功callbackを呼ぶ |
@@ -200,7 +200,9 @@ NavHostは既存の再取得通知を保存し、popBackStackが成功した場�
 
 各ScreenのBackHandlerは、戻れない状態だけ有効にして操作を消費し、通常時はNavigationへ任せる。成功後のRouteのcallbackとNavHostのpopBackStack・再取得通知は既存のままで、自動遷移は妨げない。
 
-Issue #74で、登録・編集にも詳細と同じ画面上の戻るボタンを追加した。ボタンはスクロールする内容の外に置き、有効・無効にはBackHandlerと同じcanGoBackを使う。Screenは`onBack`を呼ぶだけで、NavHostが`popBackStack()`を渡す。詳細・登録・編集の`onBack`は`dropUnlessResumed`で包み、画面がRESUMEDの間だけ処理を通す。遷移が始まった後の連打は捨てられ、前の画面を越えて戻らない。成功後の自動遷移のcallbackは`LaunchedEffect`から1回だけ呼ばれるため包まない。画面を進む操作の連打は[#78](https://github.com/GenkiHashioka/kotlin-todo/issues/78)で扱う。詳細は[Android 15のjournal](journal/android/15-form-back-button.md)を参照。
+Issue #74で、登録・編集にも詳細と同じ画面上の戻るボタンを追加した。ボタンはスクロールする内容の外に置き、有効・無効にはBackHandlerと同じcanGoBackを使う。Screenは`onBack`を呼ぶだけで、NavHostが`popBackStack()`を渡す。詳細・登録・編集の`onBack`は`dropUnlessResumed`で包み、画面がRESUMEDの間だけ処理を通す。遷移が始まった後の連打は捨てられ、前の画面を越えて戻らない。成功後の自動遷移のcallbackは`LaunchedEffect`から1回だけ呼ばれるため包まない。詳細は[Android 15のjournal](journal/android/15-form-back-button.md)を参照。
+
+Issue #78で、画面を進む操作（一覧の行、「Todoを作成」、詳細の「編集」）の連打も同じ判定で止めた。引数のない`onCreateClick`は`dropUnlessResumed`で包む。`todoId`を受け取る`onTodoClick`・`onEditClick`は`dropUnlessResumed`で包めないため、その画面の`backStackEntry`のライフサイクルが`RESUMED`以上のときだけ`navigate()`を呼ぶ。`navController.currentBackStackEntry`は遷移が始まると新しい画面を指すため使わない。詳細は[Android 17のjournal](journal/android/17-forward-navigation-double-tap.md)を参照。
 
 両画面はisSubmittingがtrueの間、共通の「送信中…」を表示する。登録フォームのタイトル・説明・優先度・期日の選択と解除も、送信中と登録済みには無効にする。送信ボタンは空白タイトル・送信中・登録済みで無効とする。保存失敗では入力を保持し、既存のfinallyによる送信中の解除で操作を再開する。編集の入力制御とViewModelの送信ガードは維持する。詳細は[Android 08のjournal](journal/android/08-todo-submit-navigation.md)を参照。
 
@@ -743,11 +745,11 @@ Gradle User HomeはGit管理外なので、IP変更時にKotlinコードの差�
 | Android 13 | 一覧・フォームの見やすさと操作性の改善、タイトル整形の単体テスト4件 **実装・手動確認** |
 | Android 14 | 登録・編集画面でキーボードを外側のタップとボタン操作で閉じる **実装・手動確認** |
 | Android 15 | 登録・編集画面の画面上の戻るボタン、3画面の戻る操作の連打防止 **実装・手動確認** |
+| Android 17 | 一覧の行、「Todoを作成」、詳細の「編集」の連打防止 **実装・手動確認** |
 
 ### 今後追加するもの（要件書 §4、roadmap参照）
 
 - 結果不明時の整合回復
-- 画面を進む操作の連打防止（[#78](https://github.com/GenkiHashioka/kotlin-todo/issues/78)）
 - DIライブラリ
 - 一覧以外のViewModel、ComposeのUI、画面遷移の自動テスト
 - Backendのテスト戦略と機能拡張はAndroid優先期間の後に再判断
