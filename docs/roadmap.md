@@ -63,7 +63,7 @@ CRUD実装後の保存中の戻る制御（#57）、成功フィードバック�
 
 この順序は固定ではない。たとえば通信失敗が開発を妨げる場合は、CRUD完了前でもError Stateを先に実装する。順序を変えるときは、問題と判断理由をIssueまたはdesign noteに残す。
 
-#65の確認で見つかった課題のうち、キーボードの外側をタップして閉じる操作は#73で実装し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/14-form-keyboard-dismiss.md)）。登録・編集画面の画面上の戻るボタンは#74で詳細画面と同じボタンとして実装し、確認中に見つかった戻る操作の連打で前の画面を越えて戻る不具合も3画面で直した（[journal](journal/android/15-form-back-button.md)）。画面を進む操作（一覧の行、「Todoを作成」、詳細の「編集」）の連打で同じ画面が2重に開く不具合は#78で直し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/17-forward-navigation-double-tap.md)）。READMEにAndroidの画面のスクリーンショット8点を載せた（#80、[journal](journal/android/16-readme-screenshots.md)）。全画面のタイトルバー（TopAppBar）と、詳細画面の作成日時・更新日時の表示（#81）は別課題で扱い、対応後に該当するスクリーンショットを撮り直す。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
+#65の確認で見つかった課題のうち、キーボードの外側をタップして閉じる操作は#73で実装し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/14-form-keyboard-dismiss.md)）。登録・編集画面の画面上の戻るボタンは#74で詳細画面と同じボタンとして実装し、確認中に見つかった戻る操作の連打で前の画面を越えて戻る不具合も3画面で直した（[journal](journal/android/15-form-back-button.md)）。画面を進む操作（一覧の行、「Todoを作成」、詳細の「編集」）の連打で同じ画面が2重に開く不具合は#78で直し、Pixel 8のエミュレーターで手動確認した（[journal](journal/android/17-forward-navigation-double-tap.md)）。READMEにAndroidの画面のスクリーンショット8点を載せた（#80、[journal](journal/android/16-readme-screenshots.md)）。詳細画面の作成日時・更新日時はAPIの形式のまま表示されていたため、#81で`2026/11/16 00:24`の形に直し、変換の単体テスト7件を追加して`02-detail.png`を撮り直した（[journal](journal/android/18-detail-datetime-format.md)）。APIの日時はタイムゾーンを持たず、バックエンドはサーバーの設定のまま記録している。タイムゾーンの扱いは、サーバーを日本以外のタイムゾーンで動かすとき、またはSkySubaruで日時をAPIに載せる設計をするときに別課題で扱う。全画面のタイトルバー（TopAppBar）は別課題で扱い、対応後に該当するスクリーンショットを撮り直す。現在の一覧APIには明示的な並び順がなく、更新後の再取得で順序が変わり得る。ソート方針とAPI・Androidの責務は別課題で設計する。
 
 ## 学習上の判断基準
 

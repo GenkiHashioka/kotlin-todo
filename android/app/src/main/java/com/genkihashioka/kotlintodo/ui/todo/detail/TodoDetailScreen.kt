@@ -80,6 +80,7 @@ fun TodoDetailScreen(
                     ) {
                         val todo = uiState.todo
                         val unsetText = stringResource(R.string.unset)
+                        val unknownText = stringResource(R.string.unknown)
                         var showDeleteConfirmation by remember { mutableStateOf(false) }
 
                         Text(
@@ -121,13 +122,13 @@ fun TodoDetailScreen(
                         Text(
                             text = stringResource(
                                 R.string.todo_detail_created_at,
-                                todo.createdAt,
+                                formatTodoDateTime(todo.createdAt) ?: unknownText,
                             ),
                         )
                         Text(
                             text = stringResource(
                                 R.string.todo_detail_updated_at,
-                                todo.updatedAt,
+                                formatTodoDateTime(todo.updatedAt) ?: unknownText,
                             ),
                         )
 
