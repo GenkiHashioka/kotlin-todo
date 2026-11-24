@@ -1,7 +1,7 @@
 # 要件定義書
 
-**バージョン**: 0.12（Androidのデータフロー表現と残課題の整理）
-**最終更新**: 2026-11-15
+**バージョン**: 0.13（Androidの残課題をIssueへ分割）
+**最終更新**: 2026-11-22
 
 このドキュメントは「kotlin-todoで何を作るか」の一次ソース。技術的な起動手順は[README](../README.md)、実装順序は[roadmap.md](roadmap.md)を参照。
 
@@ -169,9 +169,11 @@ Issue #78で、一覧の行、「Todoを作成」、詳細の「編集」を素�
 
 **今後追加するもの**:
 
-- タイムアウトなどで結果が不明な場合の再取得・整合回復と、結果を断定しないエラー文言
-- DIライブラリ
-- 自動テストの拡充。一覧ViewModelとタイトル整形の単体テスト計10件は実装済み（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)）。詳細・登録・編集のViewModel、ComposeのUI、画面遷移は未着手
+- タイムアウトなどで結果が不明な場合の再取得・整合回復と、結果を断定しないエラー文言（[Issue #88](https://github.com/GenkiHashioka/kotlin-todo/issues/88)）
+- DIライブラリ（[Issue #90](https://github.com/GenkiHashioka/kotlin-todo/issues/90)）
+- 自動テストの拡充。一覧ViewModelとタイトル整形の単体テスト計10件、詳細画面の日時の変換の単体テスト7件は実装済み（[実施結果](testing/android/12-todo-list-viewmodel-tests.md)、[Android 18のjournal](journal/android/18-detail-datetime-format.md)）。詳細・登録・編集のViewModel、ComposeのUI、画面遷移は未着手（[Issue #89](https://github.com/GenkiHashioka/kotlin-todo/issues/89)）
+- 全画面のタイトルバー（[Issue #86](https://github.com/GenkiHashioka/kotlin-todo/issues/86)）
+- 一覧の並び順（[Issue #87](https://github.com/GenkiHashioka/kotlin-todo/issues/87)）
 
 Next.jsによるWebフロントエンドは現在の計画から延期し、Androidクライアントを優先する。方針変更は[ADR 0022](decisions/0022-prioritize-android-client.md)を参照。
 
